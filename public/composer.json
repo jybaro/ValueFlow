@@ -1,5 +1,6 @@
 {
     "require": {
-        "nategood/httpful": "^0.2.20"
+        "nategood/httpful": "^0.2.20",
+        "phpmailer/phpmailer": "^6.0"
     }
 }
