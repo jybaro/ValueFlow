@@ -3,6 +3,7 @@ session_start();
 require_once('../private/config.php');
 require_once('../private/utils.php');
 require_once('../private/bdd.php');
+require_once('../vendor/autoload.php');
 
 $path = $_GET['path'];
 

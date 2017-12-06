@@ -2,7 +2,13 @@
 
 //require_once('../library/PHPMailer_v5.1/class.phpmailer.php');
 //require_once('vendor/phpmailer/phpmailer/src/PHPMailer.php');
-require_once('vendor/autoload.php');
+
+/*
+ * https://gistpages.com/posts/phpmailer_smtp_error_failed_to_connect_to_server_permission_denied_13_fix
+ $ setsebool -P httpd_can_sendmail 1
+ $ setsebool -P httpd_can_network_connect 1
+
+ */
 
 define('SMTP_SERVER', 'mail.nedetel.net');
 define('SMTP_PORT', 587);
@@ -14,6 +20,9 @@ define('MAIL_ORDERS_NAME', 'SAIT');
 
 
         try{
+            $snappy = new Knp\Snappy\Pdf\Pdf('../vendor/bin/wkhtmltopdf-amd64');
+            $snappy->generateFromHtml('<h1>PDF autogenerado</h1><p>Cuerpo de PDF en HTML.</p>', 'prueba2.pdf');
+
             $mail = new PHPMailer\PHPMailer\PHPMailer(true);
             $mail->IsSMTP();
             $mail->SMTPSecure = 'tls';
@@ -29,7 +38,7 @@ define('MAIL_ORDERS_NAME', 'SAIT');
             $mail->AddAddress('edgar.valarezo@gmail.com');
             //$mail->AddAddress('sminga@nedetel.net');
             //$mail->AddAddress('dcedeno@nedetel.net');
-            $mail->AddAttachment('prueba.txt');
+            $mail->AddAttachment('prueba2.txt');
             $mail->AddAttachment('prueba.pdf');
             $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
 
