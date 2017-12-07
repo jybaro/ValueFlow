@@ -41,7 +41,7 @@ define('MAIL_ORDERS_NAME', 'SAIT');
 
 
         try{
-            $snappy = new Knp\Snappy\Pdf\Pdf('../vendor/bin/wkhtmltopdf-amd64');
+            $snappy = new Knp\Snappy\Pdf('../vendor/bin/wkhtmltopdf-amd64');
             $snappy->generateFromHtml('<h1>PDF autogenerado</h1><p>Cuerpo de PDF en HTML.</p>', 'prueba2.pdf');
 
             $mail = new PHPMailer\PHPMailer\PHPMailer(true);
