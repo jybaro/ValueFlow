@@ -24,6 +24,7 @@
 
  chown -R apache:apache public/
  chmod -R 775 public/
+ yum install php-xml
  
  
  */
@@ -43,8 +44,8 @@ define('MAIL_ORDERS_NAME', 'SAIT');
         try{
             unlink('prueba2.pdf');
             $snappy = new Knp\Snappy\Pdf('../vendor/bin/wkhtmltopdf-amd64');
-            $msg = ('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><html><h1>PDF autogenerado</h1><p>Cuerpo de PDF en HTML.</p></html>');
-            $msg = utf8_encode($msg);
+            $msg = ('<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body><h1>PDF autogenerado</h1><p>Cuerpo de PDF en HTML.</p></body></html>');
+            $msg = utf8_decode($msg);
             $snappy->generateFromHtml($msg, 'prueba2.pdf');
 
             $mail = new PHPMailer\PHPMailer\PHPMailer(true);
