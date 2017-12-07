@@ -4,10 +4,28 @@
 //require_once('vendor/phpmailer/phpmailer/src/PHPMailer.php');
 
 /*
- * https://gistpages.com/posts/phpmailer_smtp_error_failed_to_connect_to_server_permission_denied_13_fix
+
+
+ ***********
+ * PHPMailer
+ https://gistpages.com/posts/phpmailer_smtp_error_failed_to_connect_to_server_permission_denied_13_fix
  $ setsebool -P httpd_can_sendmail 1
  $ setsebool -P httpd_can_network_connect 1
 
+
+ ************
+ * WKHTML2PDF
+ https://stackoverflow.com/questions/12784814/wkhtmltopdf-integrated-with-php-doesnt-work-on-centos-access-deny
+ setenforce 0
+
+ https://github.com/zakird/wkhtmltopdf_binary_gem/issues/19
+ yum install libjpeg libpng12 libXrender libXext fontconfig
+ yum install libpng
+
+ chown -R apache:apache public/
+ chmod -R 775 public/
+ 
+ 
  */
 
 define('SMTP_SERVER', 'mail.nedetel.net');
@@ -38,8 +56,8 @@ define('MAIL_ORDERS_NAME', 'SAIT');
             $mail->AddAddress('edgar.valarezo@gmail.com');
             //$mail->AddAddress('sminga@nedetel.net');
             //$mail->AddAddress('dcedeno@nedetel.net');
-            $mail->AddAttachment('prueba2.txt');
-            $mail->AddAttachment('prueba.pdf');
+            $mail->AddAttachment('prueba.txt');
+            $mail->AddAttachment('prueba2.pdf');
             $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
 
             if(!$mail->Send()) throw new Exception($mail->ErrorInfo);
