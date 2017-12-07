@@ -109,12 +109,12 @@ body {
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Administración<span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="/usuarios">Usuarios</a></li>
-            <li><a href="/clientes">Clientes</a></li>
-            <li><a href="/proveedores">Proveedores</a></li>
-            <li><a href="/servicios">Servicios</a></li>
+            <li><a href="/crud/sai_cliente">Clientes</a></li>
+            <li><a href="/crud/sai_proveedor">Proveedores</a></li>
+            <li><a href="/crud/sai_servicio">Servicios</a></li>
             <?php if ($_nivel <= 1): ?>
             <li role="separator" class="divider"></li>
-            <li><a href="/estados">Estados</a></li>
+            <li><a href="/crud/sai_estado_atencion">Estados</a></li>
             <li><a href="/transiciones">Transiciones de estados</a></li>
             <li><a href="/crud">Tablas del sistema</a></li>
             <li><a href="/respaldos">Respaldos</a></li>
