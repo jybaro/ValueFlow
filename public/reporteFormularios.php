@@ -1,5 +1,27 @@
 <?php
 
+$ess_id = $_SESSION['ess_id'];
+$evaluacion = q("
+    SELECT 
+    * 
+    FROM 
+    esamyn.esa_evaluacion
+    ,esamyn.esa_tipo_evaluacion
+    WHERE eva_establecimiento_salud = $ess_id
+    AND eva_tipo_evaluacion = tev_id
+    AND eva_activo = 1
+    AND eva_borrado IS NULL
+    ");
+
+if (!$evaluacion) {
+    echo '<div class="alert alert-danger"><h2>No hay evaluaci&oacute;n activa</h2>Solicite a su supervisor que cree una evaluación para este Establecimiento de Salud.</div>';
+    return;
+} else {
+    $evaluacion = $evaluacion[0];
+    $_SESSION['evaluacion'] = $evaluacion;
+    $eva_id = $evaluacion['eva_id'];
+}
+
 function p_render($nodo, $texto = ''){
     global $titulos_columna;
     $tipo = $nodo['tipo'];
@@ -55,7 +77,28 @@ foreach($formularios as $formulario) {
     echo '</ol>';
 
 
-    $respuestas = q("SELECT *,(SELECT usu_nombres || ' ' || usu_apellidos FROM esamyn.esa_usuario WHERE usu_id=enc_usuario) AS usuario FROM esamyn.esa_respuesta, esamyn.esa_encuesta WHERE res_encuesta = enc_id AND enc_formulario = $frm_id AND enc_establecimiento_salud=$ess_id ORDER BY enc_id");
+    $respuestas = q("
+        SELECT *
+        ,(
+            SELECT 
+                usu_nombres || ' ' || usu_apellidos 
+            FROM esamyn.esa_usuario 
+            WHERE usu_id=enc_usuario
+        ) AS usuario 
+        FROM 
+            esamyn.esa_respuesta
+            ,esamyn.esa_encuesta 
+            ,esamyn.esa_evaluacion
+        WHERE 
+            enc_borrado IS NULL
+            AND res_encuesta = enc_id 
+            AND eva_id = enc_evaluacion
+            AND eva_borrado IS NULL
+            AND eva_activo = 1
+            AND enc_formulario = $frm_id 
+            AND enc_establecimiento_salud=$ess_id 
+        ORDER BY enc_id
+    ");
 
     $encuestas = array();
     if (is_array($respuestas)) {

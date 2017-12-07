@@ -1,21 +1,28 @@
 <?php
 
-header('Content-Type: application/json');
+//header('Content-Type: application/json');
 
 //echo 'desde ws rest: ';
 //var_dump($_POST);
 //
-function p_formatear_valor_sql($raw){
-    if (strpos($raw, '(') !== false && substr($raw, -1) == ')') {
+function p_formatear_valor_sql($raw, $tipo = 'text'){
+    if ($raw === null || $raw === '' || $raw === 'null') {
+        $result = 'null';
+    } else if (strpos($raw, '(') !== false && substr($raw, -1) == ')') {
         //es funcion
         $result = $raw;
-    } else if (is_numeric($raw)) {
-        //es numero
-        $result = $raw;
+    //} else if (is_numeric($raw)) {
+    } else if ($tipo == 'text' || strpos('char', $tipo) !== false) {
+        //es texto 
+        //$texto = htmlentities($raw);
+        
+        //$texto = ($raw);
+        //$result = "'$texto'";
+        $result = pg_escape_literal($raw);
     } else {
-        //por defecto es texto
-        $texto = htmlentities($raw);
-        $result = "'$texto'";
+        //por defecto no lleva comillas
+        //$result = $raw;
+        $result = pg_escape_string($raw);
     }
 
     return $result;
@@ -28,7 +35,7 @@ if (isset($_POST['dataset_json']) && !empty($_POST['dataset_json'])) {
 }
 
 if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
-    $tabla = 'esa_'.$args[0];
+    $tabla = 'sai_'.$args[0];
     $dataset = json_decode($dataset_json);
 
     //var_dump($dataset_json);
@@ -40,13 +47,19 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
 
     $metadata = q("SELECT *
         FROM information_schema.columns
-        WHERE table_schema = 'esamyn'
-        AND table_name   = '$tabla'");
+        WHERE table_schema = 'public'
+        AND table_name   = '$tabla'
+        ORDER BY data_type, is_nullable, column_name
+        ");
     //var_dump($metadata);
     $campo_id = null;
     
+    $tipos = array();
+
     foreach($metadata as $columna) {
        // echo $columna['column_name'];
+        $tipos[substr($columna['column_name'],4)] = $columna['data_type']; 
+
         if (strpos($columna['column_name'], '_id') !== false) {
              $campo_id = $columna['column_name'];
         }
@@ -55,7 +68,6 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
     $sql = '';
     $respuesta = '';
 
-
     foreach($dataset as $data) {
         $data = (array)$data; 
         if (isset($data['id']) && !empty($data['id'])) {
@@ -63,14 +75,14 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
             $glue = '';
             foreach ($data as $columna => $valor){
                 if ($columna != 'id' && $columna != 'creado' && $columna != 'modificado') {
-                    $valor_sql = p_formatear_valor_sql($valor);
+                    $valor_sql = p_formatear_valor_sql($valor, $tipos[$columna]);
                     $sql_parejas .= "{$glue}{$prefijo}{$columna}={$valor_sql}";
                     $glue = ',';
                 }
             }
             if ($glue == ',') {
                 //$sql_parejas .= "{$glue}{$prefijo}modificado=now()";
-                $sql = "UPDATE esamyn.{$tabla} SET $sql_parejas WHERE {$prefijo}id = {$data[id]}";
+                $sql = "UPDATE {$tabla} SET $sql_parejas WHERE {$prefijo}id = {$data[id]}";
             }
         } else {
             $sql_campos = '';
@@ -80,20 +92,20 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
                 if ($columna != 'id' && $columna != 'creado' && $columna != 'modificado') {
                     $sql_campos .= $glue.$prefijo.$columna;
 
-                    $valor_sql = p_formatear_valor_sql($valor);
+                    $valor_sql = p_formatear_valor_sql($valor, $tipos[$columna]);
                     $sql_valores .= $glue.$valor_sql;
 
                     $glue = ',';
                 }
             }
             if ($glue == ',') {
-                $sql = "INSERT INTO esamyn.{$tabla} ({$sql_campos}) VALUES ({$sql_valores})";
+                $sql = "INSERT INTO {$tabla} ({$sql_campos}) VALUES ({$sql_valores})";
             }
         }
 
         if ($sql != '') {
             $sql .= ' RETURNING *';
-            //echo $sql;
+           // echo $sql;
             $respuesta = [];
             $r = q($sql);
             foreach($r[0] as $k => $v){

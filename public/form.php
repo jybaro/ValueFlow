@@ -1,7 +1,29 @@
 <?php
 
+$ess_id = $_SESSION['ess_id'];
+$evaluacion = q("
+    SELECT 
+    * 
+    FROM 
+    esamyn.esa_evaluacion
+    ,esamyn.esa_tipo_evaluacion
+    WHERE eva_establecimiento_salud = $ess_id
+    AND eva_tipo_evaluacion = tev_id
+    AND eva_activo = 1
+    AND eva_borrado IS NULL
+    ");
+
+if (!$evaluacion) {
+    echo '<div class="alert alert-danger"><h2>No hay evaluaci&oacute;n activa</h2>Solicite a su supervisor que cree una evaluación para este Establecimiento de Salud.</div>';
+    return;
+} else {
+    $evaluacion = $evaluacion[0];
+    $_SESSION['evaluacion'] = $evaluacion;
+    $eva_id = $evaluacion['eva_id'];
+}
 //var_dump($conn);
 //$frm_id = (int)$_GET['id'];
+$unicodigo = $_SESSION['ess']['ess_unicodigo'];
 $frm_id = (isset($args[0])) ? (int)$args[0] : -1;;
 $result = pg_query($conn, 'select * from esamyn.esa_formulario where frm_id='.$frm_id);
 
@@ -26,6 +48,9 @@ if (isset($args[1])) {
         header('Location:/main');
     }
 
+    if (!empty($encuesta['enc_borrado'])) {
+        echo '<div class="alert alert-danger">Este formulario ha sido borrado por el administrador y no será tomado en cuenta en la evaluación ni en los reportes.</div>';
+    }
     $result = q("SELECT * FROM esamyn.esa_respuesta WHERE res_encuesta=$enc_id");
     if ($result) {
         foreach($result as $r){
@@ -171,8 +196,12 @@ function p_render_tree($nodo, $extra = '') {
               echo '</div>';
             echo '</div>';
         } else {
+            $largo_campo_bootstrap = 6;
+            if (isset($nodo['padre']['padre']) && !empty($nodo['padre']['padre']) && $tipos_pregunta[$nodo['padre']['padre']['prg_tipo_pregunta']] == 'tabla') {
+                $largo_campo_bootstrap = 12;
+            }
             echo '<div class="row '.$class.'">';
-              echo '<div class="col-md-6">';
+              echo '<div class="col-md-'.$largo_campo_bootstrap.'">';
                 echo '<label for="'.$id.'">'.$texto . ': </label>';
                 echo (($prefijo != '' || $subfijo != '') ? '<div class="input-group">' : '');
                   echo '<input type="text" class="form-control" name="'.$name.'" id="'.$id.'" value="'.$value.'" '.$validacion.'>'; 
@@ -291,7 +320,13 @@ EOT;
             echo ($ayuda != '' ? '<p class="help-block">'.$ayuda.'</p>' : '');
             echo '</div></div>';
         } else {
-            echo '<div class="row '.$class.'"><div class="col-md-6">';
+            $largo_campo_bootstrap = 6;
+            if (isset($nodo['padre']['padre']) && !empty($nodo['padre']['padre']) && $tipos_pregunta[$nodo['padre']['padre']['prg_tipo_pregunta']] == 'tabla') {
+                $largo_campo_bootstrap = 10;
+            } else if ($tipos_pregunta[$nodo['padre']['prg_tipo_pregunta']] == 'numero' ) {
+                $largo_campo_bootstrap = 10;
+            }
+            echo '<div class="row '.$class.'"><div class="col-md-'.$largo_campo_bootstrap.'">';
             echo '<label for="'.$id.'">'.$texto . ': </label>';
             echo (($prefijo != '' || $subfijo != '') ? '<div class="input-group">' : '');
             echo ($prefijo != '' ? '<div class="input-group-addon">'.$prefijo.'</div>' : '');
@@ -644,46 +679,59 @@ body{
     <i>Encuesta creada el <?php echo p_formatear_fecha($encuesta['enc_creado']); ?></i><hr>
   <?php endif; ?>
 
+  <div style="text-align:center;margin-bottom:10px;">
+    <a href="#" onclick="p_imprimir();return false;"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Generar PDF</a>
+    
+<!--<a href="#" onclick="p_xlsx();return false;"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Exportar datos</a>
+-->  
+</div>
   <form id="formulario" onsubmit="return false;">
     <?php p_render_tree($tree['']); ?>
   <!--input type="button" value="<?php //echo (isset($encuesta) ? 'Guardar cambios' : 'Registrar nueva encuesta') ; ?>" onclick="p_enviar_formulario()" /-->
     <?php if(!$solo_lectura):?>
-    <div class="alert alert-success" style="display:none;" id="guardado_ok">Formulario guardado con éxito</div>
-    <div class="alert alert-danger" style="display:none;" id="guardado_error">No se pudo guardar el formulario</div>
-    <button class="btn btn-success" onclick="p_enviar_formulario()" />Guardar</button>
-    <button class="btn btn-primary" onclick="p_enviar_formulario('salir')" />Guardar y salir</button>
-    <button class="btn btn-danger" onclick="p_finalizar()" />Finalizar</button>
+    <div class="alert alert-success" style="display:none;" id="guardado_ok">Formulario guardado con éxito.</div>
+    <div class="alert alert-danger" style="display:none;" id="guardado_error">No se pudo guardar el formulario, verifique su conexi&oacute;n a Internet.</div>
+    <div class="alert alert-warning" style="display:none;" id="guardado_warning"></div>
+    <button class="btn btn-success" id="boton_guardar" onclick="p_enviar_formulario()" />Guardar</button>
+    <button class="btn btn-primary" id="boton_guardar_salir" onclick="p_enviar_formulario('salir')" />Guardar y salir</button>
+    <button class="btn btn-danger" id="boton_finalizar" onclick="p_finalizar()" />Finalizar</button>
     <?php endif; ?>
   </form>
 </div>
 
+
+<script src="/js/Blob.min.js"></script>
+<script src="/js/xlsx.full.min.js"></script>
+<script src="/js/FileSaver.min.js"></script>
+<script src="/js/tableexport.min.js"></script>
+
+<script src="/js/jspdf.min.js"></script>
+<script src="/js/html2canvas.min.js"></script>
+<script src="/js/html2pdf.js"></script>
+
 <script>
+
+setInterval(function(){
+    p_enviar_formulario('background');
+}, 600000);
+
 function p_enviar_formulario(accion) {
     accion = ((typeof(accion) === 'undefined') ? '' : accion);
-    $('#vm_procesando').modal('show');
+
+    if (accion != 'background') {
+        $('#boton_guardar').prop('disabled', true);
+        $('#boton_guardar_salir').prop('disabled', true);
+        $('#boton_finalizar').prop('disabled', true);
+
+        $('#vm_procesando').modal('show');
+    }
+
     var finalizada = (accion=='finalizada') ? 1: 0;
     var respuestas_json = [];
     var respuestas_json = $('#formulario').serializeArray();
-    /*
-    var respuestas = document.getElementsByTagName('input');
-    console.log(respuestas);
-    for(respuesta in respuestas) {
-        //console.log(respuesta, typeof(respuesta), typeof(respuestas[respuesta].value));
-        if (respuesta.search('prg') !== -1 && typeof(respuestas[respuesta].value) === 'string') {
-            var valor = respuestas[respuesta].value;
-            var id = respuestas[respuesta].id.replace('prg', '');
-            //console.log(respuesta);
-            //respuestas_json[id] = {[id]: valor};
-            respuestas_json.push({id: id, valor: valor});
-            //respuestas_json[id] = valor;
-        }
-}
-     */
 
-    //respuestas.forEach(function(respuesta){
-    //    json[respuesta.id] = respuesta.value;
-    //});
     console.log('JSON: ', respuestas_json);
+
     var jsondata = JSON.stringify(respuestas_json);
     var xmlhttp = new XMLHttpRequest();
     var url = "/_guardar_respuestas";
@@ -691,20 +739,40 @@ function p_enviar_formulario(accion) {
     xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     //xmlhttp.setRequestHeader("Content-type", "application/json");
     xmlhttp.onreadystatechange = function () { //Call a function when the state changes.
-        $('#vm_procesando').modal('hide');
+        if (accion != 'background') {
+            $('#vm_procesando').modal('hide');
+
+            $('#boton_guardar').prop('disabled', false);
+            $('#boton_guardar_salir').prop('disabled', false);
+            $('#boton_finalizar').prop('disabled', false);
+        }
+
         if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-            //console.log('RESPUESTA REST: ', xmlhttp.responseText);
-            $('#guardado_error').hide('fast');
+            console.log('RESPUESTA REST: ', xmlhttp.responseText);
+            $('#guardado_error').hide(0);
             $('#guardado_ok').show('fast');
             respuesta = JSON.parse(xmlhttp.responseText);
             console.log('RESPUESTA REST: ', respuesta);
 
-            window.enc_id = respuesta['enc_id'];
-            if (accion !== '') {
+            if (respuesta.warning !== '') {
+
+                $('#guardado_warning').text(respuesta.warning);
+                $('#guardado_warning').show('fast');
+            } else {
+                $('#guardado_warning').hide(0);
+                if (accion == 'finalizada') {
+                    window.location.replace('/main');
+                }
+            }
+
+            if (accion == 'salir') {
                 window.location.replace('/main');
             }
+
+            window.enc_id = respuesta['enc_id'];
         } else {
-            $('#guardado_ok').hide('fast');
+            $('#guardado_ok').hide(0);
+            $('#guardado_warning').hide(0);
             $('#guardado_error').show('fast');
         }
     }
@@ -812,6 +880,7 @@ function p_finalizar(){
     if (count_total == count_lleno) {
         if (confirm('Al finalizar un formulario ya no podrá editar la información.\n\nSeguro desea finalizar el formulario?')) {
             p_enviar_formulario('finalizada');
+            //p_enviar_formulario('');
         } else {
         }
     } else {
@@ -857,5 +926,19 @@ $.validate({
     lang: 'es'
 });
 
+
+function p_imprimir(){
+    var element = document.getElementById('formulario');
+    html2pdf(element, {
+        margin:       1,
+        filename:     'formulario-<?=$formulario['frm_clave']?>-<?=$unicodigo?>.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { dpi: 192, letterRendering: true },
+        jsPDF:        { unit: 'cm', format: 'A4', orientation: 'portrait' }
+    });
+}
+function p_xlsx(){
+    $('#tabla_formulario_evaluacion').tableExport();
+}
 
 </script>

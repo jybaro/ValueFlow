@@ -1,4 +1,59 @@
 <h1>Formulario de Evaluación</h1>
+
+<?php
+
+$ess_id = $_SESSION['ess_id'];
+$evaluacion = q("
+    SELECT 
+    * 
+    FROM 
+    esamyn.esa_evaluacion
+    ,esamyn.esa_tipo_evaluacion
+    WHERE eva_establecimiento_salud = $ess_id
+    AND eva_tipo_evaluacion = tev_id
+    AND eva_activo = 1
+    AND eva_borrado IS NULL
+    ");
+
+if (!$evaluacion) {
+    echo '<div class="alert alert-danger"><h2>No hay evaluaci&oacute;n activa</h2>Solicite a su supervisor que cree una evaluación para este Establecimiento de Salud.</div>';
+    return;
+} else {
+    $evaluacion = $evaluacion[0];
+    $_SESSION['evaluacion'] = $evaluacion;
+    $eva_id = $evaluacion['eva_id'];
+}
+
+
+$cumplido_obligatorios = true;
+$cumplido_minimos = true;
+
+$formularios = q("
+SELECT frm_id, frm_clave, frm_umbral_minimo
+,(
+    SELECT 
+    COUNT(*) 
+    FROM 
+    esamyn.esa_encuesta 
+    WHERE 
+    enc_borrado IS NULL
+    AND 
+    enc_formulario = frm_id
+    AND
+    enc_evaluacion = $eva_id
+    AND 
+    enc_finalizada = 1
+ ) AS cantidad_llenos
+FROM esamyn.esa_formulario
+");
+
+foreach($formularios as $frm) {
+    $cumplido_minimos = ($cumplido_minimos && ((int)$frm['frm_umbral_minimo'] <= $frm['cantidad_llenos']));
+}
+
+
+?>
+
 <a href="#" download><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Descargar HTML</a>
 |
 <a href="#" onclick="p_imprimir();return false;"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Generar PDF</a>
@@ -9,6 +64,7 @@
 
 $ess_id = $_SESSION['ess_id'];
 $unicodigo = $_SESSION['ess']['ess_unicodigo'];
+$eva_id = $_SESSION['evaluacion']['eva_id'];
 
 //echo $ess_id;
 
@@ -64,6 +120,8 @@ $sql = "
         esamyn.esa_encuesta,
         esamyn.esa_respuesta
         WHERE
+        enc_borrado IS NULL
+        AND
         ccn_pregunta = prg_id
         AND
         prg_id = res_pregunta
@@ -73,6 +131,8 @@ $sql = "
         prg_formulario = enc_formulario
         AND
         enc_establecimiento_salud = $ess_id
+        AND
+        enc_evaluacion = $eva_id
         AND
         ccn_condicion_no_aplica = par_condicion_no_aplica
         LIMIT 1
@@ -263,28 +323,6 @@ foreach($result as $r){
         $encuestas = array();
 
         $sql = "
-            SELECT 
-            *
-            ,(SELECT tpp_clave FROM esamyn.esa_tipo_pregunta WHERE tpp_id=prg_tipo_pregunta) AS tipo
-            FROM
-            esamyn.esa_parametro_pregunta,
-            esamyn.esa_pregunta,
-            esamyn.esa_encuesta,
-            esamyn.esa_respuesta
-            WHERE
-            ppr_pregunta = prg_id
-            AND
-            prg_id = res_pregunta
-            AND
-            res_encuesta = enc_id
-            AND 
-            prg_formulario = enc_formulario
-            AND
-            enc_establecimiento_salud = $ess_id
-            AND
-            ppr_parametro = $par_id
-            ";
-        $sql = "
             SELECT *
             FROM esamyn.esa_pregunta
 
@@ -298,7 +336,11 @@ foreach($result as $r){
             ON ppr_parametro = par_id AND ppr_parametro = $par_id
 
             LEFT OUTER JOIN esamyn.esa_encuesta
-            ON prg_formulario = enc_formulario AND enc_establecimiento_salud = $ess_id
+            ON enc_borrado IS NULL
+                AND prg_formulario = enc_formulario 
+                AND enc_establecimiento_salud = $ess_id 
+                AND enc_evaluacion = $eva_id
+                AND enc_finalizada = 1
 
             LEFT OUTER JOIN esamyn.esa_respuesta
             ON prg_id = res_pregunta AND res_encuesta = enc_id
@@ -341,7 +383,11 @@ $misql= $sql;
             ON ppr_parametro = par_id AND par_padre = $par_id
 
             LEFT OUTER JOIN esamyn.esa_encuesta
-            ON prg_formulario = enc_formulario AND enc_establecimiento_salud = $ess_id
+            ON enc_borrado IS NULL
+                AND prg_formulario = enc_formulario 
+                AND enc_establecimiento_salud = $ess_id 
+                AND enc_evaluacion = $eva_id
+                AND enc_finalizada = 1
 
             LEFT OUTER JOIN esamyn.esa_respuesta
             ON prg_id = res_pregunta AND res_encuesta = enc_id
@@ -525,6 +571,10 @@ $misql= $sql;
 
     $puntaje = ($cumple_parametro) ? $r['par_puntaje'] : 0;
 
+    if ($r['par_obligatorio'] == 1) {
+        $cumplido_obligatorios = ($cumplido_obligatorios && $cumple_parametro);
+    }
+
     $buff.= '<td class="'.$class_parametro.'" xxxstyle="text-align:right">';
     $buff.= "<$negrilla> $puntaje/".$r['par_puntaje']." $asterisco</$negrilla>";
 //$buff .= '<pre>'.$buff_evaluacion.'</pre>';
@@ -541,6 +591,10 @@ $misql= $sql;
     $paso = $r['paso'];
     $directriz = $r['directriz'];
 }
+
+$porcentaje_cumplimiento_total = round($puntaje_total * 100/$puntaje_base_total);
+
+
 $buff.= '<tr>';
 
 $buff.= '<th colspan="5" style="text-align:right;">';
@@ -567,7 +621,7 @@ $buff.= '</th>';
 
 $buff.= '<th colspan="2" style="text-align:right;">';
 $buff.= '<h3>';
-$buff.= round($puntaje_total * 100/$puntaje_base_total) . ' %';
+$buff.= $porcentaje_cumplimiento_total . ' %';
 $buff.= '</h3>';
 $buff.= '</th>';
 
@@ -575,17 +629,34 @@ $buff.= '</tr>';
 
 echo $buff;
 echo "</table>";
-//PASO 2
 
 
+$eva_cumplido_minimos = ($cumplido_minimos ? 1 : 0);
+$eva_cumplido_obligatorios = ($cumplido_obligatorios? 1 : 0);
 
-//PASO 3
+q("
+UPDATE esamyn.esa_evaluacion 
+SET 
+eva_calificacion=$porcentaje_cumplimiento_total
+,eva_cumplido_minimos=$eva_cumplido_minimos
+,eva_cumplido_obligatorios=$eva_cumplido_obligatorios
 
-
-
-
+WHERE eva_id=$eva_id");
 
 ?></div>
+
+
+    <?php if ($cumplido_minimos): ?>
+    <div class="alert alert-success">Se cumplen con la cantidad mínima de todos los formularios.</div>
+    <?php else: ?>
+    <div class="alert alert-danger">No se cumplen con la cantidad mínima de todos los formularios.</div>
+    <?php endif; ?>
+
+    <?php if ($cumplido_obligatorios): ?>
+    <div class="alert alert-success">Se cumplen con todos los par&aacute;metros obligatorios.</div>
+    <?php else: ?>
+    <div class="alert alert-danger">No se cumplen con todos los par&aacute;metros obligatorios.</div>
+    <?php endif; ?>
 
 <div id="modalPreguntas" class="modal fade" role="dialog" tabindex="-1">
   <div class="modal-dialog">
@@ -622,10 +693,11 @@ echo "</table>";
 function p_abrir_preguntas(par_id, verificador){
     console.log(par_id);
     $('#verificador').text(verificador);
-    $('#par_id').text('');
     $.ajax({
         'url': '/_rutaPregunta/' + par_id
     }).done(function(data){
+
+        $('#par_id').text('');
 
         console.log(data);
         data = eval(data);

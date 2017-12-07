@@ -2,15 +2,36 @@
 ?>
 <html>
 <head>
-
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="SAIT">
+<meta name="author" content="JYBARO">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
 <link rel="stylesheet" href="/css/bootstrap-datetimepicker.min.css">
 
+<title>SAIT</title>
+
 <style>
-body { padding-top: 70px; }
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  padding-top: 70px;
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  padding-top:5px;
+  bottom: 0;
+  width: 100%;
+  height: 30px;
+  background-color: #f5f5f5;
+}
 </style>
 
 </head>
@@ -26,43 +47,46 @@ body { padding-top: 70px; }
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="#"><img src="/img/nedetel-logo.png" style="width:120px;height:40px;"> 
-      <?php
-//var_dump($_SESSION);
-//if (isset($_SESSION['ess_nombre'])){
-//    //echo "Establecimiento de Salud: ". $_SESSION['ess_nombre'];
-//    echo $_SESSION['ess_nombre'];
-//}
-?></a>
+      <a class="navbar-brand" href="#">SAIT
+      </a>
     </div>
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Clientes<span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Factibilidades<span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="/cuentas">Cuentas</a></li>
+            <li><a href="/factibilidades">Listar</a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="/oportunidades">Oportunidades</a></li>
           </ul>
         </li>
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Proveedores<span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Cotizaciones<span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="/ordenCompra">Orden de Compra</a></li>
-            <li><a href="/ordenServicio">Orden de Servicio</a></li>
+            <li><a href="/cotizaciones">Listar</a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="/proveedores">Proveedores</a></li>
           </ul>
         </li>
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Productos<span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Ordenes de Servicio<span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="/bodegas">Bodegas</a></li>
+            <li><a href="/ordenesServicio">Listar</a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="/productos">Tipos de productos</a></li>
-            <li><a href="/existencias">Existencias</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Servicios<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/servicios">Listar</a></li>
+            <li role="separator" class="divider"></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Cambios<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/cambios">Listar</a></li>
+            <li role="separator" class="divider"></li>
           </ul>
         </li>
       </ul>
@@ -75,18 +99,28 @@ body { padding-top: 70px; }
       <ul class="nav navbar-nav navbar-right">
         <?php if ($_nivel <= 2): ?>
         <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reportes<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/reportePendientes">Pendientes de atención</a></li>
+            <li role="separator" class="divider"></li>
+          </ul>
+        </li>
+        <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Administración<span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <!--li><a href="/cargarEs">Cargar ES</a></li-->
-            <!--li><a href="/CondicionesEs">Condiciones</a></li-->
             <li><a href="/usuarios">Usuarios</a></li>
-            <li><a href="/permisos">Permisos</a></li>
+            <li><a href="/clientes">Clientes</a></li>
+            <li><a href="/proveedores">Proveedores</a></li>
+            <li><a href="/servicios">Servicios</a></li>
+            <?php if ($_nivel <= 1): ?>
             <li role="separator" class="divider"></li>
-            <li><a href="/personas">Personas</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="/parroquias">Parroquias</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="/archivos">Archivos</a></li>
+            <li><a href="/estados">Estados</a></li>
+            <li><a href="/transiciones">Transiciones de estados</a></li>
+            <li><a href="/crud">Tablas del sistema</a></li>
+            <li><a href="/respaldos">Respaldos</a></li>
+            <li><a href="/seguridad">Seguridad</a></li>
+            <!--li><a href="/cargarForm">Cargar cat&aacute;logo de formulario</a></li-->
+            <?php endif; ?>
           </ul>
         </li>
         <?php endif; ?>
@@ -150,6 +184,16 @@ if (isset($_SESSION['cedula'])){
 <script src="/js/moment-with-locales.min.js"></script>
 <script src="/js/bootstrap-datetimepicker.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-<?php echo $content; ?>
+
+<div style="padding:2px;">
+  <?php echo $content; ?>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="text-muted text-center">
+    NEDETEL - <?=date('Y')?>
+    </p>
+  </div>
+</footer>
 </body>
 </html>

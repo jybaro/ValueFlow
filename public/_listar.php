@@ -4,12 +4,12 @@
 //echo 'desde ws rest: ';
 //var_dump($args);
 if (isset($args[0]) && !empty($args[0])) {
-    $tabla = 'esa_'.$args[0];
+    $tabla = 'sai_'.$args[0];
     $id =  (isset($args[1]) && !empty($args[1]) && is_numeric($args[1])) ? $args[1] : null;
 
     $metadata = q("SELECT *
         FROM information_schema.columns
-        WHERE table_schema = 'esamyn'
+        WHERE table_schema = 'public'
         AND table_name   = '$tabla'");
     //var_dump($metadata);
     $campo_id = null;
@@ -30,8 +30,8 @@ if (isset($args[0]) && !empty($args[0])) {
     if (!empty($id)) {
         //echo 'CON ID: ' . $id . ' - ' . $campo_id;
         
-        $respuesta_raw = q("SELECT * FROM esamyn.$tabla WHERE $campo_id = $id");
-        //echo "SELECT * FROM esamyn.$tabla WHERE $campo_id = $id";
+        $respuesta_raw = q("SELECT * FROM $tabla WHERE $campo_id = $id");
+        //echo "SELECT * FROM $tabla WHERE $campo_id = $id";
         
     } else {
         $where = '';
@@ -88,7 +88,7 @@ if (isset($args[0]) && !empty($args[0])) {
             $limit = '';
             $offset = '';
         }
-        $sql = "SELECT $select_columns FROM esamyn.$tabla $where $orderby $limit $offset";
+        $sql = "SELECT $select_columns FROM $tabla $where $orderby $limit $offset";
         $sql = trim($sql);
         //echo $sql;
         $respuesta_raw = q($sql);

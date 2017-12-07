@@ -14,6 +14,10 @@
 
 
  ************
+ * XLSXWriter
+ yum install php-zip
+
+ ************
  * WKHTML2PDF
  https://stackoverflow.com/questions/12784814/wkhtmltopdf-integrated-with-php-doesnt-work-on-centos-access-deny
  setenforce 0
