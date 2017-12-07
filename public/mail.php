@@ -44,7 +44,7 @@ define('MAIL_ORDERS_NAME', 'SAIT');
         try{
             unlink('prueba2.pdf');
             $snappy = new Knp\Snappy\Pdf('../vendor/bin/wkhtmltopdf-amd64');
-            $msg = ('<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body><h1>PDF autogenerado</h1><p>Cuerpo de PDF en HTML.</p></body></html>');
+            $msg = ('<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>body{font:serif;}</style></head><body><h1>PDF autogenerado</h1><p>Cuerpo de PDF en HTML.</p></body></html>');
             file_put_contents( 'prueba.html', $msg);
             $msg = file_get_contents('prueba.html');
             //$msg = utf8_decode($msg);
