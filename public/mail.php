@@ -45,6 +45,7 @@ define('MAIL_ORDERS_NAME', 'SAIT');
 
 
         try{
+            //PDF
             unlink('prueba2.pdf');
             $snappy = new Knp\Snappy\Pdf('../vendor/bin/wkhtmltopdf-amd64');
             $msg = ('<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><style>body{font:serif;}</style></head><body><h1>PDF autogenerado</h1><p>Cuerpo de PDF en HTML.</p></body></html>');
@@ -53,6 +54,27 @@ define('MAIL_ORDERS_NAME', 'SAIT');
             //$msg = utf8_decode($msg);
             $snappy->generateFromHtml($msg, 'prueba2.pdf', array('encoding' => 'utf-8'));
 
+            //Hoja de cálculo en Excel
+            $header = array(
+                'created'=>'date',
+                'product_id'=>'integer',
+                'quantity'=>'#,##0',
+                'amount'=>'price',
+                'description'=>'string',
+                'tax'=>'[$$-1009]#,##0.00;[RED]-[$$-1009]#,##0.00',
+            );
+            $data = array(
+                array('2015-01-01',873,1,'44.00','misc','=D2*0.05'),
+                array('2015-01-12',324,2,'88.00','none','=D3*0.05'),
+            );
+
+            $writer = new XLSXWriter();
+            $writer->writeSheetHeader('Sheet1', $header );
+            foreach($data as $row)
+                $writer->writeSheetRow('Sheet1', $row );
+            $writer->writeToFile('example.xlsx');
+
+            //MAIL
             $mail = new PHPMailer\PHPMailer\PHPMailer(true);
             $mail->IsSMTP();
             $mail->SMTPSecure = 'tls';
@@ -70,6 +92,7 @@ define('MAIL_ORDERS_NAME', 'SAIT');
             //$mail->AddAddress('dcedeno@nedetel.net');
             $mail->AddAttachment('prueba.txt');
             $mail->AddAttachment('prueba2.pdf');
+            $mail->AddAttachment('example.xlsx');
             $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
 
             if(!$mail->Send()) throw new Exception($mail->ErrorInfo);
