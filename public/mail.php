@@ -21,6 +21,9 @@
  https://github.com/zakird/wkhtmltopdf_binary_gem/issues/19
  yum install libjpeg libpng12 libXrender libXext fontconfig
  yum install libpng
+ https://stackoverflow.com/questions/30738963/wkhtmltopdf-unreadable-fonts
+ yum install libXext  libXrender  fontconfig  libfontconfig.so.1
+ yum install urw-fonts
 
  chown -R apache:apache public/
  chmod -R 775 public/
