@@ -28,6 +28,9 @@
  
  */
 
+require_once('../vendor/autoload.php');
+
+
 define('SMTP_SERVER', 'mail.nedetel.net');
 define('SMTP_PORT', 587);
 define('SMTP_USERNAME', 'sait@nedetel.net');
