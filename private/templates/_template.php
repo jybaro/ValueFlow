@@ -188,6 +188,17 @@ if (isset($_SESSION['cedula'])){
 <div style="padding:2px;">
   <?php echo $content; ?>
 </div>
+<div style="background:url(/img/sait-logo.png) fixed no-repeat;
+background-position: center center;
+opacity: 0.1;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;
+  ;">
+</div>
 <footer class="footer">
   <div class="container">
     <p class="text-muted text-center">
