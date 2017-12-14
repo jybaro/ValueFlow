@@ -1,5 +1,24 @@
 <?php
 
+/**
+ * Función para cambiar el nombre técnico de una tabla o campo, a su versión en texto común
+ */
+function n($codigo){
+    $nombre = ucfirst(str_replace('_', ' ', substr($codigo, 4)));
+    $partes = explode(' ', $nombre);
+    foreach($partes as & $parte){
+        $parte = preg_replace('/on$/', 'ón', $parte);
+        $parte = preg_replace('/fia$/', 'fía', $parte);
+        $parte = preg_replace('/alogo$/', 'álogo', $parte);
+        $parte = preg_replace('/odigo$/', 'ódigo', $parte);
+        $parte = preg_replace('/atico$/', 'ático', $parte);
+        $parte = preg_replace('/efono$/', 'éfono', $parte);
+        $parte = preg_replace('/edula$/', 'édula', $parte);
+        $parte = preg_replace('/onico$/', 'ónico', $parte);
+    }
+    return implode(' ', $partes);
+}
+
 function array_to_xml( $data, &$xml_data = null) {
     $primero = false;
     //if (empty($xml_data)) {

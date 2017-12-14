@@ -47,7 +47,7 @@ if (file_exists($nedetel_objeto . '.php')) {
             }
             if (!empty($seguridades)) {
                 foreach($seguridades as $seguridad){
-                    if ($seguridad['mod_texto'] == $nedetel_objeto) {
+                    if ($seguridad['obj_nombre'] == $nedetel_objeto) {
                         $con_permiso = true;
                     } 
                 }

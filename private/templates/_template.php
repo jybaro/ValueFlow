@@ -12,6 +12,8 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
 <link rel="stylesheet" href="/css/bootstrap-datetimepicker.min.css">
+<link rel="stylesheet" href="/css/select2.min.css">
+<link rel="stylesheet" href="/css/jquery.dataTables.min.css">
 
 <title>SAIT</title>
 
@@ -55,6 +57,14 @@ body {
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Atenciones<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/atenciones">Listar</a></li>
+            <li role="separator" class="divider"></li>
+          </ul>
+        </li>
+        <!--
+        <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Factibilidades<span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="/factibilidades">Listar</a></li>
@@ -89,6 +99,7 @@ body {
             <li role="separator" class="divider"></li>
           </ul>
         </li>
+        -->
       </ul>
       <!--form class="navbar-form navbar-left">
         <div class="form-group">
@@ -109,14 +120,15 @@ body {
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Administración<span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="/usuarios">Usuarios</a></li>
-            <li><a href="/crud/sai_cliente">Clientes</a></li>
-            <li><a href="/crud/sai_proveedor">Proveedores</a></li>
-            <li><a href="/crud/sai_servicio">Servicios</a></li>
+            <li><a href="/autoadmin/sai_cliente">Clientes</a></li>
+            <li><a href="/autoadmin/sai_proveedor">Proveedores</a></li>
+            <li><a href="/autoadmin/sai_servicio">Servicios</a></li>
+            <li><a href="/autoadmin/sai_campo_extra">Campos</a></li>
             <?php if ($_nivel <= 1): ?>
             <li role="separator" class="divider"></li>
-            <li><a href="/crud/sai_estado_atencion">Estados</a></li>
+            <li><a href="/autoadmin/sai_estado_atencion">Estados</a></li>
             <li><a href="/transiciones">Transiciones de estados</a></li>
-            <li><a href="/crud">Tablas del sistema</a></li>
+            <li><a href="/autoadmin">Tablas del sistema</a></li>
             <li><a href="/respaldos">Respaldos</a></li>
             <li><a href="/seguridad">Seguridad</a></li>
             <!--li><a href="/cargarForm">Cargar cat&aacute;logo de formulario</a></li-->
@@ -127,8 +139,8 @@ body {
         <li class="dropdown">
           <!--a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Opciones de usuario<span class="caret"></span></a-->
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php
-if (isset($_SESSION['cedula'])){
-    echo $_SESSION['cedula'];
+if (isset($_SESSION['usu_nombre'])){
+    echo $_SESSION['usu_nombre'];
 }
           ?><span class="caret"></span></a>
           <ul class="dropdown-menu">
@@ -182,8 +194,13 @@ if (isset($_SESSION['cedula'])){
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script src="/js/form-validator/jquery.form-validator.min.js"></script>
 <script src="/js/moment-with-locales.min.js"></script>
-<script src="/js/bootstrap-datetimepicker.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/bootstrap-datetimepicker.min.js"></script>
+<script src="/js/select2.min.js"></script>
+<script src="/js/jquery.dataTables.min.js"></script>
+<script>
+$.fn.modal.Constructor.prototype.enforceFocus = function() {};
+</script>
 
 <div style="padding:2px;">
   <?php echo $content; ?>
