@@ -25,7 +25,6 @@ $result= q("
         WHERE tea_estado_atencion_padre = esa_id
     ) AS count_transicion
     FROM sai_estado_atencion 
-    WHERE esa_borrado IS NULL
     ORDER BY esa_padre DESC, 
     esa_orden, 
     esa_id
@@ -126,13 +125,15 @@ function p_cargador(& $nodo, $nivel = 0, $nombre_previo = '') {
         if(!isset($filas_titulo[$nivel])) {
             $filas_titulo[$nivel] = '';
         }
-        $filas_titulo[$nivel] .= "<$t colspan='$colspan' rowspan='$rowspan'><span id='col_titulo_{$hijo[esa_id]}' title='$nombre_completo'>{$hijo[esa_nombre]} </span></$t>";
+
+        $css_class = (empty($hijo[esa_borrado])) ? '' : 'class="alert alert-danger"';
+        $filas_titulo[$nivel] .= "<$t colspan='$colspan' rowspan='$rowspan' $css_class><span id='col_titulo_{$hijo[esa_id]}' title='$nombre_completo'>{$hijo[esa_nombre]} </span></$t>";
 
         $primera_hoja = $hijo['primera_hoja'];
         if (!isset($cols_titulo[$primera_hoja])) {
             $cols_titulo[$primera_hoja] = array();
         }
-        $cols_titulo[$primera_hoja][$nivel] = "<$t colspan='$rowspan' rowspan='$colspan'><span id='fila_titulo_{$hijo[esa_id]}' title='$nombre_completo'>{$hijo[esa_nombre]} </span></$t>";
+        $cols_titulo[$primera_hoja][$nivel] = "<$t colspan='$rowspan' rowspan='$colspan' $css_class><span id='fila_titulo_{$hijo[esa_id]}' title='$nombre_completo'>{$hijo[esa_nombre]} </span></$t>";
     }
 }
 p_cargador($tree);

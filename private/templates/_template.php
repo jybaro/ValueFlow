@@ -73,6 +73,7 @@ body {
           <ul class="dropdown-menu">
             <li><a href="/autoadmin/sai_proveedor">Proveedores</a></li>
             <li><a href="/autoadmin/sai_vendedor_proveedor">Vendedores de los proveedores</a></li>
+            <li><a href="/autoadmin/sai_pertinencia_proveedor">Pertinencia de proveedores</a></li>
             <li role="separator" class="divider"></li>
           </ul>
         </li>

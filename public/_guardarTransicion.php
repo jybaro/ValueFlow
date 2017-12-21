@@ -33,7 +33,6 @@ if (isset($usuario_responsable) && !empty($usuario_responsable) && isset($ser_id
     $pertinencia_usuario = $usuario_responsable; 
 }
 $pertinencia_proveedor='null';
-
 if (isset($pro_id) && !empty($pro_id) && isset($ser_id) && !empty($ser_id)) {
 
     $pertinencia_proveedor = "(

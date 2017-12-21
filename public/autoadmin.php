@@ -94,7 +94,7 @@ FROM
                 $etiqueta_fk = substr($campo_fk['column_name'], 4);
                 $listado_campos_fk[$campo['column_name']][$etiqueta_fk] = $campo_fk;
             }
-            $campos_posibles = array('nombre', 'razon_social', 'cedula', 'ruc', 'texto', 'codigo', 'etiqueta', 'descripcion', 'creado', 'id');
+            $campos_posibles = array('nombre', 'razon_social', 'cedula', 'ruc', 'apellidos', 'texto', 'codigo', 'etiqueta', 'descripcion', 'creado', 'id');
             foreach($campos_posibles as $campo_posible) {
                 if (isset($listado_campos_fk[$campo['column_name']][$campo_posible])) {
                     $campo_etiqueta = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
