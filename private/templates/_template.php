@@ -57,9 +57,22 @@ body {
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Atenciones<span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Clientes<span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="/atenciones">Listar</a></li>
+            <li><a href="/autoadmin/sai_cliente">Clientes</a></li>
+            <li><a href="/autoadmin/sai_contacto">Contactos de clientes</a></li>
+            <li><a href="/autoadmin/sai_cuenta">Cuentas</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="/autoadmin/sai_atencion">Atenciones</a></li>
+            <li><a href="/atenciones">Flujo de las atenciones</a></li>
+            <li role="separator" class="divider"></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Proveedores<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/autoadmin/sai_proveedor">Proveedores</a></li>
+            <li><a href="/autoadmin/sai_vendedor_proveedor">Vendedores de los proveedores</a></li>
             <li role="separator" class="divider"></li>
           </ul>
         </li>
@@ -120,10 +133,11 @@ body {
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Administración<span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="/usuarios">Usuarios</a></li>
-            <li><a href="/autoadmin/sai_cliente">Clientes</a></li>
-            <li><a href="/autoadmin/sai_proveedor">Proveedores</a></li>
-            <li><a href="/autoadmin/sai_servicio">Servicios</a></li>
             <li><a href="/autoadmin/sai_campo_extra">Campos</a></li>
+            <li><a href="/autoadmin/sai_archivo">Archivos</a></li>
+            <li><a href="/autoadmin/sai_geografia">Geografías</a></li>
+            <li><a href="/autoadmin/sai_conexion_nodo">Conexiones</a></li>
+            <li><a href="/autoadmin/sai_nodo">Nodos</a></li>
             <?php if ($_nivel <= 1): ?>
             <li role="separator" class="divider"></li>
             <li><a href="/autoadmin/sai_estado_atencion">Estados</a></li>

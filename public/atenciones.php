@@ -6,7 +6,14 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
     q("UPDATE sai_atencion SET ate_estado_atencion=$estado WHERE ate_id=$id");
 }
 
-$result = q("SELECT * FROM sai_atencion, sai_estado_atencion WHERE ate_estado_atencion = esa_id");
+$result = q("
+    SELECT * 
+    FROM sai_atencion
+    ,sai_estado_atencion 
+    WHERE ate_borrado IS NULL 
+    AND esa_borrado IS NULL 
+    AND ate_estado_atencion = esa_id
+");
 
 if ($result) {
     foreach($result as $r){
