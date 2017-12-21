@@ -39,6 +39,9 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
     $pla_adjunto_nombre = $result_contenido[0]['pla_adjunto_nombre'];
     $pla_adjunto_texto = $result_contenido[0]['pla_adjunto_texto'];
 
+    $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
+    $pla_asunto = (empty($pla_asunto)) ? 'Notificación' : $pla_asunto;
+
     require_once('../vendor/autoload.php');
 
 
@@ -56,8 +59,8 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         if (file_exists('adjunto.html')) {
             unlink('adjunto.html');
         }
-        if (file_exists('adjunto.pdf')) {
-            unlink('adjunto.pdf');
+        if (file_exists($pla_adjunto_nombre.'.pdf')) {
+            unlink($pla_adjunto_nombre.'.pdf');
         }
 
         $snappy = new Knp\Snappy\Pdf('../vendor/bin/wkhtmltopdf-amd64');
@@ -65,7 +68,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         file_put_contents( 'adjunto.html', $msg);
         $msg = file_get_contents('adjunto.html');
         //$msg = utf8_decode($msg);
-        $snappy->generateFromHtml($msg, 'adjunto.pdf', array('encoding' => 'utf-8'));
+        $snappy->generateFromHtml($msg, $pla_adjunto_nombre.'.pdf', array('encoding' => 'utf-8'));
 
         //MAIL
         $mail = new PHPMailer\PHPMailer\PHPMailer(true);
@@ -85,7 +88,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         //$mail->AddAddress('sminga@nedetel.net');
         //$mail->AddAddress('dcedeno@nedetel.net');
         //$mail->AddAttachment('prueba.txt');
-        $mail->AddAttachment('adjunto.pdf');
+        $mail->AddAttachment($pla_adjunto_nombre.'.pdf');
         //$mail->AddAttachment('example.xlsx');
         $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
 
