@@ -24,7 +24,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
     ")[0]['vpr_correo_electronico'];
 
     $result_contenido = q("
-            SELECT
+            SELECT *,
             pla_cuerpo,pla_adjunto_texto, pla_asunto, pla_adjunto_nombre
             FROM sai_atencion
             ,sai_plantilla
@@ -32,6 +32,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
             WHERE
             pla_transicion_estado_atencion = tea_id
             AND tea_estado_atencion_padre = ate_estado_atencion
+            AND tea_borrado IS NULL
             AND ate_id=$ate_id
             ");
     $pla_cuerpo = $result_contenido[0]['pla_cuerpo'];
@@ -39,8 +40,14 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
     $pla_adjunto_nombre = $result_contenido[0]['pla_adjunto_nombre'];
     $pla_adjunto_texto = $result_contenido[0]['pla_adjunto_texto'];
 
+    //echo "<pre>";
+    //var_dump($result_contenido);
+    //die();
+
+
     $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
-    $pla_asunto = (empty($pla_asunto)) ? 'Notificación' : $pla_asunto;
+    $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
+
 
     require_once('../vendor/autoload.php');
 
