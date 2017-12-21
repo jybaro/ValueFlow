@@ -74,7 +74,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         $mail->Port = SMTP_PORT;
         $mail->Username = SMTP_USERNAME;
         $mail->Password = SMTP_PASSWORD;
-        $mail->SMTPDebug = 2;
+        //$mail->SMTPDebug = 2;
         $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
         $mail->Subject = 'Notificacion';
         $mail->MsgHTML('<b>Notificacion</b>');
