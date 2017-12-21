@@ -25,7 +25,7 @@ $result= q("
         WHERE tea_estado_atencion_padre = esa_id
     ) AS count_transicion
     FROM sai_estado_atencion 
-    WGERE esa_borrado IS NULL
+    WHERE esa_borrado IS NULL
     ORDER BY esa_padre DESC, 
     esa_orden, 
     esa_id
