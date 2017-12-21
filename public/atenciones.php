@@ -4,6 +4,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
     $estado = $_POST['estado'];
     $id = $_POST['id'];
     $ate_id = $id;
+    $tea_id = $_POST['tea_id'];
     $email_cliente = q("
             SELECT 
             con_correo_electronico
@@ -105,7 +106,27 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         //echo $e->getMessage();
     }
 
+    q("UPDATE sai_paso_atencion SET paa_borrado=now() WHERE paa_atencion=$ate_id");
+    $result = q("
+        INSERT INTO sai_paso_atencion (
+            paa_atencion
+            ,paa_transicion_estado_atencion
+            ,paa_codigo
+            ,paa_asunto
+            ,paa_cuerpo
+            ,paa_destinatarios 
+        ) VALUES (
+            $ate_id
+            ,$tea_id
+            ,''
+            ,'$pla_asunto'
+            ,'$pla_cuerpo'
+            ,'$email_cliente,$email_proveedor'
+        ) RETURNING *
+    ");
+
     $result = q("UPDATE sai_atencion SET ate_estado_atencion=$estado WHERE ate_id=$id RETURNING *");
+
 }
 
 $result = q("
@@ -156,7 +177,7 @@ if ($result) {
   <strong>Proveedor:</strong> {$r[pro_razon_social]}
   <div>&nbsp;</div>
   <div>
-  <button class="btn btn-info" onclick="p_abrir({$r[tea_id]})"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Recopilar datos</button>
+  <button class="btn btn-info" onclick="p_abrir({$r[tea_id]}, {$r[ate_id]})"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Recopilar datos</button>
   </div>
   <div>&nbsp;</div>
 EOT;
@@ -187,6 +208,7 @@ EOT;
             foreach($result2 as $r2){
                 echo "<form method='POST'>";
                 echo "<input type='hidden' name='estado' value='".$r2['esa_id']."'>";
+                echo "<input type='hidden' name='tea_id' value='".$r2['tea_id']."'>";
                 echo "<input type='hidden' name='id' value='".$r['ate_id']."'>";
                 echo "<li><button class='btn btn-success'>" . '<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> ';
                 echo "Pasar al estado: ". $r2['esa_nombre'] . ", Proveedor {$r2[pro_razon_social]}";
@@ -216,7 +238,7 @@ EOT;
       <div class="modal-body">
 
 <form id="formulario" class="form-horizontal">
-  <input type="hidden" id="id" name="id" value="">
+  <input type="hidden" id="ate_id" name="ate_id" value="">
 <div id="campos"></div>
 </form>
 
@@ -229,16 +251,18 @@ EOT;
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 <script>
-function p_abrir(tea_id) {
+function p_abrir(tea_id, ate_id) {
+    console.log('abrir', tea_id, ate_id);
     $.get('/_obtenerCampos/'+tea_id, function(data){
         console.log(data);
         data = JSON.parse(data);
         console.log(data);
 
         $('#campos').html("");
+        $('#ate_id').val(ate_id);
 
         data.forEach(function(campo){
-        $('#campos').append('<div class="form-group"><label for="'+campo['cae_codigo']+'" class="col-sm-2 control-label">'+campo['cae_texto']+ ':</label>    <div class="col-sm-10"><input type="text" class="form-control" id="'+campo['cae_codigo']+'" name="'+campo['cae_codigo']+'" placeholder=""></div></div>');
+        $('#campos').append('<div class="form-group"><label for="'+campo['cae_codigo']+'" class="col-sm-2 control-label">'+campo['cae_texto']+ ':</label>    <div class="col-sm-10"><input type="text" class="form-control" id="'+campo['cae_codigo']+'" name="'+campo['cae_codigo']+'" placeholder="" value="'+campo['valor']+'"></div></div>');
         });
         $('#modal').modal('show');
     })
@@ -246,7 +270,13 @@ function p_abrir(tea_id) {
 
 function p_guardar(){
 
+    var dataset = $('#formulario').serialize();
+    console.log('dataset: ', dataset   );
+    $.post('_guardarValoresExtra', dataset, function(data){
+
+        console.log('OK guardado', data);
         $('#modal').modal('hide');
+    })
 }
 </script>
 
