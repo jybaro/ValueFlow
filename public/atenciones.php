@@ -25,7 +25,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 
     $result_contenido = q("
             SELECT
-            pla_cuerpo,pla_adjunto_texto
+            pla_cuerpo,pla_adjunto_texto, pla_asunto, pla_adjunto_nombre
             FROM sai_atencion
             ,sai_plantilla
             ,sai_transicion_estado_atencion
@@ -35,6 +35,8 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
             AND ate_id=$ate_id
             ");
     $pla_cuerpo = $result_contenido[0]['pla_cuerpo'];
+    $pla_asunto = $result_contenido[0]['pla_asunto'];
+    $pla_adjunto_nombre = $result_contenido[0]['pla_adjunto_nombre'];
     $pla_adjunto_texto = $result_contenido[0]['pla_adjunto_texto'];
 
     require_once('../vendor/autoload.php');
@@ -76,8 +78,8 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         $mail->Password = SMTP_PASSWORD;
         //$mail->SMTPDebug = 2;
         $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
-        $mail->Subject = 'Notificacion';
-        $mail->MsgHTML('<b>Notificacion</b>');
+        $mail->Subject = $pla_asunto;
+        $mail->MsgHTML($pla_cuerpo);
         $mail->AddAddress($email_cliente);
         $mail->AddAddress($email_proveedor);
         //$mail->AddAddress('sminga@nedetel.net');
