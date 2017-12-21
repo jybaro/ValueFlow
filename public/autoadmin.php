@@ -447,7 +447,7 @@ function p_guardar(){
                 var valor = '';
                 var key = '';
                 campos.forEach(function(campo){
-                    valor = (data[campo] == null) ? '' : data[campo];
+                    valor = (data[campo] == null) ? '' : (($('#'+campo + ' option:selected').length > 0) ? $('#'+campo+' option:selected').text() : data[campo]);
                     valor = (campo == 'id' ? '<a href="#" onclick="p_abrir('+data['id']+');return false;">'+data['id']+'</a>' : valor);
                     celdas += '<td id="dato_'+data['id']+'_'+campo+'">'+valor+'</td>';
                 });

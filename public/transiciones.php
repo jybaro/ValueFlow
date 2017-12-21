@@ -1,5 +1,13 @@
+<script src="/js/ckeditor/ckeditor.js"></script>
 <h1>Transiciones</h1>
 <?php
+$result = q("SELECT * FROM sai_destinatario");
+$destinatarios = array();
+if ($result) {
+    foreach($result as $r) {
+        $destinatarios[$r['des_id']] = $r['des_nombre'];
+    }
+}
 
 $result= q("
     SELECT 
@@ -263,7 +271,7 @@ $num_formulario = 0;
 ?>
 
 <div id="modal" class="modal fade" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -293,7 +301,7 @@ $num_formulario = 0;
 
 
       <?php if(!empty($pertinencias_proveedor[$servicio['ser_id']])): ?>
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+<div class="panel-group" id="accordion_<?=$k?>" role="tablist" aria-multiselectable="true">
 <?php foreach($pertinencias_proveedor[$servicio['ser_id']] as $kp => $proveedor): ?><?php $kp++;?>
 <?php
 //echo '<pre>';
@@ -305,7 +313,7 @@ $num_formulario = 0;
 <div class="panel panel-default">
   <div class="panel-heading" role="tab" id="panelHeading_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>">
     <h4 class="panel-title">
-      <a <?=$kp==0?'':'class="collapsed"'?> role="button" data-toggle="collapse" data-parent="#accordion" href="#panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>" aria-expanded="<?=$kp==0?'true':'false'?></true>" aria-controls="#panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>"> 
+      <a <?=$kp==0?'':'class="collapsed"'?> role="button" data-toggle="collapse" data-parent="#accordion_<?=$k?>" onclick="p_cargar_detalle_transicion(<?=$servicio['ser_id']?>, <?=$proveedor['pro_id']?>)" href="#panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>" aria-expanded="<?=$kp==0?'true':'false'?>" aria-controls="#panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>"> 
         <?=$proveedor['pro_razon_social']?>
         <?=$proveedor['pep_servicio']==0?' de '.$servicio['ser_nombre']:''?>
       </a>
@@ -315,19 +323,21 @@ $num_formulario = 0;
 <div id="panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>" class="panel-collapse collapse <?=$kp==0?'in':''?>" role="tabpanel" aria-labelledby="panelHeading_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>">
   <div class="panel-body">
 
-  <?php foreach(array('proveedor', 'cliente', 'usuario') as $destinatario): ?>
+  <?php foreach($destinatarios as $des_id => $destinatario): ?>
   <h3>Acciones para <?=$destinatario?> (<?=$proveedor['pro_razon_social']?>)</h3>
 <form id="formulario" class="form-horizontal" onsubmit="p_guardar(this);return false;" enctype="multipart/form-data">
-<input type="hidden" id="desde" name="desde" value="">
-<input type="hidden" id="hacia" name="hacia" value="">
-<input type="hidden" id="ser_id" name="ser_id" value="<?=$servicio['ser_id']?>">
-<input type="hidden" id="pro_id" name="pro_id" value="<?=$proveedor['pro_id']?>">
-<input type="hidden" id="destinatario" name="destinatario" value="<?=$destinatario?>">
+<input type="hidden" id="desde_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="desde" value="">
+<input type="hidden" id="hacia_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="hacia" value="">
+<input type="hidden" id="ser_id_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="ser_id" value="<?=$servicio['ser_id']?>">
+<input type="hidden" id="pro_id_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="pro_id" value="<?=$proveedor['pro_id']?>">
+<input type="hidden" id="destinatario_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="destinatario" value="<?=$destinatario?>">
+<input type="hidden" id="des_id_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="des_id" value="<?=$des_id?>">
+<input type="hidden" id="tea_id_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="tea_id" value="<?=$des_id?>">
   <?php if($servicio['ser_id'] != 0): ?>
   <div class="form-group">
     <label for="asunto" class="col-sm-2 control-label">Responsable:</label>
     <div class="col-sm-10">
-      <select class="form-control" id="usuario_responsable" name="usuario_responsable">
+      <select class="form-control" id="usuario_responsable_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="usuario_responsable">
       <option></option>
 <?php
 if (isset($pertinencias_usuario[$servicio['ser_id']])) {
@@ -347,37 +357,46 @@ if (isset($pertinencias_usuario[$servicio['ser_id']])) {
   <div class="form-group">
     <label for="automatico" class="col-sm-2 control-label">Automático:</label>
     <div class="col-sm-10">
-      <input type="checkbox" class="form-control" id="automatico" name="automatico" placeholder="">
+      <input type="checkbox" class="form-control" id="automatico_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="automatico" placeholder="">
     </div>
   </div>
   <div class="form-group">
     <label for="tiempo_alerta_horas" class="col-sm-2 control-label">Tiempo alerta horas:</label>
     <div class="col-sm-10">
-      <input type="number" class="form-control" id="tiempo_alerta_horas" name="tiempo_alerta_horas" placeholder="">
+      <input type="number" class="form-control" id="tiempo_alerta_horas_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="tiempo_alerta_horas" placeholder="">
     </div>
   </div>
   <div class="form-group">
     <label for="asunto" class="col-sm-2 control-label">Asunto:</label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" id="asunto" name="asunto" placeholder="Asunto">
+      <input type="text" class="form-control" id="asunto_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="asunto" placeholder="Asunto">
     </div>
   </div>
   <div class="form-group">
     <label for="cuerpo" class="col-sm-2 control-label">Cuerpo:</label>
     <div class="col-sm-10">
-      <textarea type="text" class="form-control" id="cuerpo" name="cuerpo" placeholder="Cuerpo"></textarea>
+      <textarea type="text" class="form-control" id="cuerpo_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="cuerpo" placeholder="Cuerpo"></textarea>
+
     </div>
   </div>
   <div class="form-group">
-    <label for="plantilla_adjunto" class="col-sm-2 control-label">Plantilla adjunto:</label>
+    <label for="adjunto_nombre" class="col-sm-2 control-label">Nombre del archivo adjunto:</label>
     <div class="col-sm-10">
-      <textarea type="text" class="form-control" id="plantilla_adjunto" name="plantilla_adjunto" placeholder="Plantilla de adjunto"></textarea>
+      <input type="text" class="form-control" id="adjunto_nombre_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="adjunto_nombre" placeholder="Nombre del archivo adjunto">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="adjunto_texto" class="col-sm-2 control-label">Plantilla adjunto:</label>
+    <div class="col-sm-10">
+      <textarea type="text" class="form-control" id="adjunto_texto_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="adjunto_texto" placeholder="Plantilla de adjunto"></textarea>
     </div>
   </div>
   <div class="form-group">
     <label for="archivo-adjunto" class="col-sm-2 control-label">Adjunto:</label>
     <div class="col-sm-10">
-      <input type="file" class="form-control" id="archivo-adjunto" name="archivo-adjunto" placeholder="Archivo adjunto">
+      <input type="file" class="form-control" id="archivo-adjunto_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="archivo-adjunto" placeholder="Archivo adjunto">
+      <div id="archivos_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="col-sm-10">
+      </div>
     </div>
   </div>
   <div class="form-group">
@@ -389,6 +408,23 @@ if (isset($pertinencias_usuario[$servicio['ser_id']])) {
 </form>
 <hr />
 <strong>CAMPOS:</strong>
+<form id="formulario_cae_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="form-horizontal">
+  <div class="form-group">
+    <label for="campo" class="col-sm-2 control-label">Campo:</label>
+    <div class="col-sm-8">
+      <input type="hidden" id="campo_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="campo" value="">
+      <input class="form-control" required type="text" id="campo_typeahead_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" data-provide="typeahead" autocomplete="off" placeholder="Ingrese al menos 2 caracteres" onblur="p_validar_campo()">
+    </div>
+    <div class="col-sm-1">
+      <button type="button" class="btn btn-info" id="campo_agregar_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" onclick="p_guardar_campo('<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+    </div>
+  </div>
+</form>
+
+<table class="table table-striped">
+<tbody id="antiguos_cae_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>"></tbody>
+</table>
+
 <hr />
 
     <?php endforeach; ?>
@@ -433,14 +469,208 @@ No hay proveedores registrados para este servicio.
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<script src="/js/bootstrap3-typeahead.min.js"></script>
 <script>
+$( document ).ready(function() {
+    $('textarea').each(function(){
+         CKEDITOR.replace(this);
+    });
+});
 var desde=0, hacia=0;
+
+
+function p_validar_campo(){
+    console.log('on blur campo');
+    if ($('#campo').val() == ''){
+        $('#campo_typeahead').val('');
+    }
+}
+
+function p_guardar_campo(id){
+    if ($('#campo_'+id).val() !== '') {
+        var respuestas_json = $('#formulario_cae_'+id).serializeArray();
+        console.log('respuestas json', id, respuestas_json);
+        dataset_json = {};
+        dataset_json['campo'] = $('#campo_'+id).val();
+        dataset_json['transicion'] = $('#tea_id_'+id).val();
+
+        console.log('dataset_json', dataset_json);
+        $.ajax({
+        url: '_guardarCampo',
+            type: 'POST',
+            //dataType: 'json',
+            data: JSON.stringify(dataset_json),
+            //contentType: 'application/json'
+        }).done(function(data){
+            console.log('Guardado OK', data);
+            data = JSON.parse(data);
+            data = data[0];
+            console.log('eval data:', data);
+            if (data['ERROR']) {
+                alert(data['ERROR']);
+            } else {
+                console.log('nuevo campo');
+                var partes = id.split('_');
+                var current_ser_id = partes[0];
+                var current_pro_id = partes[1];
+                console.log('current', current_ser_id, current_pro_id);
+                p_cargar_detalle_transicion(current_ser_id, current_pro_id);
+            }
+            $('#campo_agregar_'+id).hide();
+            $('#campo_'+id).val('');
+            $('#campo_typeahead_'+id).val('');
+        }).fail(function(xhr, err){
+            console.error('ERROR AL GUARDAR', xhr, err);
+            alert('Hubo un error al guardar, verifique que cuenta con Internet y vuelva a intentarlo en unos momentos.');
+            //$('#modal').modal('hide');
+        });
+    } else {
+        alert ('Ingrese el usuario');
+    }
+}
+
+function p_borrar_campo(id, campo) {
+    console.log('FUNCTION p_borrar_campo: ', id, campo);
+    if (confirm('Seguro desea quitar este campo a la transición?')) {
+        dataset_json = {};
+        dataset_json['campo'] = campo;
+        dataset_json['transicion'] = $('#tea_id_'+id).val();
+        dataset_json['borrar'] = 'borrar';
+
+        console.log('dataset_json', dataset_json);
+        $.ajax({
+        url: '_guardarCampo',
+            type: 'POST',
+            //dataType: 'json',
+            data: JSON.stringify(dataset_json),
+            //contentType: 'application/json'
+        }).done(function(data){
+            console.log('Borrado OK, data:', data);
+            //data = eval(data)[0];
+            data = JSON.parse(data);
+            data = data[0];
+            console.log('eval data:', data);
+            if (data['ERROR']) {
+                alert(data['ERROR']);
+            } else {
+                $('#cae_' + data['id']).remove();
+            }
+        }).fail(function(xhr, err){
+            console.error('ERROR AL BORRAR', xhr, err);
+            alert('Hubo un error al borrar, verifique que cuenta con Internet y vuelva a intentarlo en unos momentos.');
+            //$('#modal').modal('hide');
+        });
+    }
+}
+
+function p_cargar_detalle_transicion(ser_id, pro_id){
+    console.log(desde + '->'+ hacia, ser_id, pro_id);
+    $.get('/_obtenerDetalleTransicion/'+desde+'/'+hacia+'/'+ser_id+'/'+pro_id, function(data){
+        data = JSON.parse(data);
+        console.log('RESPUESTA: ', data);
+        data.forEach(function(transicion){
+            var des_id = transicion['tea_destinatario'];
+            console.log(ser_id+'_'+pro_id+'_'+des_id);
+            $('#tea_id_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['tea_id']);
+            $('#usuario_responsable_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['tea_pertinencia_usuario']);
+            $('#automatico_'+ser_id+'_'+pro_id+'_'+des_id).prop('checked', transicion['tea_automatico'] == '1');
+            $('#tiempo_alerta_horas_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['tea_tiempo_alerta_horas']);
+            $('#asunto_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['pla_asunto']);
+            $('#adjunto_nombre_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['pla_adjunto_nombre']);
+            CKEDITOR.instances['cuerpo_'+ser_id+'_'+pro_id+'_'+des_id].setData(transicion['pla_cuerpo']);
+            CKEDITOR.instances['adjunto_texto_'+ser_id+'_'+pro_id+'_'+des_id].setData(transicion['pla_adjunto_texto']);
+            console.log('#usuario_responsable_'+ser_id+'_'+pro_id+'_'+des_id);
+            p_actualizar_archivos(transicion['archivos'], ser_id+'_'+pro_id+'_'+des_id);
+            p_actualizar_campos(transicion['campos'], ser_id+'_'+pro_id+'_'+des_id);
+            p_inicializar_autocompletar(ser_id+'_'+pro_id+'_'+des_id)
+        });
+    });
+}
+
+function p_inicializar_autocompletar(id){
+    $('#campo_typeahead_'+id).typeahead({
+        source:function(query, process){
+            $.get('/_listarCampos/' + id + '/' + query, function(data){
+                console.log(data);
+                data = JSON.parse(data);
+                process(data.lista);
+            });
+        },
+        displayField:'name',
+        valueField:'id',
+        highlighter:function(name){
+            var ficha = '';
+            ficha +='<div>';
+            ficha +='<h4>'+name+'</h4>';
+            ficha +='</div>';
+            return ficha;
+        },
+        updater:function(item){
+            $('#campo_'+id).val(item.id);
+            $('#campo_agregar_'+id).show();
+            return item.name;
+        }
+    });
+}
+
+function p_actualizar_campos(campos, id) {
+    console.log('p_actualizar_campos', campos, id);
+    var tbody_id = '#antiguos_cae_' + id;
+    $(tbody_id).html('');
+    if (Array.isArray(campos)) {
+        campos.forEach(function(campo){
+            var numero = $(tbody_id).children().length + 1;
+            //var nombre = $('#campo_typeahead_'+id).val();
+            var nombre = campo['cae_texto'] + ' ('+campo['cae_codigo']+')';
+            $(tbody_id).append('<tr class="alert alert-info" id="cae_'+campo['cae_id']+'"><th>'+numero+'.</th><td><span id="nombre_cae_'+campo['cae_id']+'">'+nombre+'</span></td><td><button class="btn btn-danger" onclick="p_borrar_campo(\''+id+'\','+campo['cae_id']+')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></td></tr>');
+        });
+    }
+}
+
+function p_actualizar_archivos(archivos, id) {
+    console.log('p_actualizar_archivos', archivos, id);
+    var div_id = '#archivos_' + id;
+    $(div_id).html('');
+    if (Array.isArray(archivos)) {
+        archivos.forEach(function(archivo){
+            $(div_id).append('<div><a class="btn btn-default" href="/'+archivo['arc_ruta']+'" target="_blank">'+archivo['arc_nombre']+'</a></div>');
+        });
+    }
+}
+
 function p_abrir(x, y){
     //alert(x+' - '+ y);
     var col_titulo_x = $('#col_titulo_' + x).attr('title');
     var fila_titulo_y = $('#fila_titulo_' + y).attr('title');
     $('#formulario_titulo_desde').text(col_titulo_x);
     $('#formulario_titulo_hacia').text(fila_titulo_y);
+
+    $('#modal').find(':input').each(function() {
+        switch(this.type) {
+        case 'password':
+        case 'text':
+        case 'textarea':
+        case 'file':
+        case 'select-one':
+        case 'select-multiple':
+        case 'date':
+        case 'number':
+        case 'tel':
+        case 'email':
+            $(this).val('');
+            break;
+        case 'checkbox':
+        case 'radio':
+            this.checked = false;
+            break;
+        }
+    });
+    $('#modal').find('.panel-collapse.in').each(function() {
+        $(this).collapse('hide');
+    });
+    for ( instance in CKEDITOR.instances ) {
+        CKEDITOR.instances[instance].setData('');
+    }
     desde = x;
     hacia = y;
     $('#modal').modal('show');
@@ -454,6 +684,9 @@ function p_mostrar_desde_hacia(x, y, target) {
 
 function p_guardar(target) {
 
+    for ( instance in CKEDITOR.instances ) {
+        CKEDITOR.instances[instance].updateElement();
+    }
     /*
             var respuestas_json = $('#formulario').serializeArray();
 
@@ -470,41 +703,45 @@ function p_guardar(target) {
      */
     $(target).find('input[name=desde]').val(desde);
     $(target).find('input[name=hacia]').val(hacia);
-            var fd = new FormData(target);
-            $.ajax({
-                url: '_guardarTransicion',
-                    type: 'POST',
-                    //dataType: 'json',
-                    //data: JSON.stringify(dataset_json),
-                    //contentType: 'application/json'
-                     processData: false,
-                     contentType: false,
-                     cache: false,
-                     data: fd
-            }).done(function(data){
-                console.log('Guardado OK, data:', data);
-                //data = eval(data)[0];
-                data = JSON.parse(data);
-                data = data[0];
+    var fd = new FormData(target);
+    //console.log('p_guardar fd: ', fd);
+    $.ajax({
+    url: '_guardarTransicion',
+        type: 'POST',
+        //dataType: 'json',
+        //data: JSON.stringify(dataset_json),
+        //contentType: 'application/json'
+        processData: false,
+        contentType: false,
+        cache: false,
+        data: fd
+    }).done(function(data){
+        console.log('Guardado OK, data:', data);
+        //data = eval(data)[0];
+        data = JSON.parse(data);
+        data = data[0];
 
-                console.log('eval data:', data);
-                if (data['ERROR']) {
-                    alert(data['ERROR']);
-                } else {
-                    console.log('nueva TRANSICION');
-                    var desde = data['tea_estado_atencion_padre'];
-                    var hacia = data['tea_estado_atencion_hijo'];
-                    var celda_id = '#celda_' + desde + '_'+ hacia;
-                    console.log('id de celda:', celda_id, $(celda_id));
-                    $(celda_id).removeClass('alert alert-success alert-info alert-danger');
-                    $(celda_id).addClass('alert alert-success');
+        console.log('eval data:', data);
+        if (data['ERROR']) {
+            alert(data['ERROR']);
+        } else {
+            console.log('nueva TRANSICION');
+            var desde = data['tea_estado_atencion_padre'];
+            var hacia = data['tea_estado_atencion_hijo'];
+            var destinatario = data['tea_estado_atencion_hijo'];
+            var celda_id = '#celda_' + desde + '_'+ hacia;
+            console.log('id de celda:', celda_id, $(celda_id));
+            $(celda_id).removeClass('alert alert-success alert-info alert-danger');
+            $(celda_id).addClass('alert alert-success');
+            //var id = desde + '_'+ hacia + '_' + data['tea_destinatario'];
+            //p_actualizar_archivos(data['archivos'], id);
 
-                    $('#modal').modal('hide');
-                }
-            }).fail(function(xhr, err){
-                console.error('ERROR AL GUARDAR', xhr, err);
-                alert('Hubo un error al guardar, verifique que cuenta con Internet y vuelva a intentarlo en unos momentos.');
-                //$('#modal').modal('hide');
-            });
+            //$('#modal').modal('hide');
+        }
+    }).fail(function(xhr, err){
+        console.error('ERROR AL GUARDAR', xhr, err);
+        alert('Hubo un error al guardar, verifique que cuenta con Internet y vuelva a intentarlo en unos momentos.');
+        //$('#modal').modal('hide');
+    });
 }
 </script>
