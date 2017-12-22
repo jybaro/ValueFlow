@@ -48,13 +48,13 @@ $us_listado = q("SELECT *, (SELECT rol_nombre FROM sai_rol WHERE rol_id=usu_rol)
   <div class="form-group">
     <label for="telefono" class="col-sm-2 control-label">Teléfono:</label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" id="telefono" name="telefono" placeholder="">
+      <input type=text pattern='\d*' maxlength=13 class="form-control" id="telefono" name="telefono" placeholder="" onblur="p_validar(this)">
     </div>
   </div>
   <div class="form-group">
     <label for="correo_electronico" class="col-sm-2 control-label">Correo electrónico:</label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" id="correo_electronico" name="correo_electronico" placeholder="">
+      <input type="email" class="form-control" id="correo_electronico" name="correo_electronico" placeholder="" onblur="p_validar(this)">
     </div>
   </div>
   <div class="form-group">
@@ -132,6 +132,18 @@ $(document).ready(function() {
         }
     });
 });
+
+function p_validar(target) {
+    console.log('validando', target);
+    var resultado = true;
+    if (!$(target)[0].checkValidity()) {
+        console.log('no valida...');
+        $('<input type="submit">').hide().appendTo('#formulario').click().remove();
+        resultado = false;
+    }
+    return resultado;
+}
+
 
 function p_validar_zona() {
     console.log('zona', $('#zona').val());
@@ -451,61 +463,63 @@ function p_reiniciar(){
 
 function p_guardar(){
 
-    if ($('#nombres').val() !== '' && $('#apellidos').val() !== '' && $('#cedula').val() !== '' && $('#correo_electronico').val() !== '') {
-        if (verificarCedula($('#cedula').val())) {
-            var respuestas_json = $('#formulario').serializeArray();
-            console.log('respuestas json', respuestas_json);
-            dataset_json = {};
-            respuestas_json.forEach(function(respuesta_json){
-                var name =  respuesta_json['name'];
-                var value = respuesta_json['value'];
-                dataset_json[name] = value;
+    if (p_validar($('#formulario'))) {
+        if ($('#nombres').val() !== '' && $('#apellidos').val() !== '' && $('#cedula').val() !== '' && $('#correo_electronico').val() !== '') {
+            if (verificarCedula($('#cedula').val())) {
+                var respuestas_json = $('#formulario').serializeArray();
+                console.log('respuestas json', respuestas_json);
+                dataset_json = {};
+                respuestas_json.forEach(function(respuesta_json){
+                    var name =  respuesta_json['name'];
+                    var value = respuesta_json['value'];
+                    dataset_json[name] = value;
 
-            });
-            dataset_json['cedula'] = $('#cedula').val();
+                });
+                dataset_json['cedula'] = $('#cedula').val();
 
-            console.log('dataset_json', dataset_json);
-            $.ajax({
+                console.log('dataset_json', dataset_json);
+                $.ajax({
                 url: '_guardarUsuario',
                     type: 'POST',
                     //dataType: 'json',
                     data: JSON.stringify(dataset_json),
                     //contentType: 'application/json'
-            }).done(function(data){
-                console.log('Guardado OK, data:', data);
-                //data = eval(data)[0];
-                data = JSON.parse(data);
-                data = data[0];
+                }).done(function(data){
+                    console.log('Guardado OK, data:', data);
+                    //data = eval(data)[0];
+                    data = JSON.parse(data);
+                    data = data[0];
 
-                console.log('eval data:', data);
-                if (data['ERROR']) {
-                    alert(data['ERROR']);
-                } else {
-
-                    if ($("#nombre_" + data['id']).length) { // 0 == false; >0 == true
-                        //ya existe:
-                        $('#cedula_' + data['id']).text(data['cedula']);
-                        $('#nombre_' + data['id']).text(data['apellidos'] + ' ' + data['nombres']);
-                        $('#rol_' + data['id']).text(data['rol'] );
-                        $('#correo_electronico_' + data['id']).text(data['correo_electronico']);
+                    console.log('eval data:', data);
+                    if (data['ERROR']) {
+                        alert(data['ERROR']);
                     } else {
-                        //nuevo:
-                        console.log('nuevo USUARIO');
-                        var numero = $('#antiguos').children().length + 1;
-                        $('#antiguos').append('<tr class="alert alert-success"><th>'+numero+'.</th><td><a href="#" onclick="p_abrir(\''+data['id']+'\')">'+data['cedula']+'</a></td><td><span id="nombre_' + data['id'] + '">' + data['apellidos'] + ' ' + data['nombres'] + '</span></td><td><span id="rol_' + data['id'] + '">'+data['rol']+'</span></td><td><span id="correo_electronico_'+data['id']+'">'+data['correo_electronico'] + '</span></td></tr>');
+
+                        if ($("#nombre_" + data['id']).length) { // 0 == false; >0 == true
+                            //ya existe:
+                            $('#cedula_' + data['id']).text(data['cedula']);
+                            $('#nombre_' + data['id']).text(data['apellidos'] + ' ' + data['nombres']);
+                            $('#rol_' + data['id']).text(data['rol'] );
+                            $('#correo_electronico_' + data['id']).text(data['correo_electronico']);
+                        } else {
+                            //nuevo:
+                            console.log('nuevo USUARIO');
+                            var numero = $('#antiguos').children().length + 1;
+                            $('#antiguos').append('<tr class="alert alert-success"><th>'+numero+'.</th><td><a href="#" onclick="p_abrir(\''+data['id']+'\')">'+data['cedula']+'</a></td><td><span id="nombre_' + data['id'] + '">' + data['apellidos'] + ' ' + data['nombres'] + '</span></td><td><span id="rol_' + data['id'] + '">'+data['rol']+'</span></td><td><span id="correo_electronico_'+data['id']+'">'+data['correo_electronico'] + '</span></td></tr>');
+                        }
+                        $('#modal').modal('hide');
                     }
-                    $('#modal').modal('hide');
-                }
-            }).fail(function(xhr, err){
-                console.error('ERROR AL GUARDAR', xhr, err);
-                alert('Hubo un error al guardar, verifique que cuenta con Internet y vuelva a intentarlo en unos momentos.');
-                //$('#modal').modal('hide');
-            });
+                }).fail(function(xhr, err){
+                    console.error('ERROR AL GUARDAR', xhr, err);
+                    alert('Hubo un error al guardar, verifique que cuenta con Internet y vuelva a intentarlo en unos momentos.');
+                    //$('#modal').modal('hide');
+                });
+            } else {
+                alert ('Ingrese un número de cédula válido');
+            }
         } else {
-            alert ('Ingrese un número de cédula válido');
+            alert ('Ingrese al menos el número de cédula, nombres, apellidos y correo electrónico');
         }
-    } else {
-        alert ('Ingrese al menos el número de cédula, nombres, apellidos y correo electrónico');
     }
 }
 

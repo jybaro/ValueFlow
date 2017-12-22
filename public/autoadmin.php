@@ -494,81 +494,81 @@ function p_borrarSuave(){
     }
 }
 
-function p_guardar(){
+function p_guardar() {
     if (p_validar($('#formulario'))) {
-    var respuestas_json = $('#formulario').serializeArray();
-    console.log(respuestas_json);
-    dataset_json = [];
-    dataset_json[0] = {};
-    respuestas_json.forEach(function(respuesta_json){
-        var name =  respuesta_json['name'];
-        var value = respuesta_json['value'];
-        dataset_json[0][name]=value;
-    });
+        var respuestas_json = $('#formulario').serializeArray();
+        console.log(respuestas_json);
+        dataset_json = [];
+        dataset_json[0] = {};
+        respuestas_json.forEach(function(respuesta_json){
+            var name =  respuesta_json['name'];
+            var value = respuesta_json['value'];
+            dataset_json[0][name]=value;
+        });
 
-    if ($('#id').val() != '') {
-        dataset_json[0]['id'] = $('#id').val();
-    }
+        if ($('#id').val() != '') {
+            dataset_json[0]['id'] = $('#id').val();
+        }
 
-    console.log('dataset_json', dataset_json);
+        console.log('dataset_json', dataset_json);
 
-    $.ajax({
+        $.ajax({
         'url': '/_guardar/' + tabla + '/',
-        type: 'POST',
-        data: JSON.stringify(dataset_json),
-    }).done(function(data){
-        console.log('Guardado OK', data);
-        data = JSON.parse(data);
-        data = data[0];
+            type: 'POST',
+            data: JSON.stringify(dataset_json),
+        }).done(function(data){
+            console.log('Guardado OK', data);
+            data = JSON.parse(data);
+            data = data[0];
 
-        if (data['ERROR']) {
-            alert(data['ERROR']);
-        } else {
-            if ($("#fila_" + data['id']).length) { // 0 == false; >0 == true
-                //ya existe:
-                for (key in data){
-                    var id = '#dato_' + data['id'] + '_' + key;
-                    var texto = '';
-
-                    //console.log('campo del form: ','#'+ key + ' option:selected')
-                    if (($('#'+key + ' option:selected').length > 0)){
-                        texto = $('#'+key + ' option:selected').text(); 
-                    } else {
-                        texto = data[key];
-                    }
-                    $(id).text(texto);
-                }
+            if (data['ERROR']) {
+                alert(data['ERROR']);
             } else {
-                //nuevo:
-                console.log('nuevo registro');
-                var numero = $('#lista_registros').children().length + 1;
-                var celdas = '';
-                var valor = '';
-                var key = '';
-                campos.forEach(function(campo){
-                    valor = (data[campo] == null) ? '' : (($('#'+campo + ' option:selected').length > 0) ? $('#'+campo+' option:selected').text() : data[campo]);
-                    valor = (campo == campo_etiqueta ? '<td><a href="#" onclick="p_abrir('+data['id']+', this);return false;" id="dato_'+data['id']+'_'+campo+'">'+valor+'</a></td>' : '<td id="dato_'+data['id']+'_'+campo+'">'+valor+'</td>');
-                    celdas += valor;
-                });
+                if ($("#fila_" + data['id']).length) { // 0 == false; >0 == true
+                    //ya existe:
+                    for (key in data){
+                        var id = '#dato_' + data['id'] + '_' + key;
+                        var texto = '';
+
+                        //console.log('campo del form: ','#'+ key + ' option:selected')
+                        if (($('#'+key + ' option:selected').length > 0)){
+                            texto = $('#'+key + ' option:selected').text(); 
+                        } else {
+                            texto = data[key];
+                        }
+                        $(id).text(texto);
+                    }
+                } else {
+                    //nuevo:
+                    console.log('nuevo registro');
+                    var numero = $('#lista_registros').children().length + 1;
+                    var celdas = '';
+                    var valor = '';
+                    var key = '';
+                    campos.forEach(function(campo){
+                        valor = (data[campo] == null) ? '' : (($('#'+campo + ' option:selected').length > 0) ? $('#'+campo+' option:selected').text() : data[campo]);
+                        valor = (campo == campo_etiqueta ? '<td><a href="#" onclick="p_abrir('+data['id']+', this);return false;" id="dato_'+data['id']+'_'+campo+'">'+valor+'</a></td>' : '<td id="dato_'+data['id']+'_'+campo+'">'+valor+'</td>');
+                        celdas += valor;
+                    });
                 /*
-                for (key in data){
+                    for (key in data){
                     valor = (key == 'id' ? '<a href="#" onclick="p_abrir('+data['id']+')">'+data['id']+'</a>' : data[key]);
                     celdas += '<td id="dato_'+data['id']+'_'+key+'">'+valor+'</td>';
                 }
                  */
 
-                console.log('celdas:', celdas, '<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
-                $('#lista_registros').append('<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
+                    console.log('celdas:', celdas, '<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
+                    $('#lista_registros').append('<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
+                }
+                $('#fila_' + data['id']).removeClass('alert alert-danger alert-success alert-info');
+                $('#fila_' + data['id']).addClass('alert alert-success');
+                $('#modal').modal('hide');
             }
-            $('#fila_' + data['id']).removeClass('alert alert-danger alert-success alert-info');
-            $('#fila_' + data['id']).addClass('alert alert-success');
-            $('#modal').modal('hide');
-        }
-    }).fail(function(aaa, bbb){
-        console.log('ERROR AL GUARDAR', aaa, bbb);
-        alert('No se pudieron guardar los datos.');
-    });
-}
+        }).fail(function(aaa, bbb){
+            console.log('ERROR AL GUARDAR', aaa, bbb);
+            alert('No se pudieron guardar los datos.');
+        });
+    }
 }
 
 function p_nuevo(){
