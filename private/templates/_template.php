@@ -148,6 +148,7 @@ body {
             <li><a href="/seguridad">Seguridad</a></li>
             <!--li><a href="/cargarForm">Cargar cat&aacute;logo de formulario</a></li-->
             <?php endif; ?>
+            <li role="separator" class="divider"></li>
           </ul>
         </li>
         <?php endif; ?>
@@ -163,6 +164,7 @@ if (isset($_SESSION['usu_nombre'])){
             <li><a href="/cambiarClave">Cambiar contraseña</a></li>
             <li role="separator" class="divider"></li>
             <li><a href="/login/destroy">Cerrar sesión</a></li>
+            <li role="separator" class="divider"></li>
           </ul>
         </li>
       </ul>
