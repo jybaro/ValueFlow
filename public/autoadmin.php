@@ -55,7 +55,7 @@ FROM
     $fkeys = array();
     if ($result) {
         foreach($result as $r){
-            $fkeys[$r['column_name']] = $r;
+            $fkeys[substr($r['column_name'], 4)] = $r;
         }
     }
 
@@ -64,66 +64,137 @@ FROM
 //var_dump($fk);
 //echo "</pre>";
 
-    $campos = q("SELECT *
-        FROM information_schema.columns
-        WHERE table_schema = 'public'
-        AND table_name   = '$tabla'
-        ORDER BY data_type, is_nullable, column_name
-        ");
-
     $campos_js = array();
+    $campos = q("SELECT cat_texto FROM sai_catalogo WHERE cat_codigo='autoadmin_$tabla'");
+    $prefijo = null;
+    $campo_id = null;
+    $campo_etiqueta = null;
+    $campo_borrado = null;
+    if ($campos) {
+        //echo "<pre>";
+        $campos = $campos[0]['cat_texto'];
+        $campos = str_replace("\n", "", $campos);
+        $campos = str_replace("\r", "", $campos);
+        $campos = json_decode($campos, true);
+        //$campos[] = array('nombre'=> 'id', 'etiqueta' =>'Id', 'validacion'=> '');
+        //var_dump($campos);
+        if ($campos) {
+            $tiene_id = false;
+            foreach($campos as $key => $campo){
+                if (isset($campo['titulo'])) {
+                    $nombre_tabla = $campo['titulo'];
+                }
+                if (isset($campo['prefijo'])) {
+                    $prefijo = $campo['prefijo'] . '_';
+                }
+                if (isset($campo['nombre']) && $campo['nombre'] == 'id') {
+                    $tiene_id = true;
+                }
+            }
+            if (!$tiene_id) {
+                $campos[] = array('nombre'=> 'id', 'validacion'=> 'hidden');
+            }
+            foreach($campos as $key => $campo){
+                $campos[$key]['column_name'] = $prefijo . $campo['nombre'];
+                if (!isset($campo['etiqueta'])) {
+                    $campos[$key]['etiqueta'] = n($campos[$key]['column_name']);
+                }
+                if (!isset($campo['validacion'])) {
+                    $campos[$key]['validacion'] = '';
+                }
+            }
+            $campo_etiqueta = $campos[0]['nombre'];
+            $campo_borrado = $prefijo . 'borrado';
+        }
+//die();
+    } 
+
+    if (empty($prefijo)) {
+
+        $campos = q("SELECT *
+            FROM information_schema.columns
+            WHERE table_schema = 'public'
+            AND table_name   = '$tabla'
+            ORDER BY data_type, is_nullable, column_name
+        ");
+        //var_dump($campos);
+        $campo_etiqueta = 'id';
+        $campo_borrado = $prefijo . 'borrado';
+
+        foreach ($campos as $key => $campo){
+
+            $c = substr($campo['column_name'], 4); 
+            $campos[$key]['nombre'] = $c;
+
+            $label = n($campo['column_name']) . ':'; 
+            $campos[$key]['etiqueta'] = $label;
+
+            $prefijo = substr($campo['column_name'], 0, 4);
+            $campos[$key]['prefijo'] = $prefijo;
+
+            $campos[$key]['validacion'] = '';
+
+        }
+    }
+    $campo_id = $prefijo . 'id';
+
+    //var_dump($campos);
     $listado_campos_fk = array();
 
     foreach ($campos as $campo){
-        $campos_js[] = substr($campo['column_name'], 4);
-        if (isset($fkeys[$campo['column_name']])) {
+        $c = $campo['nombre']; 
+
+        if ($campo['validacion'] != 'hidden') {
+        $campos_js[] = $c;
+        }
+
+        if (isset($fkeys[$c])) {
             //solo si es clave foranea:
             //
-            $listado_campos_fk[$campo['column_name']] = array();
-            $fk = $fkeys[$campo['column_name']];
+            $fk = $fkeys[$c];
 
-            $campos_fk = q("SELECT *
-                FROM information_schema.columns
-                WHERE table_schema = 'public'
-                AND table_name   = '{$fk[foreign_table_name]}'
-                ORDER BY data_type, is_nullable, column_name
-                ");
+            $campo_etiqueta_fk = '';
+                $listado_campos_fk[$campo['column_name']] = array();
+                $campos_fk = q("SELECT *
+                    FROM information_schema.columns
+                    WHERE table_schema = 'public'
+                    AND table_name   = '{$fk[foreign_table_name]}'
+                    ORDER BY data_type, is_nullable, column_name
+                    ");
 
-            $campo_etiqueta = '';
-            foreach($campos_fk as $campo_fk) {
-                $etiqueta_fk = substr($campo_fk['column_name'], 4);
-                $listado_campos_fk[$campo['column_name']][$etiqueta_fk] = $campo_fk;
-            }
-            $campos_posibles = array('nombre', 'razon_social', 'cedula', 'ruc', 'apellidos', 'texto', 'codigo', 'etiqueta', 'descripcion', 'creado', 'id');
-            foreach($campos_posibles as $campo_posible) {
-                if (isset($listado_campos_fk[$campo['column_name']][$campo_posible])) {
-                    $campo_etiqueta = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
-                    break;
+                foreach($campos_fk as $campo_fk) {
+                    $etiqueta_fk = substr($campo_fk['column_name'], 4);
+                    $listado_campos_fk[$campo['column_name']][$etiqueta_fk] = $campo_fk;
                 }
-            }
+                $campos_posibles = array('nombre', 'razon_social', 'cedula', 'ruc', 'apellidos', 'texto', 'codigo', 'etiqueta', 'descripcion', 'creado', 'id');
+                foreach($campos_posibles as $campo_posible) {
+                    if (isset($listado_campos_fk[$campo['column_name']][$campo_posible])) {
+                        $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
+                        break;
+                    }
+                }
 
 
-            $fkeys[$campo['column_name']]['__opciones'] = array();
-            $opciones = q("SELECT * FROM {$fk[foreign_table_name]} ORDER BY $campo_etiqueta");
+            $fkeys[$c]['__opciones'] = array();
+            $opciones = q("SELECT * FROM {$fk[foreign_table_name]} ORDER BY $campo_etiqueta_fk");
             if ($opciones) {
                 foreach($opciones as $opcion){
                     $valor = $opcion[$fk['foreign_column_name']];
-                    $etiqueta = $opcion[$campo_etiqueta];
-                    $fkeys[$campo['column_name']]['__opciones'][$valor] = $etiqueta;
+                    $etiqueta = $opcion[$campo_etiqueta_fk];
+                    $fkeys[$c]['__opciones'][$valor] = $etiqueta;
                 }
             }
         }
     }
+    //var_dump($campos);
     echo "<script>var tabla='".substr($tabla, 4)."';var campos = ".json_encode($campos_js).";</script>";
     echo "<a href='/autoadmin'><< Regresar al listado de tablas</a>";
     echo "<h1>$nombre_tabla</h1>";
 
-    $prefijo = substr($campos[0]['column_name'], 0, 4);
+
     $result = q("SELECT * FROM $tabla ORDER BY {$prefijo}id");
 
 
-    $campo_id = null;
-    $campo_borrado = null;
     echo '<a href="#" download><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Descargar XML </a>';
     echo '|';
     echo '<a href="#" onclick="p_xlsx();return false;"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Exportar datos</a>';
@@ -133,16 +204,12 @@ FROM
     echo "<tr>";
     echo "<th>&nbsp;</th>";
     foreach($campos as $campo){
-        $valor = $campo['column_name'];
-        $nombre_columna = n($campo['column_name']);
-        echo "<th>$nombre_columna</th>";
-        if (strlen($campo['column_name']) == 6 && strpos($campo['column_name'], '_id') == 3) {
-            $campo_id = $campo['column_name'];
-        }
-        if (strpos($campo['column_name'], '_borrado') == 3) {
-            $campo_borrado = $campo['column_name'];
+        if ($campo['validacion'] != 'hidden') {
+            $nombre_columna = $campo['etiqueta'];
+            echo "<th>$nombre_columna</th>";
         }
     }
+
     echo "</tr>";
     echo "</thead>";
     echo "<tbody id='lista_registros'>";
@@ -151,6 +218,7 @@ FROM
     if ($result) {
         foreach($result as $r){
             $count++;
+
             $id = $r[$campo_id];
             $clase_css = ''; 
             if (!empty($campo_borrado) && !empty($r[$campo_borrado])){
@@ -160,18 +228,20 @@ FROM
             echo "<th>$count.</th>";
 
             foreach($campos as $campo){
-                $valor = $r[$campo['column_name']];
-                if(isset($fkeys[$campo['column_name']])) {
-                    $etiqueta = $fkeys[$campo['column_name']]['__opciones'][$valor];
-                } else {
-                    $etiqueta = $valor;
-                }
+                if ($campo['validacion'] != 'hidden') {
+                    $valor = $r[$campo['column_name']];
+                    if(isset($fkeys[$campo['nombre']])) {
+                        $etiqueta = $fkeys[$campo['nombre']]['__opciones'][$valor];
+                    } else {
+                        $etiqueta = $valor;
+                    }
 
-                if ($campo['column_name'] == $campo_id ){
-                    echo "<td><a href='#' onclick='p_abrir($valor);return false;'>$etiqueta</a></td>";
-                } else {
-                    $campo_nombre = substr($campo['column_name'], 4);
-                    echo "<td id='dato_{$id}_{$campo_nombre}'>$etiqueta</td>";
+                    $campo_nombre = $campo['nombre'];
+                    if ($campo['nombre'] == $campo_etiqueta ){
+                        echo "<td><a href='#' onclick='p_abrir($id, this);return false;' id='dato_{$id}_{$campo_nombre}'>$etiqueta</a></td>";
+                    } else {
+                        echo "<td id='dato_{$id}_{$campo_nombre}'>$etiqueta</td>";
+                    }
                 }
             }
             echo "</tr>";
@@ -196,30 +266,41 @@ FROM
 
 <form id="formulario" class="form-horizontal">
   <?php foreach ($campos as $campo): ?>
-  <?php $c = substr($campo['column_name'], 4); ?>
-  <?php $label = n($campo['column_name']) . ':'; ?>
+  <?php $c = $campo['nombre']; ?>
+  <?php $label = $campo['etiqueta']; ?>
+  <?php if($campo['validacion']=='hidden'): ?>
+  <input type="hidden" id="<?=$c?>" name="<?=$c?>">
+  <?php else: ?>
   <?php if ($c != 'creado' && $c != 'modificado' && $c != 'borrado'): ?>
   <div class="form-group">
-    <label for="<?=$c?>" class="col-sm-2 control-label"><?=$label?></label>
-    <div class="col-sm-10">
-      <?php if(isset($fkeys[$campo['column_name']])): ?>
+    <label for="<?=$c?>" class="col-sm-4 control-label"><?=$label?></label>
+    <div class="col-sm-8">
+      <?php if(isset($fkeys[$campo['nombre']])): ?>
 
       <select class="form-control js-example-basic-single" style="width: 50%" id="<?=$c?>" name="<?=$c?>" >
         <option></option>
 <?php
-    $opciones = $fkeys[$campo['column_name']]['__opciones'];
+    $opciones = $fkeys[$campo['nombre']]['__opciones'];
+
 
     foreach($opciones as $valor => $etiqueta){
         echo "<option value='$valor'>$etiqueta</option>";
     }
 ?>
       </select>
+      <?php elseif($c=='texto'): ?>
+
+      <textarea class="form-control" id="<?=$c?>" name="<?=$c?>" placeholder=""></textarea>
+
       <?php else: ?>
-      <input type="text" class="form-control" id="<?=$c?>" name="<?=$c?>" placeholder="">
+
+      <input class="form-control" id="<?=$c?>" name="<?=$c?>" placeholder="" <?=$campo['validacion']?> onblur="p_validar(this)" >
+
       <?php endif; ?>
 
     </div>
   </div>
+  <?php endif; ?>
   <?php endif; ?>
   <?php endforeach; ?>
 </form>
@@ -275,6 +356,18 @@ $(document).ready(function() {
     }});
 });
 
+
+function p_validar(target) {
+    console.log('validando', target);
+    var resultado = true;
+    if (!$(target)[0].checkValidity()) {
+        console.log('no valida...');
+        $('<input type="submit">').hide().appendTo('#formulario').click().remove();
+        resultado = false;
+    }
+    return resultado;
+}
+
 function p_imprimir(frm_id){
     var element = document.getElementById('diccionario');
     html2pdf(element, {
@@ -294,7 +387,11 @@ function p_xlsx(){
 
 
 <script>
-function p_abrir(id){
+
+var campo_etiqueta = '<?=$campo_etiqueta?>';
+
+function p_abrir(id, target){
+    var etiqueta = $(target).text();
     $.ajax({
         'url':'/_listar/'+tabla+'/'+id
     }).done(function(data){
@@ -313,7 +410,8 @@ function p_abrir(id){
             $('#formulario_guardar').hide();
             $('#formulario_recuperar').show();
         }
-        $('#formulario_titulo').html(data['id'] );
+        //$('#formulario_titulo').html(data['id'] );
+        $('#formulario_titulo').html(etiqueta );
         for (key in data){
             $('#' + key).val(data[key]).trigger('change');;
         }
@@ -397,6 +495,7 @@ function p_borrarSuave(){
 }
 
 function p_guardar(){
+    if (p_validar($('#formulario'))) {
     var respuestas_json = $('#formulario').serializeArray();
     console.log(respuestas_json);
     dataset_json = [];
@@ -448,8 +547,8 @@ function p_guardar(){
                 var key = '';
                 campos.forEach(function(campo){
                     valor = (data[campo] == null) ? '' : (($('#'+campo + ' option:selected').length > 0) ? $('#'+campo+' option:selected').text() : data[campo]);
-                    valor = (campo == 'id' ? '<a href="#" onclick="p_abrir('+data['id']+');return false;">'+data['id']+'</a>' : valor);
-                    celdas += '<td id="dato_'+data['id']+'_'+campo+'">'+valor+'</td>';
+                    valor = (campo == campo_etiqueta ? '<td><a href="#" onclick="p_abrir('+data['id']+', this);return false;" id="dato_'+data['id']+'_'+campo+'">'+valor+'</a></td>' : '<td id="dato_'+data['id']+'_'+campo+'">'+valor+'</td>');
+                    celdas += valor;
                 });
                 /*
                 for (key in data){
@@ -469,6 +568,7 @@ function p_guardar(){
         console.log('ERROR AL GUARDAR', aaa, bbb);
         alert('No se pudieron guardar los datos.');
     });
+}
 }
 
 function p_nuevo(){
