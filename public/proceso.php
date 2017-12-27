@@ -188,6 +188,8 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
             AND ate_id=$ate_id
     ")[0]['vpr_correo_electronico'];
 
+
+
     $result_contenido = q("
             SELECT *,
             pla_cuerpo,pla_adjunto_texto, pla_asunto, pla_adjunto_nombre
@@ -309,6 +311,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 
 }
 
+$filtro = isset($filtro) ? "AND tea_estado_atencion_padre IN $filtro" : '';
 $result = q("
     SELECT * 
     FROM sai_atencion
@@ -334,6 +337,7 @@ $result = q("
     AND ate_pertinencia_proveedor = pep_id
     AND pep_proveedor = pro_id
     AND tea_estado_atencion_padre = ate_estado_atencion
+    $filtro
     ORDER BY cli_razon_social
     ,cue_creado DESC
     ,ate_creado DESC
