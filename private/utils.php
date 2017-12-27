@@ -19,6 +19,13 @@ function n($codigo){
     return implode(' ', $partes);
 }
 
+function n2t($numero) {
+    include_once 'lib/NumberToLetterConverter.class.php';
+    $converter = new NumberToLetterConverter();
+    return $converter->to_word($numero);
+}
+
+
 function array_to_xml( $data, &$xml_data = null) {
     $primero = false;
     //if (empty($xml_data)) {

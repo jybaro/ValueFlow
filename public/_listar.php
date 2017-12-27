@@ -20,7 +20,7 @@ if (isset($args[0]) && !empty($args[0])) {
         //echo $columna['column_name'];
         $columnas[$columna['column_name']] = $columna;
 
-        if (strpos($columna['column_name'], '_id') !== false) {
+        if (strlen($columna['column_name']) == 6 && strpos($columna['column_name'], '_id') !== false) {
             $campo_id = $columna['column_name'];
             $prefijo = explode('_', $campo_id)[0] . '_';
         }

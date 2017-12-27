@@ -36,15 +36,31 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
             AND tea_borrado IS NULL
             AND ate_id=$ate_id
             ");
-    $pla_cuerpo = $result_contenido[0]['pla_cuerpo'];
     $pla_asunto = $result_contenido[0]['pla_asunto'];
     $pla_adjunto_nombre = $result_contenido[0]['pla_adjunto_nombre'];
+
+
+    $pla_cuerpo = $result_contenido[0]['pla_cuerpo'];
     $pla_adjunto_texto = $result_contenido[0]['pla_adjunto_texto'];
 
     //echo "<pre>";
     //var_dump($result_contenido);
     //die();
 
+    require_once('_obtenerCampos.php');
+
+    if (isset($campos) && is_array($campos)) {
+        $search = array();
+        $replace = array();
+        foreach($campos as $campo) {
+            $search[] = '%'.$campo['cae_codigo'].'%';
+            $replace[] = $campo['valor'];
+        }
+        $pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
+        $pla_asunto = str_replace($search, $replace, $pla_asunto);
+        $pla_adjunto_nombre = str_replace($search, $replace, $pla_adjunto_nombre);
+        $pla_adjunto_texto = str_replace($search, $replace, $pla_adjunto_texto);
+    }
 
     $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
     $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
@@ -253,7 +269,7 @@ EOT;
 <script>
 function p_abrir(tea_id, ate_id) {
     console.log('abrir', tea_id, ate_id);
-    $.get('/_obtenerCampos/'+tea_id, function(data){
+    $.get('/_obtenerCampos/'+tea_id + '/'+ate_id, function(data){
         console.log(data);
         data = JSON.parse(data);
         console.log(data);
@@ -262,7 +278,8 @@ function p_abrir(tea_id, ate_id) {
         $('#ate_id').val(ate_id);
 
         data.forEach(function(campo){
-        $('#campos').append('<div class="form-group"><label for="'+campo['cae_codigo']+'" class="col-sm-2 control-label">'+campo['cae_texto']+ ':</label>    <div class="col-sm-10"><input type="text" class="form-control" id="'+campo['cae_codigo']+'" name="'+campo['cae_codigo']+'" placeholder="" value="'+campo['valor']+'"></div></div>');
+            var valor = (campo['valor'] == 'null' || campo['valor'] == null) ? '' : campo['valor'];
+        $('#campos').append('<div class="form-group"><label for="'+campo['cae_codigo']+'" class="col-sm-2 control-label">'+campo['cae_texto']+ ':</label>    <div class="col-sm-10"><input type="text" class="form-control" id="'+campo['cae_codigo']+'" name="'+campo['cae_codigo']+'" placeholder="" value="'+valor+'"></div></div>');
         });
         $('#modal').modal('show');
     })

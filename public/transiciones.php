@@ -9,6 +9,25 @@ if ($result) {
     }
 }
 
+$result = q("
+    SELECT
+    COUNT(*),
+    tea_estado_atencion_padre,
+    tea_estado_atencion_hijo
+    FROM sai_transicion_estado_atencion
+    GROUP BY tea_estado_atencion_padre, tea_estado_atencion_hijo
+    ");
+$transiciones = array();
+foreach($result as $r){
+    $padre = $r[tea_estado_atencion_padre];
+    $hijo = $r[tea_estado_atencion_hijo];
+
+    if(!isset($transiciones[$padre])) {
+        $transiciones[$padre] = array();
+    }
+    $transiciones[$padre][$hijo] = $r['count'];
+}
+
 $result= q("
     SELECT 
     *
@@ -147,7 +166,7 @@ echo '<thead>';
 
 
 function p_cols($hijos){
-    global $cols_titulo;
+    global $cols_titulo, $transiciones;
     foreach($hijos as $hijo){
         if (!empty($hijo['hijos'])) {
             p_cols($hijo['hijos']);
@@ -166,9 +185,16 @@ function p_cols($hijos){
                 $y = $esa_id;
 
                 if ($x == $y) {
-                    echo "<td style='background-color:#000;'>&nbsp;</td>";
+                    echo "<td style='background-color:#000;color:#999;'>";
+                    echo htmlspecialchars(print_r($hijo[esa_nombre], true));
+                    echo "</td>";
                 } else {
-                    echo "<td class='text-center' id='celda_{$x}_{$y}'><a href='#' title='X' onmouseover='p_mostrar_desde_hacia($x, $y, this)' onclick='p_abrir($x, $y);return false;'><span class='glyphicon glyphicon-cog' aria-hidden='true'></span></a></td>";
+
+                    $count_transicion = (isset($transiciones[$x]) && isset($transiciones[$x][$y])) ? $transiciones[$x][$y] : 0;
+
+                    $style_class = ($count_transicion == 0) ? '' : 'alert alert-info';
+                    $contenido = ($count_transicion == 0) ? '' : ' ' . n2t($count_transicion);
+                    echo "<td class='text-center {$style_class}' id='celda_{$x}_{$y}'><a href='#' title='X' onmouseover='p_mostrar_desde_hacia($x, $y, this)' onclick='p_abrir($x, $y);return false;'><span class='glyphicon glyphicon-cog' aria-hidden='true'></span>$contenido</a></td>";
                 }
             }
             echo "</tr>";
