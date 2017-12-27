@@ -249,6 +249,7 @@ EOF;
 </div>
 <!-- ./wrapper -->
 
+<a href="/autoadmin/sai_atencion" onclick="///p_nuevo();return false;" style="position:fixed;bottom:50px;right:10px;"><img src="/img/plus.png" alt="Crear nuevo registro" title="Crear nuevo registro" ></img></a>
 <!-- REQUIRED JS SCRIPTS -->
 
 <!-- AdminLTE App -->
@@ -259,6 +260,5 @@ EOF;
      user experience. -->
 
 </body></html>
-<?php
 
 
