@@ -314,11 +314,11 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 $filtro = isset($filtro) ? "AND tea_estado_atencion_actual IN $filtro" : '';
 $sql = ("
     SELECT * 
-    ,e1.esa_nombre AS estado_actual
-    ,e2.esa_nombre AS estado_siguiente
-    ,e2.esa_id AS estado_siguiente_id
-
     FROM sai_atencion
+
+    LEFT OUTER JOIN sai_estado_atencion 
+        ON esa_borrado IS NULL
+        AND ate_estado_atencion = esa_id
 
     LEFT OUTER JOIN sai_servicio
         ON ser_borrado IS NULL
@@ -345,14 +345,6 @@ $sql = ("
         AND tea_pertinencia_proveedor = pep_id
         AND tea_estado_atencion_actual = ate_estado_atencion
 
-    LEFT OUTER JOIN sai_estado_atencion AS e1 
-        ON e1.esa_borrado IS NULL
-        AND tea_estado_atencion_actual = e1.esa_id
-
-    LEFT OUTER JOIN sai_estado_atencion AS e2 
-        ON e2.esa_borrado IS NULL
-        AND tea_estado_atencion_siguiente = e2.esa_id
-
     WHERE ate_borrado IS NULL
         $filtro
 
@@ -361,19 +353,11 @@ $sql = ("
         ,ate_creado DESC
 ");
 $result = q($sql);
+
 //echo $sql;
 if ($result) {
-    $estado_actual = null;
-    foreach ($result as $r) {
+    foreach($result as $r){
         //echo '<div><form><button class="btn btn-info" onclick="">'."Servicio de {$r[ser_nombre]} a {$r[cli_razon_social]}, ".p_formatear_fecha($r['ate_creado']).' (estado '.$r['esa_nombre'].')</button></form></div>';
-        if ($estado_actual != $r[ate_id] . $r[estado_actual]) {
-            if (!empty($estado_actual)) {
-
-        echo <<<EOT
-  </div>
-</div>
-EOT;
-            } 
         $fecha_formateada = p_formatear_fecha($r['ate_creado']);
         //$vardump = print_r($result, true);
         //<pre>$vardump</pre>
@@ -386,13 +370,13 @@ EOT;
   $fecha_formateada 
   <br>
   <div>&nbsp;</div>
-  <strong>Estado:</strong> {$r[estado_actual]}
+  <strong>Estado:</strong> {$r[esa_nombre]}
   <div>&nbsp;</div>
   <strong>Proveedor:</strong> {$r[pro_razon_social]}
+  <strong>tea_id:</strong> {$r[tea_id]}
   <div>&nbsp;</div>
 
 
-  <!--
   <strong>Destinatario:</strong> {$r[tea_destinatario]}
   <div>&nbsp;</div>
   <strong>Estado padre:</strong> {$r[tea_estado_atencion_actual]}
@@ -403,6 +387,7 @@ EOT;
   <div>&nbsp;</div>
   <strong>Pertinencia usuario:</strong> {$r[tea_pertinencia_usuario]}
   <div>&nbsp;</div>
+  <!--
   -->
 
 
@@ -411,12 +396,9 @@ EOT;
   </div>
   <div>&nbsp;</div>
 EOT;
-        }
-        $estado_actual = $r[ate_id] . $r[estado_actual];
         $estado = $r['ate_estado_atencion'];
         $servicio = $r['ate_servicio'];
         $pertinencia_proveedor = $r['tea_pertinencia_proveedor'];
-        /*
         $result2 = q("
             SELECT * 
             FROM sai_transicion_estado_atencion
@@ -438,17 +420,26 @@ EOT;
             AND tea_pertinencia_proveedor = $pertinencia_proveedor
             ORDER BY esa_nombre, tea_estado_atencion_siguiente
         ");
-         */
-        
+        if ($result2){
+            echo "<ul>";
+            foreach($result2 as $r2){
                 echo "<form method='POST'>";
-                echo "<input type='hidden' name='estado' value='".$r['estado_siguiente_id']."'>";
-                echo "<input type='hidden' name='tea_id' value='".$r['tea_id']."'>";
+                echo "<input type='hidden' name='estado' value='".$r2['esa_id']."'>";
+                echo "<input type='hidden' name='tea_id' value='".$r2['tea_id']."'>";
                 echo "<input type='hidden' name='id' value='".$r['ate_id']."'>";
                 echo "<li><button class='btn btn-success'>" . '<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> ';
                 //echo "Pasar al estado: ". $r2['esa_nombre'] . ", Proveedor {$r2[pro_razon_social]} - {$r2[tea_]}";
-                echo "Pasar al estado: ". $r['estado_siguiente']; 
+                echo "Pasar al estado: ". $r2['esa_nombre']; 
                 echo "</button></li>";
                 echo "</form>";
+
+            }
+            echo "</ul>";
+        }
+        echo <<<EOT
+  </div>
+</div>
+EOT;
 
     }
 

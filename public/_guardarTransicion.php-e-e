@@ -55,7 +55,7 @@ $sql = ("
     SET tea_borrado=now() 
     WHERE tea_borrado IS NULL
     AND tea_estado_atencion_actual=$desde 
-    AND tea_estado_atencion_siguiente=$hacia 
+    AND tea_estado_atencion_hijo=$hacia 
     AND tea_pertinencia_proveedor $comparacion_proveedor $pertinencia_proveedor
     AND tea_destinatario = $des_id
     RETURNING *
@@ -71,7 +71,7 @@ $sql = ("
     INSERT INTO 
     sai_transicion_estado_atencion(
         tea_estado_atencion_actual,
-        tea_estado_atencion_siguiente,
+        tea_estado_atencion_hijo,
         tea_pertinencia_usuario,
         tea_pertinencia_proveedor,
         tea_destinatario,

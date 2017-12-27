@@ -212,12 +212,12 @@ EOT;
             AND ser_borrado IS NULL
             AND pro_borrado IS NULL
             AND tea_pertinencia_proveedor = pep_id
-            AND tea_estado_atencion_siguiente = esa_id 
+            AND tea_estado_atencion_hijo = esa_id 
             AND pep_servicio = ser_id
             AND pep_proveedor = pro_id
             AND tea_estado_atencion_actual = $estado
             AND pep_servicio = $servicio
-            ORDER BY esa_nombre, tea_estado_atencion_siguiente
+            ORDER BY esa_nombre, tea_estado_atencion_hijo
         ");
         if ($result2){
             echo "<ul>";
