@@ -1,3 +1,4 @@
-<h1>Cotizaciones</h1>
 <?php
+$titulo_proceso = 'Cotizaciones';
 
+require_once('proceso.php');

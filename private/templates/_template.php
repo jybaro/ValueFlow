@@ -77,6 +77,18 @@ body {
             <li role="separator" class="divider"></li>
           </ul>
         </li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Procesos<span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="/factibilidades">Factibilidades</a></li>
+            <li><a href="/cotizaciones">Cotizaciones</a></li>
+            <li><a href="/ordenes_servicio">Órdenes de servicio</a></li>
+            <li><a href="/servicios">Servicios</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="/cambios">Cambios</a></li>
+            <li role="separator" class="divider"></li>
+          </ul>
+        </li>
         <!--
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Factibilidades<span class="caret"></span></a>

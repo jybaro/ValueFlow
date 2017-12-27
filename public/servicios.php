@@ -1,3 +1,4 @@
-<h1>Servicios</h1>
 <?php
+$titulo_proceso = 'Servicios';
 
+require_once('proceso.php');
