@@ -412,28 +412,6 @@ EOT;
 }
 ?>
 
-<div id="modal" class="modal fade" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Campos <span id="formulario_titulo"></span></h4>
-      </div>
-      <div class="modal-body">
-
-<form id="formulario" class="form-horizontal">
-  <input type="hidden" id="ate_id" name="ate_id" value="">
-<div id="campos"></div>
-</form>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-success" onclick="p_guardar()" id="formulario_guardar">Guardar</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
 <script>
 function p_abrir(tea_id, ate_id) {
     console.log('abrir', tea_id, ate_id);
@@ -561,6 +539,28 @@ function p_guardar(){
      Both of these plugins are recommended to enhance the
      user experience. -->
 
+<div id="modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Campos <span id="formulario_titulo"></span></h4>
+      </div>
+      <div class="modal-body">
+
+<form id="formulario" class="form-horizontal">
+  <input type="hidden" id="ate_id" name="ate_id" value="">
+<div id="campos"></div>
+</form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-success" onclick="p_guardar()" id="formulario_guardar">Guardar</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 </body></html>
 
 
