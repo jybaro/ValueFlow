@@ -277,8 +277,15 @@ FROM
     <div class="col-sm-8">
       <?php if(isset($fkeys[$campo['nombre']])): ?>
 
-      <select class="form-control js-example-basic-single" style="width: 50%" id="<?=$c?>" name="<?=$c?>" >
-        <option></option>
+      <!--pre>FOREIGN KEY
+      <?php //var_dump($fkeys[$campo['nombre']]); ?>
+      <?php //echo "TABLE NAME: $tabla"; ?>
+      </pre-->
+        <?php if($fkeys[$campo['nombre']]['foreign_table_name'] == $tabla): ?>
+        <span id="recursivo_<?=$c?>"></span>
+        <?php endif; ?>
+      <select class="form-control combo-select2" style="width: 50%" id="<?=$c?>" name="<?=$c?>" >
+        <option>&nbsp;</option>
 <?php
     $opciones = $fkeys[$campo['nombre']]['__opciones'];
 
@@ -327,7 +334,7 @@ FROM
 <script>
 
 $(document).ready(function() {
-    $('.js-example-basic-single').select2({
+    $('.combo-select2').select2({
         language: "es"
     });
     $('#tabla').DataTable({ language: {
@@ -482,6 +489,15 @@ function p_borrarSuave(){
 
                 for (key in data){
                     $('#dato_' + data['id'] + '_' + key).text(data[key]);
+                    //si es recursivo:
+                    campo = key;
+                    if ($('#recursivo_' + campo).length > 0) {
+                        option_value = data['id'];
+                        option_label = data[campo_etiqueta];
+                        console.log('RECURSIVO YA EXISTE:', '#recursivo_' + campo, 'value '+option_value, 'label '+option_label);
+                        $('#'+campo).find('option[value='+option_value+']').remove();
+                        $('#'+campo).select2();
+                    }
                 }
                 $('#fila_' + data['id']).removeClass('alert alert-danger alert-success alert-info');
                 $('#fila_' + data['id']).addClass('alert alert-danger');
@@ -525,7 +541,8 @@ function p_guardar() {
                 alert(data['ERROR']);
             } else {
                 if ($("#fila_" + data['id']).length) { // 0 == false; >0 == true
-                    //ya existe:
+                    ///////////////
+                    //YA EXISTE:
                     for (key in data){
                         var id = '#dato_' + data['id'] + '_' + key;
                         var texto = '';
@@ -537,18 +554,38 @@ function p_guardar() {
                             texto = data[key];
                         }
                         $(id).text(texto);
+                        //si es recursivo:
+                        campo = key;
+                        if ($('#recursivo_' + campo).length > 0) {
+                            option_value = data['id'];
+                            option_label = data[campo_etiqueta];
+                            console.log('RECURSIVO YA EXISTE:', '#recursivo_' + campo, 'value '+option_value, 'label '+option_label);
+                            $('#'+campo).find('option[value='+option_value+']').text(option_label);
+                            $('#'+campo).select2();
+                        }
                     }
                 } else {
-                    //nuevo:
+                    ///////////
+                    //NUEVO:
                     console.log('nuevo registro');
                     var numero = $('#lista_registros').children().length + 1;
                     var celdas = '';
                     var valor = '';
+                    var option_value = '';
+                    var option_label = '';
                     var key = '';
                     campos.forEach(function(campo){
                         valor = (data[campo] == null) ? '' : (($('#'+campo + ' option:selected').length > 0) ? $('#'+campo+' option:selected').text() : data[campo]);
                         valor = (campo == campo_etiqueta ? '<td><a href="#" onclick="p_abrir('+data['id']+', this);return false;" id="dato_'+data['id']+'_'+campo+'">'+valor+'</a></td>' : '<td id="dato_'+data['id']+'_'+campo+'">'+valor+'</td>');
                         celdas += valor;
+                        //si es recursivo:
+                        if ($('#recursivo_' + campo).length > 0) {
+                            option_value = data['id'];
+                            option_label = data[campo_etiqueta];
+                            console.log('RECURSIVO NUEVO:', '#recursivo_' + campo, 'value '+option_value, 'label '+option_label);
+                            $('#'+campo).append('<option value="'+option_value+'">'+option_label+'</option>');
+                            $('#'+campo).trigger('change');
+                        }
                     });
                 /*
                     for (key in data){
@@ -559,6 +596,7 @@ function p_guardar() {
 
                     console.log('celdas:', celdas, '<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
                     $('#lista_registros').append('<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
+                    
                 }
                 $('#fila_' + data['id']).removeClass('alert alert-danger alert-success alert-info');
                 $('#fila_' + data['id']).addClass('alert alert-success');

@@ -34,6 +34,12 @@ $us_listado = q("SELECT *, (SELECT rol_nombre FROM sai_rol WHERE rol_id=usu_rol)
     </div>
   </div>
   <div class="form-group">
+    <label for="username" class="col-sm-2 control-label">Nombre de usuario:</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="username" name="username" placeholder="Nombre de usuario">
+    </div>
+  </div>
+  <div class="form-group">
     <label for="nombres" class="col-sm-2 control-label">Nombres:</label>
     <div class="col-sm-10">
       <input type="text" class="form-control" id="nombres" name="nombres" placeholder="Nombres">
@@ -60,7 +66,7 @@ $us_listado = q("SELECT *, (SELECT rol_nombre FROM sai_rol WHERE rol_id=usu_rol)
   <div class="form-group">
     <label for="rol" class="col-sm-2 control-label">Rol:</label>
     <div class="col-sm-10">
-      <select id="rol" name="rol" class="">
+      <select id="rol" name="rol" class="combo-select2">
         <?php $roles=q("SELECT * FROM sai_rol ORDER BY rol_nombre"); ?>
         <?php foreach($roles as $rol): ?>
             <option value="<?=$rol['rol_id']?>"><?=$rol['rol_nombre']?></option>
@@ -86,6 +92,7 @@ $us_listado = q("SELECT *, (SELECT rol_nombre FROM sai_rol WHERE rol_id=usu_rol)
   <tr>
     <th></th>
     <th>Número de cédula</th>
+    <th>Nombre de usuario</th>
     <th>Nombre</th>
     <th>Rol</th>
     <th>Correo electr&oacute;nico</th>
@@ -95,6 +102,7 @@ $us_listado = q("SELECT *, (SELECT rol_nombre FROM sai_rol WHERE rol_id=usu_rol)
 <tr class="<?php echo (empty($us['usu_borrado']) ? ($us['usu_password'] == md5($us['usu_cedula']) ? 'alert alert-info' : '') : 'alert alert-danger'); ?>">
     <th><?php echo ($i+1).'.&nbsp;'; ?></th>
     <td><span id=""><a href="#" onclick="p_abrir('<?=$us['usu_id']?>');return false;"><?=$us['usu_cedula']?></a></span></td>
+    <td><span id="username_<?=$us['usu_id']?>"><?php echo $us['usu_username']; ?></span></td>
     <td><span id="nombre_<?=$us['usu_id']?>"><?php echo $us['usu_apellidos'].' '.$us['usu_nombres']; ?></span></td>
     <td><span id="rol_<?=$us['usu_id']?>"><?=$us['rol']?></span></td>
     <td><span id="correo_electronico_<?=$us['usu_id']?>"><?=$us['usu_correo_electronico']?></span></td>
@@ -109,6 +117,9 @@ $us_listado = q("SELECT *, (SELECT rol_nombre FROM sai_rol WHERE rol_id=usu_rol)
 <script src="/js/md5.min.js"></script>
 <script>
 $(document).ready(function() {
+    $('.combo-select2').select2({
+        language: "es"
+    });
     $('#establecimiento_salud_typeahead').typeahead({
         source:function(query, process){
             $.get('/_listarEstablecimientoSalud/' + query, function(data){
@@ -464,7 +475,7 @@ function p_reiniciar(){
 function p_guardar(){
 
     if (p_validar($('#formulario'))) {
-        if ($('#nombres').val() !== '' && $('#apellidos').val() !== '' && $('#cedula').val() !== '' && $('#correo_electronico').val() !== '') {
+        if ($('#username').val() !== '' && $('#nombres').val() !== '' && $('#apellidos').val() !== '' && $('#cedula').val() !== '' && $('#correo_electronico').val() !== '') {
             if (verificarCedula($('#cedula').val())) {
                 var respuestas_json = $('#formulario').serializeArray();
                 console.log('respuestas json', respuestas_json);
@@ -498,6 +509,7 @@ function p_guardar(){
                         if ($("#nombre_" + data['id']).length) { // 0 == false; >0 == true
                             //ya existe:
                             $('#cedula_' + data['id']).text(data['cedula']);
+                            $('#username_' + data['id']).text(data['username']);
                             $('#nombre_' + data['id']).text(data['apellidos'] + ' ' + data['nombres']);
                             $('#rol_' + data['id']).text(data['rol'] );
                             $('#correo_electronico_' + data['id']).text(data['correo_electronico']);
@@ -505,7 +517,7 @@ function p_guardar(){
                             //nuevo:
                             console.log('nuevo USUARIO');
                             var numero = $('#antiguos').children().length + 1;
-                            $('#antiguos').append('<tr class="alert alert-success"><th>'+numero+'.</th><td><a href="#" onclick="p_abrir(\''+data['id']+'\')">'+data['cedula']+'</a></td><td><span id="nombre_' + data['id'] + '">' + data['apellidos'] + ' ' + data['nombres'] + '</span></td><td><span id="rol_' + data['id'] + '">'+data['rol']+'</span></td><td><span id="correo_electronico_'+data['id']+'">'+data['correo_electronico'] + '</span></td></tr>');
+                            $('#antiguos').append('<tr class="alert alert-success"><th>'+numero+'.</th><td><a href="#" onclick="p_abrir(\''+data['id']+'\')">'+data['cedula']+'</a></td><td><span id="username_' + data['id'] + '">' + data['username'] + '</span></td><td><span id="nombre_' + data['id'] + '">' + data['apellidos'] + ' ' + data['nombres'] + '</span></td><td><span id="rol_' + data['id'] + '">'+data['rol']+'</span></td><td><span id="correo_electronico_'+data['id']+'">'+data['correo_electronico'] + '</span></td></tr>');
                         }
                         $('#modal').modal('hide');
                     }
@@ -518,7 +530,7 @@ function p_guardar(){
                 alert ('Ingrese un número de cédula válido');
             }
         } else {
-            alert ('Ingrese al menos el número de cédula, nombres, apellidos y correo electrónico');
+            alert ('Ingrese al menos el número de cédula, nombres, apellidos, nombre de usuario y correo electrónico');
         }
     }
 }

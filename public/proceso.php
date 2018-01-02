@@ -456,6 +456,11 @@ EOT;
 ?>
 
 <script>
+$(document).ready(function() {
+    $('.combo-select2').select2({
+        language: "es"
+    });
+});
 function p_abrir(tea_id, ate_id) {
     console.log('abrir', tea_id, ate_id);
     $.get('/_obtenerCampos/'+tea_id + '/'+ate_id, function(data){
@@ -483,6 +488,9 @@ function p_guardar(){
         console.log('OK guardado', data);
         $('#modal').modal('hide');
     })
+}
+function p_nuevo(){
+    $('#modal-nuevo').modal('show');
 }
 </script>
 
@@ -572,7 +580,9 @@ function p_guardar(){
 </div>
 <!-- ./wrapper -->
 
-<a href="/autoadmin/sai_atencion" onclick="///p_nuevo();return false;" style="position:fixed;bottom:50px;right:10px;"><img src="/img/plus.png" alt="Crear nuevo registro" title="Crear nuevo registro" ></img></a>
+<?php if (isset($mostrar_nuevo) && $mostrar_nuevo): ?>
+<a href="#" onclick="p_nuevo();return false;" style="position:fixed;bottom:50px;right:10px;"><img src="/img/plus.png" alt="Crear nuevo registro" title="Crear nuevo registro" ></img></a>
+<?php endif; ?>
 <!-- REQUIRED JS SCRIPTS -->
 
 <!-- AdminLTE App -->
@@ -581,6 +591,100 @@ function p_guardar(){
 <!-- Optionally, you can add Slimscroll and FastClick plugins.
      Both of these plugins are recommended to enhance the
      user experience. -->
+
+
+
+<div id="modal-nuevo" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-nuevo-title">Nueva <?=isset($titulo_proceso_singular)?$titulo_proceso_singular:'atención'?></h4>
+      </div>
+      <div class="modal-body">
+
+<form id="formulario-nuevo" class="form-horizontal">
+  <input type="hidden" id="ate_id_nuevo" name="ate_id" value="">
+
+  <div class="form-group">
+    <label for="codigo" class="col-sm-4 control-label">Código</label>
+    <div class="col-sm-8">
+      <input class="form-control" id="codigo" name="codigo" placeholder="" onblur="p_validar(this)">
+    </div>
+  </div>
+
+
+  <div class="form-group">
+    <label for="cliente" class="col-sm-4 control-label">Cliente</label>
+    <div class="col-sm-8">
+      <select class="form-control combo-select2" style="width: 50%" id="cliente" name="cliente" tabindex="-1" aria-hidden="true">
+      </select>
+    </div>
+  </div>
+
+
+
+  <div class="form-group">
+    <label for="contacto" class="col-sm-4 control-label">Contacto del cliente</label>
+    <div class="col-sm-8">
+      <select class="form-control combo-select2" style="width: 50%" id="contacto" name="contacto" tabindex="-1" aria-hidden="true">
+      </select> 
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="cuenta" class="col-sm-4 control-label">Cuenta</label>
+    <div class="col-sm-8">
+      <select class="form-control combo-select2" style="width: 50%" id="cuenta" name="cuenta" tabindex="-1" aria-hidden="true">
+      </select> 
+    </div>
+  </div>
+
+
+  <div class="form-group">
+    <label for="servicio" class="col-sm-4 control-label">Servicio</label>
+    <div class="col-sm-8">
+      <select class="form-control combo-select2" style="width: 50%" id="servicio" name="servicio" tabindex="-1" aria-hidden="true">
+      </select> 
+    </div>
+  </div>
+
+
+
+  <div class="form-group">
+    <label for="pertinencia_proveedor" class="col-sm-4 control-label">Proveedor</label>
+    <div class="col-sm-8">
+      <select class="form-control combo-select2" style="width: 50%" id="pertinencia_proveedor" name="pertinencia_proveedor" tabindex="-1" aria-hidden="true">
+      </select> 
+    </div>
+  </div>
+
+
+  <div class="form-group">
+    <label for="pertinencia_usuario" class="col-sm-4 control-label">Usuario asignado</label>
+    <div class="col-sm-8">
+
+      <!--pre>FOREIGN KEY
+                  </pre-->
+      <select class="form-control combo-select2" style="width: 50%" id="pertinencia_usuario" name="pertinencia_usuario" tabindex="-1" aria-hidden="true">
+
+      </select> 
+    </div>
+  </div>
+
+
+</form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-success" onclick="p_nuevo()" id="formulario_nuevo_crear">Crear <?=isset($titulo_proceso_singular)?$titulo_proceso_singular:'atención'?></button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
 
 <div id="modal" class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">

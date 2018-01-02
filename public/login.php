@@ -5,10 +5,12 @@
 
 $error = false;
 
-if (isset($_POST['cedula']) && !empty($_POST['cedula']) && isset($_POST['password']) && !empty($_POST['password'])) {
+//if (isset($_POST['cedula']) && !empty($_POST['cedula']) && isset($_POST['password']) && !empty($_POST['password'])) {
+if (isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['password']) && !empty($_POST['password'])) {
     //var_dump($_POST);
     //die();
-    $cedula = $_POST['cedula'];
+    //$cedula = $_POST['cedula'];
+    $username = $_POST['username'];
     $password = $_POST['password'];
     $md5_password = md5($password);
 
@@ -19,9 +21,10 @@ if (isset($_POST['cedula']) && !empty($_POST['cedula']) && isset($_POST['passwor
         WHERE
             usu_borrado IS NULL 
             AND usu_rol = rol_id 
-            AND usu_cedula='$cedula' 
+            AND usu_username='$username'
             AND usu_password='$md5_password'
     ");
+            //AND usu_cedula='$cedula' 
     //$usuario = q("SELECT * FROM sai_usuario AS usu, sai_rol AS rol WHERE usu.usu_rol = rol.rol_id AND usu.usu_cedula='$cedula' AND usu.usu_cedula<>'1713175071'");
     //
     //$usuario = q("SELECT * FROM sai_usuario AS usu, sai_rol AS rol WHERE usu.usu_rol = rol.rol_id AND usu.usu_cedula='$cedula' AND usu.usu_password=md5($password)");
@@ -33,6 +36,7 @@ if (isset($_POST['cedula']) && !empty($_POST['cedula']) && isset($_POST['passwor
         //echo "<hr>";
         //
         $usu_id = $usuario[0]['usu_id'];
+        $cedula = $usuario[0]['usu_cedula'];
         $usu_nombre = $usuario[0]['usu_nombres'] . ' '. $usuario[0]['usu_apellidos'] ;
         $rol = $usuario[0]['usu_rol'];
         $rol_version = $usuario[0]['rol_version'];
@@ -41,6 +45,7 @@ if (isset($_POST['cedula']) && !empty($_POST['cedula']) && isset($_POST['passwor
         $seguridades = q("SELECT * FROM sai_permiso, sai_objeto WHERE per_objeto = obj_id AND per_rol=$rol");
         $_SESSION['seguridades'] = $seguridades;
         $_SESSION['cedula'] = $cedula;
+        $_SESSION['username'] = $username;
         $_SESSION['usu_id'] = $usu_id;
         $_SESSION['usu_nombre'] = $usu_nombre;
         $_SESSION['rol'] = $rol;
@@ -80,8 +85,10 @@ if (isset($_POST['cedula']) && !empty($_POST['cedula']) && isset($_POST['passwor
       <form action = "/login" method="POST" class="form-signin">
 <img src="/img/sait-logo.png" style="width:300px;height:100px;">
         <h2 class="form-signin-heading">Ingreso al sistema</h2>
-        <label for="cedula" class="sr-only">Número de cédula</label>
-        <input type="text" id="cedula" name="cedula" class="form-control" placeholder="Usuario" required autofocus>
+        <label for="username" class="sr-only">Nombre de usuario</label>
+        <input type="text" id="username" name="username" class="form-control" placeholder="Usuario" required autofocus>
+        <!--label for="cedula" class="sr-only">Número de cédula</label>
+        <input type="text" id="cedula" name="cedula" class="form-control" placeholder="Usuario" required autofocus-->
         <label for="inputPassword" class="sr-only">Contraseña</label>
         <input type="password" id="password" name="password" class="form-control" placeholder="Contraseña" required>
 

@@ -58,7 +58,7 @@ if (!empty($dataset_json)) {
 
             if ($count_usuarios_cedula == 0) {
                     //crea usuario
-                    $campos = 'rol,nombres,apellidos,cedula,telefono,correo_electronico';
+                    $campos = 'rol,username,nombres,apellidos,cedula,telefono,correo_electronico';
                     $campos_array = explode(',', $campos);
                     $sql_insert_campos = '';
                     $sql_insert_valores = '';
@@ -100,14 +100,16 @@ if (!empty($dataset_json)) {
                         }
 
                     }
-                    $sql_insert_campos .= ',usu_username,usu_password';
-                    $username = $dataset->cedula;
+                    //$sql_insert_campos .= ',usu_username,usu_password';
+                    $sql_insert_campos .= ',usu_password';
+                    //$username = $dataset->cedula;
                     $password = md5($dataset->cedula);
-                    $sql_insert_valores .= ",'$username','$password'";
+                    //$sql_insert_valores .= ",'$username','$password'";
+                    $sql_insert_valores .= ",'$password'";
                     $result = q("INSERT INTO sai_usuario($sql_insert_campos) VALUES($sql_insert_valores) RETURNING *");
             } else if (!empty($id) && $count_usuarios_cedula == 1) {
                 //actualiza usuario
-                $campos = 'rol,nombres,apellidos,telefono,correo_electronico';
+                $campos = 'rol,nombres,apellidos,telefono,correo_electronico,username';
                 $campos_array = explode(',', $campos);
                 $sql_update = '';
                 $glue = '';
@@ -118,6 +120,9 @@ if (!empty($dataset_json)) {
 
                         switch ($campo){
                         case 'rol':
+                            break;
+                        case 'username':
+                            $_ = "'";
                             break;
                         case 'nombres':
                             $_ = "'";
