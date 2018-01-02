@@ -19,7 +19,7 @@ $sql = ("
     FROM sai_campo_extra 
     WHERE cae_transicion_estado_atencion=$tea_id
 ");
-//echo "[$sql]";
+echo "[$sql]";
 $campos = q($sql);
 
 if ($imprimir_json) {
