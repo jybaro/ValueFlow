@@ -66,7 +66,7 @@ $us_listado = q("SELECT *, (SELECT rol_nombre FROM sai_rol WHERE rol_id=usu_rol)
   <div class="form-group">
     <label for="rol" class="col-sm-2 control-label">Rol:</label>
     <div class="col-sm-10">
-      <select id="rol" name="rol" class="combo-select2">
+      <select id="rol" name="rol" class="form-control combo-select2" style="width:50%">
         <?php $roles=q("SELECT * FROM sai_rol ORDER BY rol_nombre"); ?>
         <?php foreach($roles as $rol): ?>
             <option value="<?=$rol['rol_id']?>"><?=$rol['rol_nombre']?></option>
