@@ -1,6 +1,6 @@
 <?php
 
-var_dump($_POST);
+//var_dump($_POST);
 
 $ate_id = $_POST['ate_id'];
 

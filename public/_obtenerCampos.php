@@ -18,6 +18,7 @@ $sql = ("
     ) AS valor
     FROM sai_campo_extra 
     WHERE cae_transicion_estado_atencion=$tea_id
+    ORDER BY cae_orden
 ");
 //echo "[$sql]";
 $campos = q($sql);

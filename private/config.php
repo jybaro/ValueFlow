@@ -2,6 +2,14 @@
 
 date_default_timezone_set('America/Guayaquil');
 
+define('SMTP_SERVER', 'mail.nedetel.net');
+define('SMTP_PORT', 587);
+define('SMTP_USERNAME', 'sait@nedetel.net');
+define('SMTP_PASSWORD', 'n3D1$207*');
+
+define('MAIL_ORDERS_ADDRESS', 'sait@nedetel.net');
+define('MAIL_ORDERS_NAME', 'SAIT');
+
 $bdd_config = array(
     'host' => '127.0.0.1',
     'port' => '5432',

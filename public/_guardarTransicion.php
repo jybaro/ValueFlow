@@ -95,6 +95,17 @@ $result = q($sql);
 
 if ($result) {
     $tea_id = $result[0]['tea_id'];
+
+    //hereda los campos hacia la nueva transición de estado
+    q("
+        UPDATE sai_campo_extra
+        SET cae_transicion_estado_atencion=$tea_id
+        WHERE cae_transicion_estado_atencion=$tea_id_old
+        RETURNING *
+    ");
+
+
+    //arma los mensajes de correo:
     $asunto = (empty($asunto)) ? 'null' : "'$asunto'";
     $cuerpo = (empty($cuerpo)) ? 'null' : "'$cuerpo'";
     $pla_adjunto_texto = (empty($adjunto_texto)) ? 'null' : "'$adjunto_texto'";

@@ -3,6 +3,7 @@
         "phpmailer/phpmailer": "^6.0",
         "mk-j/php_xlsxwriter": "^0.35.0",
         "knplabs/knp-snappy": "^1.0",
-        "rvanlaak/wkhtmltopdf-amd64-centos7": "~0.12"
+        "rvanlaak/wkhtmltopdf-amd64-centos7": "~0.12",
+        "phpoffice/phpspreadsheet": "^1.0"
     }
 }

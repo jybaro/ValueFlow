@@ -34,6 +34,17 @@ if (!empty($dataset_json)) {
                     //guardar
                     $transicion = $dataset->transicion;
                     $result = q("UPDATE sai_campo_extra SET cae_transicion_estado_atencion=$transicion  WHERE cae_id=$campo RETURNING *");
+                    //$result = q("UPDATE sai_campo_extra SET cae_transicion_estado_atencion=$transicion  WHERE cae_id=$campo OR cae_padre=$campo RETURNING *");
+                    function p_actualizar_transicion_campos_hijos($cae_padre) {
+                        global $transicion;
+                        $result = q("UPDATE sai_campo_extra SET cae_transicion_estado_atencion=$transicion  WHERE cae_padre=$cae_padre RETURNING *");
+                        if ($result) {
+                            foreach ($result as $r){
+                                p_actualizar_transicion_campos_hijos($r['cae_id']);
+                            }
+                        }
+                    }
+                    p_actualizar_transicion_campos_hijos($campo);
                 } else {
                     $result = array(array('ERROR' => 'No se envió la transición de estado para asignar al campo'));
                 }
