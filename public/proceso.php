@@ -332,6 +332,14 @@ $sql = ("
         ON pro_borrado IS NULL
         AND pep_proveedor = pro_id
 
+    LEFT OUTER JOIN sai_pertinencia_usuario
+        ON peu_borrado IS NULL
+        AND ate_pertinencia_usuario = peu_id
+
+    LEFT OUTER JOIN sai_usuario
+        ON usu_borrado IS NULL
+        AND peu_usuario = usu_id
+
     LEFT OUTER JOIN sai_transicion_estado_atencion
         ON tea_borrado IS NULL
         AND tea_pertinencia_proveedor = pep_id
@@ -381,6 +389,8 @@ EOT;
   <strong>Estado:</strong> {$r[estado_actual]}
   <div>&nbsp;</div>
   <strong>Proveedor:</strong> {$r[pro_razon_social]}
+  <div>&nbsp;</div>
+  <strong>Usuario:</strong> {$r[usu_nombres]} {$r[usu_apellidos]}
   <div>&nbsp;</div>
 
 
@@ -774,7 +784,7 @@ if ($result) {
 
 
   <div class="form-group">
-    <label for="pertinencia_usuario" class="col-sm-4 control-label">Usuario asignado</label>
+    <label for="pertinencia_usuario" class="col-sm-4 control-label">Usuario técnico</label>
     <div class="col-sm-8">
 
       <!--pre>FOREIGN KEY
@@ -797,6 +807,39 @@ if ($result) {
     foreach($result as $r) {
         $value = $r['peu_id'];
         $label = $r['usu_nombres'] . ' ' .$r['usu_apellidos'] . ' (' . $r['ser_nombre'] . ')';
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
+
+      </select> 
+    </div>
+  </div>
+
+
+
+  <div class="form-group">
+    <label for="usuario_comercial" class="col-sm-4 control-label">Usuario comercial</label>
+    <div class="col-sm-8">
+
+      <!--pre>FOREIGN KEY
+                  </pre-->
+      <select class="form-control combo-select2" style="width: 50%" id="usuario_comercial" name="usuario_comercial" tabindex="-1" aria-hidden="true">
+        <option>&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_usuario
+    ,sai_rol
+    WHERE 
+    usu_borrado IS NULL
+    AND rol_id = usu_rol
+    AND rol_codigo = 'comercial'
+");
+if ($result) {
+    foreach($result as $r) {
+        $value = $r['peu_id'];
+        $label = $r['usu_nombres'] . ' ' .$r['usu_apellidos'];
         echo "<option value='$value'>$label</option>";
     }
 }
