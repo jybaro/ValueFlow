@@ -361,7 +361,7 @@ $sql = ("
         ,ate_creado DESC
 ");
 $result = q($sql);
-echo $sql;
+//echo $sql;
 if ($result) {
     $estado_actual = null;
     foreach ($result as $r) {
