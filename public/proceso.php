@@ -442,7 +442,7 @@ EOT;
         ");
          */
         
-                echo "<form method='POST'>";
+                echo "<form method='POST' onsubmit='return p_validar_transicion(this, ".$r['tea_id'].", ".$r['ate_id'].")'>";
                 echo "<input type='hidden' name='estado' value='".$r['estado_siguiente_id']."'>";
                 echo "<input type='hidden' name='tea_id' value='".$r['tea_id']."'>";
                 echo "<input type='hidden' name='id' value='".$r['ate_id']."'>";
@@ -463,6 +463,44 @@ $(document).ready(function() {
         language: "es"
     });
 });
+function p_validar_transicion(target, tea_id, ate_id){
+    $.get('/_obtenerCampos/'+tea_id + '/'+ate_id, function(data){
+        console.log(data);
+        data = JSON.parse(data);
+        console.log(data);
+
+        var completo = true;
+        if (data) {
+            var campos = [];
+            data.forEach(function(d){
+                var id = d['cae_id'];
+                campos[id] = d;
+                campos[id]['padre'] = null;
+                campos[id]['hijos'] = [];
+            });
+            campos.forEach(function(campo){
+                var id = campo['cae_id'];
+                var padre = campo['cae_padre'];
+                if (typeof(campos[padre]) != 'undefined') {
+                    campos[padre]['hijos'][id] = campos[id];
+                    campos[id]['padre'] = campos[padre];
+                }
+            });
+            campos.forEach(function(campo){
+                if (campo['hijos'].length == 0 && (campo['valor'] == null || campo['valor'].trim() == '')) {
+                    completo = false;
+                }
+            });
+        }
+        if (completo){
+            target.submit();
+            //console.log('submit');
+        } else {
+            alert('Faltan de completar campos.');
+        }
+    });
+    return false;
+}
 function p_abrir(tea_id, ate_id) {
     console.log('abrir', tea_id, ate_id);
     $.get('/_obtenerCampos/'+tea_id + '/'+ate_id, function(data){
@@ -862,7 +900,7 @@ $result = q("
 ");
 if ($result) {
     foreach($result as $r) {
-        $value = $r['peu_id'];
+        $value = $r['usu_id'];
         $label = $r['usu_nombres'] . ' ' .$r['usu_apellidos'];
         echo "<option value='$value'>$label</option>";
     }
