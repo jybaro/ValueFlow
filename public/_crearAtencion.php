@@ -4,12 +4,13 @@
 //var_dump($_POST);
 $cli_id = $_POST['cliente'];
 $cue_id = $_POST['cuenta'];
-$pep_id = $_POST['pertinencia_proveedor'];
+$pro_id = $_POST['proveedor'];
+$ser_id = $_POST['servicio'];
 $peu_id = $_POST['pertinencia_usuario'];
 $usu_id = $_POST['usuario_comercial'];
 $esa_id = "(SELECT esa_id FROM sai_estado_atencion WHERE esa_nombre ILIKE '%factibilidad nueva%')";
+$pep_id = "(SELECT pep_id FROM sai_pertinencia_proveedor WHERE pep_proveedor=$pro_id AND pep_servicio=$ser_id)";
 //$ser_id = "(SELECT pep_servicio FROM sai_pertinencia_proveedor WHERE pep_id=$pep_id)";
-$ser_id = $_POST['servicio'];
 $result = q("
     INSERT INTO sai_atencion(
         ate_cliente

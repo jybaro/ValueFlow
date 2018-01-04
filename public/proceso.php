@@ -356,9 +356,8 @@ $sql = ("
     WHERE ate_borrado IS NULL
         $filtro
 
-    ORDER BY cli_razon_social
-        ,cue_creado DESC
-        ,ate_creado DESC
+    ORDER BY 
+        ate_creado DESC
 ");
 $result = q($sql);
 //echo $sql;
@@ -797,26 +796,20 @@ if ($result) {
 
 
   <div class="form-group">
-    <label for="pertinencia_proveedor" class="col-sm-4 control-label">Proveedor</label>
+    <label for="proveedor" class="col-sm-4 control-label">Proveedor</label>
     <div class="col-sm-8">
-      <select class="form-control combo-select2" style="width: 50%" id="pertinencia_proveedor" name="pertinencia_proveedor" tabindex="-1" aria-hidden="true">
+      <select class="form-control combo-select2" style="width: 50%" id="proveedor" name="proveedor" tabindex="-1" aria-hidden="true">
         <option>&nbsp;</option>
       <?php
 $result = q("
     SELECT *
-    FROM sai_pertinencia_proveedor
-    ,sai_proveedor
-    ,sai_servicio
-    WHERE pep_borrado IS NULL
-    AND pro_borrado IS NULL
-    AND ser_borrado IS NULL
-    AND pep_proveedor = pro_id
-    AND pep_servicio = ser_id
+    FROM sai_proveedor
+    WHERE pro_borrado IS NULL
 ");
 if ($result) {
     foreach($result as $r) {
-        $value = $r['pep_id'];
-        $label = $r['pro_razon_social'] . ' (' . $r['ser_nombre'] . ')';
+        $value = $r['pro_id'];
+        $label = $r['pro_razon_social']; 
         echo "<option value='$value'>$label</option>";
     }
 }
