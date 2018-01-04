@@ -510,52 +510,30 @@ function p_abrir(tea_id, ate_id) {
 
         $('#campos').html("");
         $('#ate_id').val(ate_id);
-        var campos = [];
-        data.forEach(function(d){
-            var id = d['cae_id'];
-            campos[id] = d;
-            campos[id]['padre'] = null;
-            campos[id]['hijos'] = [];
-        });
-        campos.forEach(function(campo){
-            var id = campo['cae_id'];
-            var padre = campo['cae_padre'];
-            if (typeof(campos[padre]) != 'undefined') {
-                campos[padre]['hijos'][id] = campos[id];
-                campos[id]['padre'] = campos[padre];
-            }
-        });
+        if (data) {
+            var campos = [];
+            data.forEach(function(d){
+                var id = d['cae_id'];
+                campos[id] = d;
+                campos[id]['padre'] = null;
+                campos[id]['hijos'] = [];
+            });
+            campos.forEach(function(campo){
+                var id = campo['cae_id'];
+                var padre = campo['cae_padre'];
+                if (typeof(campos[padre]) != 'undefined') {
+                    campos[padre]['hijos'][id] = campos[id];
+                    campos[id]['padre'] = campos[padre];
+                }
+            });
 
-        /*
-        data.forEach(function(campo){
-            var valor = (campo['valor'] == 'null' || campo['valor'] == null) ? '' : campo['valor'];
-            $('#campos').append('<div class="form-group"><label for="'+campo['cae_codigo']+'" class="col-sm-2 control-label">'+campo['cae_texto']+ ':</label>    <div class="col-sm-10"><input type="text" class="form-control" id="'+campo['cae_codigo']+'" name="'+campo['cae_codigo']+'" placeholder="" value="'+valor+'"></div></div>');
-        });
-        */
+            $('#campos').append(p_desplegar_campos(campos));
 
-        /*
-        campos.forEach(function(campo){
-            var valor = (campo['valor'] == 'null' || campo['valor'] == null) ? '' : campo['valor'];
-            var contenido = '';
-            console.log('CAMPO:', campo);
-            if (campo['hijos'].length == 0 && campo['cae_padre'] == null) {
-            //if (campo['padre'] != null) {
-                contenido += '<label for="'+campo['cae_codigo']+'" class="col-sm-2 control-label">'+campo['cae_texto']+ ':</label>    <div class="col-sm-10"><input type="text" class="form-control" id="'+campo['cae_codigo']+'" name="'+campo['cae_codigo']+'" placeholder="" value="'+valor+'"></div>';
-            } else if(campo['hijos'].length > 0) {
-
-                var contenidohijos = '';
-                campo['hijos'].forEach(function(campohijo){
-                    contenidohijos += '<div class="form-group">' + '<label for="'+campohijo['cae_codigo']+'" class="col-sm-3 control-label">'+campohijo['cae_texto']+ ':</label>    <div class="col-sm-8"><input type="text" class="form-control" id="'+campohijo['cae_codigo']+'" name="'+campohijo['cae_codigo']+'" placeholder="" value="'+valor+'"></div>' + '</div>';
-                });
-                contenido += '<hr><h4>' + campo['cae_texto'] + '</h4>' + contenidohijos + '<hr>';
-
-            }
-            $('#campos').append('<div class="form-group">' + contenido + '</div>');
-        });
-         */
-        $('#campos').append(p_desplegar_campos(campos));
-        $('#modal').modal('show');
-    })
+            $('#modal').modal('show');
+        } else {
+            alert('No hay campos asociados');
+        }
+    });
 }
 
 function p_desplegar_campos(campos, padre_id) {
