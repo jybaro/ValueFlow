@@ -85,7 +85,10 @@ desired effect
       <ul class="sidebar-menu tree" data-widget="tree">
         <li class="header">ESTADOS</li>
 <?php
-    $result = q("SELECT * FROM sai_estado_atencion ORDER BY esa_padre, esa_orden, esa_id");
+$result = q("
+    SELECT * 
+    FROM sai_estado_atencion ORDER BY esa_padre, esa_orden, esa_id
+");
     $tree = array();
     $estados = array();
     foreach($result as $r){
@@ -101,7 +104,7 @@ desired effect
         $tree[$id]['padre'] = & $tree[$padre];
         $tree[$padre]['hijos'][$id] = & $tree[$id];
     }
-    function p_tree($hijos, $texto = null) {
+    function p_tree($hijos, $texto = null, $esa_codigo_padre = null) {
         if (!empty($texto)) {
             echo <<<EOF
             <li class="treeview">
@@ -116,11 +119,12 @@ EOF;
         foreach ($hijos as $id => $hijo) {
             if (isset($hijo['hijos']) && !empty($hijo['hijos'])) {
                 //no es hoja, tiene hijos
-                p_tree($hijo['hijos'], $hijo['esa_nombre']);
+                $esa_codigo_padre = (!empty($hijo['esa_codigo'])) ? $hijo['esa_codigo'] : $esa_codigo_padre;
+                p_tree($hijo['hijos'], $hijo['esa_nombre'], $esa_codigo_padre);
             } else {
                 //es hoja
                 echo <<<EOF
-                    <li><a href="#">{$hijo['esa_nombre']}</a></li>
+                    <li><a href="/{$esa_codigo_padre}/{$hijo['esa_id']}">{$hijo['esa_nombre']}</a></li>
 EOF;
             }
         }
@@ -304,6 +308,9 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 }
 
 $filtro = isset($filtro) ? "AND tea_estado_atencion_actual IN $filtro" : '';
+if (isset($args[0]) && !empty($args[0])) {
+    $filtro = "AND tea_estado_atencion_actual = {$args[0]}";
+}
 $sql = ("
     SELECT * 
     ,e1.esa_nombre AS estado_actual
