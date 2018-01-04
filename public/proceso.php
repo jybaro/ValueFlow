@@ -322,7 +322,7 @@ $sql = ("
 
     LEFT OUTER JOIN sai_cliente
         ON cli_borrado IS NULL
-        AND cli_id = cue_cliente
+        AND cli_id = ate_cliente
 
     LEFT OUTER JOIN sai_pertinencia_proveedor
         ON pep_borrado IS NULL
