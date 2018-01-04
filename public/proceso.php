@@ -361,7 +361,7 @@ $sql = ("
         ,ate_creado DESC
 ");
 $result = q($sql);
-//echo $sql;
+echo $sql;
 if ($result) {
     $estado_actual = null;
     foreach ($result as $r) {
@@ -601,7 +601,7 @@ function p_crear(){
 
             console.log('OK creacion de atencion', data);
             $('#modal').modal('hide');
-            //location.reload();
+            location.reload();
         })
     //}
 }
@@ -729,6 +729,7 @@ function p_crear(){
 $result = q("
     SELECT *
     FROM sai_cliente
+    WHERE cli_borrado IS NULL
 ");
 if ($result) {
     foreach($result as $r) {
@@ -753,6 +754,7 @@ if ($result) {
 $result = q("
     SELECT *
     FROM sai_cuenta
+    WHERE cue_borrado IS NULL
 ");
 if ($result) {
     foreach($result as $r) {
@@ -777,6 +779,7 @@ if ($result) {
 $result = q("
     SELECT *
     FROM sai_servicio
+    WHERE ser_borrado IS NULL
 ");
 if ($result) {
     foreach($result as $r) {
