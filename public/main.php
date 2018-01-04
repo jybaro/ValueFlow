@@ -15,6 +15,15 @@ $result = q("
         WHERE cli_borrado IS NULL
         AND cli_id = ate_cliente
     )
+    ,(
+        SELECT esa_codigo
+        FROM sai_estado_atencion
+        WHERE esa_id = (
+            SELECT esa_padre
+            FROM sai_estado_atencion
+            WHERE esa_id=ate_estado_atencion
+        )
+    )
     FROM sai_atencion
     ,sai_pertinencia_usuario
     WHERE
@@ -28,7 +37,8 @@ if ($result) {
     foreach($result as $r){
         $ser_nombre = $r['ser_nombre'];
         $cli_razon_social = $r['cli_razon_social'];
-        $estado = '#';
+        //$estado = '#';
+        $estado = $r['esa_codigo'];
         echo <<<EOT
 <div class="panel panel-default">
   <div class="panel-heading">
