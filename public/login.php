@@ -41,6 +41,7 @@ if (isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pas
         $rol = $usuario[0]['usu_rol'];
         $rol_version = $usuario[0]['rol_version'];
         $rol_nombre = $usuario[0]['rol_nombre'];
+        $rol_codigo = $usuario[0]['rol_codigo'];
 
         $seguridades = q("SELECT * FROM sai_permiso, sai_objeto WHERE per_objeto = obj_id AND per_rol=$rol");
         $_SESSION['seguridades'] = $seguridades;
@@ -57,7 +58,8 @@ if (isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pas
             setcookie(session_name(), $_COOKIE[session_name()], time() + 60*60*24*30, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
         }
 
-        $destino = $rol_nombre;
+        //$destino = $rol_nombre;
+        $destino = (empty($rol_codigo)) ? $rol_nombre : $rol_codigo;
         header("Location: /$destino");
     } else {
         $error = true;
