@@ -751,6 +751,30 @@ if ($result) {
   </div>
 
 
+  <div class="form-group">
+    <label for="servicio" class="col-sm-4 control-label">Servicio</label>
+    <div class="col-sm-8">
+      <select class="form-control combo-select2" style="width: 50%" id="servicio" name="servicio" tabindex="-1" aria-hidden="true">
+
+        <option>&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_servicio
+");
+if ($result) {
+    foreach($result as $r) {
+        $value = $r['ser_id'];
+        $label = $r['ser_nombre'];
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
+      </select> 
+    </div>
+  </div>
+
+
 
 
   <div class="form-group">
