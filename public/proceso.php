@@ -566,6 +566,19 @@ function p_guardar(){
 function p_nuevo(){
     $('#modal-nuevo').modal('show');
 }
+
+function p_crear(){
+    //if (p_validar($('#formulario_nuevo'))) {
+        var dataset = $('#formulario_nuevo').serialize();
+        console.log('dataset: ', dataset   );
+        $.post('_crearAtencion', dataset, function(data){
+
+            console.log('OK creacion de atencion', data);
+            $('#modal').modal('hide');
+            location.reload();
+        })
+    //}
+}
 </script>
 
 
@@ -677,51 +690,56 @@ function p_nuevo(){
       </div>
       <div class="modal-body">
 
-<form id="formulario-nuevo" class="form-horizontal">
+<form id="formulario_nuevo" class="form-horizontal">
   <input type="hidden" id="ate_id_nuevo" name="ate_id" value="">
-
-  <div class="form-group">
-    <label for="codigo" class="col-sm-4 control-label">Código</label>
-    <div class="col-sm-8">
-      <input class="form-control" id="codigo" name="codigo" placeholder="" onblur="p_validar(this)">
-    </div>
-  </div>
 
 
   <div class="form-group">
     <label for="cliente" class="col-sm-4 control-label">Cliente</label>
     <div class="col-sm-8">
       <select class="form-control combo-select2" style="width: 50%" id="cliente" name="cliente" tabindex="-1" aria-hidden="true">
+        <option>&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_cliente
+");
+if ($result) {
+    foreach($result as $r) {
+        $value = $r['cli_id'];
+        $label = $r['cli_razon_social'];
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
       </select>
     </div>
   </div>
 
 
-
-  <div class="form-group">
-    <label for="contacto" class="col-sm-4 control-label">Contacto del cliente</label>
-    <div class="col-sm-8">
-      <select class="form-control combo-select2" style="width: 50%" id="contacto" name="contacto" tabindex="-1" aria-hidden="true">
-      </select> 
-    </div>
-  </div>
-
   <div class="form-group">
     <label for="cuenta" class="col-sm-4 control-label">Cuenta</label>
     <div class="col-sm-8">
       <select class="form-control combo-select2" style="width: 50%" id="cuenta" name="cuenta" tabindex="-1" aria-hidden="true">
+
+        <option>&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_cuenta
+");
+if ($result) {
+    foreach($result as $r) {
+        $value = $r['cue_id'];
+        $label = $r['cue_codigo'];
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
       </select> 
     </div>
   </div>
 
-
-  <div class="form-group">
-    <label for="servicio" class="col-sm-4 control-label">Servicio</label>
-    <div class="col-sm-8">
-      <select class="form-control combo-select2" style="width: 50%" id="servicio" name="servicio" tabindex="-1" aria-hidden="true">
-      </select> 
-    </div>
-  </div>
 
 
 
@@ -729,6 +747,27 @@ function p_nuevo(){
     <label for="pertinencia_proveedor" class="col-sm-4 control-label">Proveedor</label>
     <div class="col-sm-8">
       <select class="form-control combo-select2" style="width: 50%" id="pertinencia_proveedor" name="pertinencia_proveedor" tabindex="-1" aria-hidden="true">
+        <option>&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_pertinencia_proveedor
+    ,sai_proveedor
+    ,sai_servicio
+    WHERE pep_borrado IS NULL
+    AND pro_borrado IS NULL
+    AND ser_borrado IS NULL
+    AND pep_proveedor = pro_id
+    AND pep_servicio = ser_id
+");
+if ($result) {
+    foreach($result as $r) {
+        $value = $r['pep_id'];
+        $label = $r['pro_razon_social'] . ' (' . $r['ser_nombre'] . ')';
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
       </select> 
     </div>
   </div>
@@ -741,6 +780,27 @@ function p_nuevo(){
       <!--pre>FOREIGN KEY
                   </pre-->
       <select class="form-control combo-select2" style="width: 50%" id="pertinencia_usuario" name="pertinencia_usuario" tabindex="-1" aria-hidden="true">
+        <option>&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_pertinencia_usuario
+    ,sai_usuario
+    ,sai_servicio
+    WHERE peu_borrado IS NULL
+    AND usu_borrado IS NULL
+    AND ser_borrado IS NULL
+    AND peu_usuario = usu_id
+    AND peu_servicio = ser_id
+");
+if ($result) {
+    foreach($result as $r) {
+        $value = $r['peu_id'];
+        $label = $r['usu_nombres'] . ' ' .$r['usu_apellidos'] . ' (' . $r['ser_nombre'] . ')';
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
 
       </select> 
     </div>
@@ -752,7 +812,7 @@ function p_nuevo(){
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-success" onclick="p_nuevo()" id="formulario_nuevo_crear">Crear <?=isset($titulo_proceso_singular)?$titulo_proceso_singular:'atención'?></button>
+        <button type="button" class="btn btn-success" onclick="p_crear()" id="formulario_nuevo_crear">Crear <?=isset($titulo_proceso_singular)?$titulo_proceso_singular:'atención'?></button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
