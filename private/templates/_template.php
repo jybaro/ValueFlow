@@ -64,8 +64,8 @@ body {
             <li><a href="/autoadmin/sai_contacto">Contactos de clientes</a></li>
             <li><a href="/autoadmin/sai_cuenta">Cuentas</a></li>
             <li role="separator" class="divider"></li>
-            <li><a href="/autoadmin/sai_atencion">Atenciones</a></li>
-            <li><a href="/atenciones">Flujo de las atenciones</a></li>
+            <!--li><a href="/autoadmin/sai_atencion">Atenciones</a></li>
+            <li><a href="/atenciones">Flujo de las atenciones</a></li-->
             <li role="separator" class="divider"></li>
           </ul>
         </li>
