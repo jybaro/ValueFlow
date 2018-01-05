@@ -33,6 +33,9 @@
  chmod -R 775 public/
  yum install php-xml
  
+ **************
+ * PHPSpreadsheet
+ yum install php-mbstring
  
  */
 
