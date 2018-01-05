@@ -306,6 +306,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 //var_dump($adjunto_plantilla);
 //echo '</pre>';
 
+            $xls_generado = false;
             try{
                 if ($adjunto_plantilla) {
                     $adjunto_plantilla = $adjunto_plantilla[0];
@@ -338,6 +339,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 
                     $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
                     $writer->save('adjunto.xls');
+                    $xls_generado = true;
                 }
 
 
@@ -388,7 +390,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
                     echo "AGREGANDO ADJUNTO PDF";
                     $mail->AddAttachment($pla_adjunto_nombre.'.pdf');
                 }
-                if ($adjunto_plantilla) {
+                if ($xls_generado) {
                     echo "AGREGANDO ADJUNTO XLS";
                     $mail->AddAttachment('adjunto.xls');
                 }
