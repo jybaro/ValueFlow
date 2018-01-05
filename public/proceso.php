@@ -267,14 +267,15 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 
 
 
-//echo '<pre>';
+echo '<pre>';
+var_dump($rc);
             //  var_dump($adjunto_plantilla);
     //echo $sql;
 
     //echo "<pre>";
   //  echo "<hr><h1>RESULT CONTENIDO</h1>";
     //var_dump($result_contenido);
-//echo '</pre>';
+echo '</pre>';
     //die();
 
             $campos_valores = array();
@@ -367,6 +368,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
                 }
 
                 //MAIL
+                echo "[[$pla_asunto - $pla_cuerpo]]";
                 $mail = new PHPMailer\PHPMailer\PHPMailer(true);
                 $mail->IsSMTP();
                 $mail->SMTPSecure = 'tls';
