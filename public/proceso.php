@@ -264,7 +264,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 
 //echo '<pre>';
             //  var_dump($adjunto_plantilla);
-//    echo $sql;
+    echo $sql;
 
     //echo "<pre>";
   //  echo "<hr><h1>RESULT CONTENIDO</h1>";
