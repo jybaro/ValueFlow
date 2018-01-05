@@ -204,10 +204,23 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
     ")[0]['usu_correo_electronico'];
 
 
+    $email_usuario_comercial = q("
+            SELECT
+            usu_correo_electronico
+            FROM sai_usuario
+            ,sai_atencion
+            WHERE usu_borrado IS NULL
+            AND ate_usuario_comercial = usu_id
+            AND ate_id=$ate_id
+    ")[0]['usu_correo_electronico'];
 
+
+
+    //echo "[$email_cliente - $email_proveedor - $email_usuario]";
     $result_contenido = q("
             SELECT *,
             pla_cuerpo,pla_adjunto_texto, pla_asunto, pla_adjunto_nombre
+            ,(SELECT des_nombre FROM sai_destinatario WHERE des_id = tea_destinatario) AS destinatario
             FROM sai_atencion
             ,sai_transicion_estado_atencion
             ,sai_plantilla
@@ -216,156 +229,184 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
             AND pla_borrado IS NULL
             AND pla_transicion_estado_atencion = tea_id
             AND tea_estado_atencion_actual = ate_estado_atencion
+            AND ate_pertinencia_proveedor = tea_pertinencia_proveedor
             AND ate_id=$ate_id
             ");
-    $pla_asunto = $result_contenido[0]['pla_asunto'];
-    $pla_adjunto_nombre = $result_contenido[0]['pla_adjunto_nombre'];
+    if ($result_contenido) {
+        q("UPDATE sai_paso_atencion SET paa_borrado=now() WHERE paa_atencion=$ate_id");
+        foreach ($result_contenido as $rc) {
+            $pla_asunto = $rc['pla_asunto'];
+            $pla_adjunto_nombre = $rc['pla_adjunto_nombre'];
+
+            $pla_cuerpo = $rc['pla_cuerpo'];
+            $pla_adjunto_texto = $rc['pla_adjunto_texto'];
+            $pla_id = $rc['pla_id'];
+
+            $destinatario = $rc['destinatario'];
+
+            $sql = ("
+                SELECT * 
+                FROM sai_adjunto_plantilla
+                ,sai_archivo
+                WHERE adp_borrado IS NULL
+                AND arc_borrado IS NULL
+                AND arc_id = adp_archivo 
+                AND adp_plantilla=$pla_id
+            ");
+            $adjunto_plantilla = q($sql);
 
 
 
-    $pla_cuerpo = $result_contenido[0]['pla_cuerpo'];
-    $pla_adjunto_texto = $result_contenido[0]['pla_adjunto_texto'];
-    $pla_id = $result_contenido[0]['pla_id'];
 
 
-    $adjunto_plantilla = q("
-        SELECT * 
-        FROM sai_adjunto_plantilla
-        ,sai_archivo
-        WHERE adp_borrado IS NULL
-        AND arc_borrado IS NULL
-        AND arc_id = adp_archivo 
-        AND adp_plantilla=$pla_id
-    ");
-
-
-
-
+//echo '<pre>';
+            //  var_dump($adjunto_plantilla);
+//    echo $sql;
 
     //echo "<pre>";
+  //  echo "<hr><h1>RESULT CONTENIDO</h1>";
     //var_dump($result_contenido);
+//echo '</pre>';
     //die();
 
-    $campos_valores = array();
-    require_once('_obtenerCampos.php');
+            $campos_valores = array();
+            require_once('_obtenerCampos.php');
 
-    if (isset($campos) && is_array($campos)) {
-        $search = array();
-        $replace = array();
-        foreach($campos as $campo) {
-            $search[] = '%'.$campo['cae_codigo'].'%';
-            $replace[] = $campo['valor'];
-            $campos_valores['%'.$campo['cae_codigo'].'%'] = $campo['valor'];
-        }
-        $pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
-        $pla_asunto = str_replace($search, $replace, $pla_asunto);
-        $pla_adjunto_nombre = str_replace($search, $replace, $pla_adjunto_nombre);
-        $pla_adjunto_texto = str_replace($search, $replace, $pla_adjunto_texto);
-    }
-
-    $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
-    $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
-
-
-    //require_once('../vendor/autoload.php');
-
-
-
-    try{
-        //////////////
-        //Excel
-
-        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('uploads/'.$adjunto_plantilla['arc_nombre']);
-
-        $worksheet = $spreadsheet->getActiveSheet();
-
-        $filas = $worksheet->toArray();
-
-        //var_dump($filas);
-        foreach($filas as $x => $fila){
-            foreach($fila as $y => $celda){
-                if (!empty($celda)) {
-                    echo "[$x, $y: $celda]";
-                    if (preg_match('/\%.+\%/', $celda)){
-                        $nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
-                        $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
-                    }
+            if (isset($campos) && is_array($campos)) {
+                $search = array();
+                $replace = array();
+                foreach($campos as $campo) {
+                    $search[] = '%'.$campo['cae_codigo'].'%';
+                    $replace[] = $campo['valor'];
+                    $campos_valores['%'.$campo['cae_codigo'].'%'] = $campo['valor'];
                 }
+                $pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
+                $pla_asunto = str_replace($search, $replace, $pla_asunto);
+                $pla_adjunto_nombre = str_replace($search, $replace, $pla_adjunto_nombre);
+                $pla_adjunto_texto = str_replace($search, $replace, $pla_adjunto_texto);
             }
+
+            $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
+            $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
+
+
+            //require_once('../vendor/autoload.php');
+
+
+
+            try{
+                if ($adjunto_plantilla) {
+                    //////////////
+                    //Excel
+
+                    //echo "sacando Excel";
+
+                    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('uploads/'.$adjunto_plantilla['arc_nombre']);
+
+                    $worksheet = $spreadsheet->getActiveSheet();
+
+                    $filas = $worksheet->toArray();
+
+                    //var_dump($filas);
+                    foreach($filas as $x => $fila){
+                        foreach($fila as $y => $celda){
+                            if (!empty($celda)) {
+                                //echo "[$x, $y: $celda]";
+                                if (preg_match('/\%.+\%/', $celda)){
+                                    $nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
+                                    $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
+                                }
+                            }
+                        }
+                    }
+
+                    //$worksheet->getCell('A1')->setValue('John');
+                    //$worksheet->getCell('A2')->setValue('Smith');
+
+                    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
+                    $writer->save('adjunto.xls');
+                }
+
+
+                //////////////
+                //PDF
+                if (file_exists('adjunto.html')) {
+                    unlink('adjunto.html');
+                }
+                if (file_exists($pla_adjunto_nombre.'.pdf')) {
+                    unlink($pla_adjunto_nombre.'.pdf');
+                }
+
+                if (!empty($pla_adjunto_texto)) {
+                    $snappy = new Knp\Snappy\Pdf('../vendor/bin/wkhtmltopdf-amd64');
+                    $msg = ($pla_adjunto_texto);
+                    file_put_contents( 'adjunto.html', $msg);
+                    $msg = file_get_contents('adjunto.html');
+                    //$msg = utf8_decode($msg);
+                    $snappy->generateFromHtml($msg, $pla_adjunto_nombre.'.pdf', array('encoding' => 'utf-8'));
+                }
+
+                //MAIL
+                $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+                $mail->IsSMTP();
+                $mail->SMTPSecure = 'tls';
+                $mail->SMTPAuth = true;
+                $mail->Host = SMTP_SERVER;
+                $mail->Port = SMTP_PORT;
+                $mail->Username = SMTP_USERNAME;
+                $mail->Password = SMTP_PASSWORD;
+                //$mail->SMTPDebug = 2;
+                $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
+                $mail->Subject = $pla_asunto;
+                $mail->MsgHTML($pla_cuerpo);
+                if ($destinatario == 'cliente') {
+                    $mail->AddAddress($email_cliente);
+                }
+                if ($destinatario == 'proveedor') {
+                    $mail->AddAddress($email_proveedor);
+                }
+                $mail->AddAddress($email_usuario);
+                $mail->AddAddress($email_usuario_comercial);
+                //$mail->AddAddress('sminga@nedetel.net');
+                //$mail->AddAddress('dcedeno@nedetel.net');
+                //$mail->AddAddress('edgar.valarezo@gmail.com');
+                //$mail->AddAttachment('prueba.txt');
+                if (!empty($pla_adjunto_texto)) {
+                    $mail->AddAttachment($pla_adjunto_nombre.'.pdf');
+                }
+                if ($adjunto_plantilla) {
+                    $mail->AddAttachment('adjunto.xls');
+                }
+                //$mail->AddAttachment('example.xlsx');
+                $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
+
+                if(!$mail->Send()) throw new Exception($mail->ErrorInfo);
+            }
+            catch(Exception $e){
+                //echo $e->getMessage();
+                l($e->getMessage());
+            }
+
+            $result = q("
+                INSERT INTO sai_paso_atencion (
+                    paa_atencion
+                    ,paa_transicion_estado_atencion
+                    ,paa_codigo
+                    ,paa_asunto
+                    ,paa_cuerpo
+                    ,paa_destinatarios 
+                ) VALUES (
+                    $ate_id
+                    ,$tea_id
+                    ,''
+                    ,'$pla_asunto'
+                    ,'$pla_cuerpo'
+                    ,'$email_cliente,$email_proveedor'
+                ) RETURNING *
+            ");
+
         }
-
-        //$worksheet->getCell('A1')->setValue('John');
-        //$worksheet->getCell('A2')->setValue('Smith');
-
-        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
-        $writer->save('adjunto.xls');
-
-
-        //////////////
-        //PDF
-        if (file_exists('adjunto.html')) {
-            unlink('adjunto.html');
-        }
-        if (file_exists($pla_adjunto_nombre.'.pdf')) {
-            unlink($pla_adjunto_nombre.'.pdf');
-        }
-
-        $snappy = new Knp\Snappy\Pdf('../vendor/bin/wkhtmltopdf-amd64');
-        $msg = ($pla_adjunto_texto);
-        file_put_contents( 'adjunto.html', $msg);
-        $msg = file_get_contents('adjunto.html');
-        //$msg = utf8_decode($msg);
-        $snappy->generateFromHtml($msg, $pla_adjunto_nombre.'.pdf', array('encoding' => 'utf-8'));
-
-        //MAIL
-        $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-        $mail->IsSMTP();
-        $mail->SMTPSecure = 'tls';
-        $mail->SMTPAuth = true;
-        $mail->Host = SMTP_SERVER;
-        $mail->Port = SMTP_PORT;
-        $mail->Username = SMTP_USERNAME;
-        $mail->Password = SMTP_PASSWORD;
-        //$mail->SMTPDebug = 2;
-        $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
-        $mail->Subject = $pla_asunto;
-        $mail->MsgHTML($pla_cuerpo);
-        $mail->AddAddress($email_cliente);
-        $mail->AddAddress($email_proveedor);
-        $mail->AddAddress($email_usuario);
-        //$mail->AddAddress('sminga@nedetel.net');
-        //$mail->AddAddress('dcedeno@nedetel.net');
-        //$mail->AddAttachment('prueba.txt');
-        $mail->AddAttachment($pla_adjunto_nombre.'.pdf');
-        $mail->AddAttachment('adjunto.xls');
-        //$mail->AddAttachment('example.xlsx');
-        $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
-
-        if(!$mail->Send()) throw new Exception($mail->ErrorInfo);
     }
-    catch(Exception $e){
-        //echo $e->getMessage();
-    }
-
-    q("UPDATE sai_paso_atencion SET paa_borrado=now() WHERE paa_atencion=$ate_id");
-    $result = q("
-        INSERT INTO sai_paso_atencion (
-            paa_atencion
-            ,paa_transicion_estado_atencion
-            ,paa_codigo
-            ,paa_asunto
-            ,paa_cuerpo
-            ,paa_destinatarios 
-        ) VALUES (
-            $ate_id
-            ,$tea_id
-            ,''
-            ,'$pla_asunto'
-            ,'$pla_cuerpo'
-            ,'$email_cliente,$email_proveedor'
-        ) RETURNING *
-    ");
-
     $result = q("UPDATE sai_atencion SET ate_estado_atencion=$estado WHERE ate_id=$id RETURNING *");
 
 }
