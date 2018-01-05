@@ -9,7 +9,7 @@ $result = q($paa_id);
 if (!$result) {
     $paa_id = q("INSERT INTO sai_paso_atencion (paa_atencion) VALUES ($ate_id) RETURNING *")[0]['paa_id'];
 }
-echo $paa_id;
+//echo $paa_id;
 $respuesta = array();
 foreach($_POST as $k => $v){
     if ($k != 'ate_id') {
