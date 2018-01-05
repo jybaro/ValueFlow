@@ -385,9 +385,11 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
                 //$mail->AddAddress('edgar.valarezo@gmail.com');
                 //$mail->AddAttachment('prueba.txt');
                 if (!empty($pla_adjunto_texto)) {
+                    echo "AGREGANDO ADJUNTO PDF";
                     $mail->AddAttachment($pla_adjunto_nombre.'.pdf');
                 }
                 if ($adjunto_plantilla) {
+                    echo "AGREGANDO ADJUNTO XLS";
                     $mail->AddAttachment('adjunto.xls');
                 }
                 //$mail->AddAttachment('example.xlsx');
