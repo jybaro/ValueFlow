@@ -283,13 +283,13 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
                     $replace[] = $campo['valor'];
                     $campos_valores['%'.$campo['cae_codigo'].'%'] = $campo['valor'];
                 }
-                echo "<pre>";
-                echo $pla_cuerpo;
-                var_dump($search);
-                var_dump($replace);
-                var_dump($campos_valores);
-                echo str_replace($search, $replace, $pla_cuerpo);
-                echo "</pre>";
+                //echo "<pre>";
+                //echo $pla_cuerpo;
+                //var_dump($search);
+                //var_dump($replace);
+                //var_dump($campos_valores);
+                //echo str_replace($search, $replace, $pla_cuerpo);
+                //echo "</pre>";
                 $pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
                 $pla_asunto = str_replace($search, $replace, $pla_asunto);
                 $pla_adjunto_nombre = str_replace($search, $replace, $pla_adjunto_nombre);
@@ -303,6 +303,9 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
             //require_once('../vendor/autoload.php');
 
 
+echo '<pre>';
+var_dump($adjunto_plantilla);
+echo '</pre>';
 
             try{
                 if ($adjunto_plantilla) {
