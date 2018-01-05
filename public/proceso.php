@@ -173,6 +173,8 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
     $id = $_POST['id'];
     $ate_id = $id;
     $tea_id = $_POST['tea_id'];
+    require_once('_obtenerCampos.php');
+
     $email_cliente = q("
             SELECT 
             con_correo_electronico
@@ -181,6 +183,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
             WHERE ate_contacto = con_id
             AND ate_id=$ate_id
     ")[0]['con_correo_electronico'];
+
     $email_proveedor = q("
             SELECT
             vpr_correo_electronico
@@ -271,7 +274,6 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
     //die();
 
             $campos_valores = array();
-            require_once('_obtenerCampos.php');
 
             if (isset($campos) && is_array($campos)) {
                 $search = array();
@@ -281,6 +283,13 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
                     $replace[] = $campo['valor'];
                     $campos_valores['%'.$campo['cae_codigo'].'%'] = $campo['valor'];
                 }
+                echo "<pre>";
+                echo $pla_cuerpo;
+                var_dump($search);
+                var_dump($replace);
+                var_dump($campos_valores);
+                echo str_replace($search, $replace, $pla_cuerpo);
+                echo "</pre>";
                 $pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
                 $pla_asunto = str_replace($search, $replace, $pla_asunto);
                 $pla_adjunto_nombre = str_replace($search, $replace, $pla_adjunto_nombre);
