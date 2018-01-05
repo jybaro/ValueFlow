@@ -22,7 +22,7 @@ function q($sql, $callback = false) {
             //$data = count($data) === 1 ? (count($data[0]) === 1 ? $data[0][0] : $data[0]) : $data;
         }
     } else {
-        l(pg_last_error($conn));
+        l(pg_last_error($conn) . " [$sql]");
     }
     return $data;
 }
