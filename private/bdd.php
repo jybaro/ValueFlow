@@ -6,6 +6,8 @@ function q($sql, $callback = false) {
     if (strpos($sql, 'SELECT') === false) {
         l('SQL: ' . $sql);
     }
+    $sql = str_replace("\n", ' ', $sql);
+    $sql = str_replace("\r", ' ', $sql);
 
     $data = null;
     $result = pg_query($conn, $sql);

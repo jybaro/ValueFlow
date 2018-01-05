@@ -192,31 +192,61 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
             AND ate_id=$ate_id
     ")[0]['vpr_correo_electronico'];
 
+    $email_usuario = q("
+            SELECT
+            usu_correo_electronico
+            FROM sai_usuario
+            ,sai_pertinencia_usuario
+            ,sai_atencion
+            WHERE ate_pertinencia_usuario = peu_id
+            AND peu_usuario = usu_id
+            AND ate_id=$ate_id
+    ")[0]['usu_correo_electronico'];
+
 
 
     $result_contenido = q("
             SELECT *,
             pla_cuerpo,pla_adjunto_texto, pla_asunto, pla_adjunto_nombre
             FROM sai_atencion
-            ,sai_plantilla
             ,sai_transicion_estado_atencion
-            WHERE
-            pla_transicion_estado_atencion = tea_id
-            AND tea_estado_atencion_actual = ate_estado_atencion
+            ,sai_plantilla
+            WHERE ate_borrado IS NULL
             AND tea_borrado IS NULL
+            AND pla_borrado IS NULL
+            AND pla_transicion_estado_atencion = tea_id
+            AND tea_estado_atencion_actual = ate_estado_atencion
             AND ate_id=$ate_id
             ");
     $pla_asunto = $result_contenido[0]['pla_asunto'];
     $pla_adjunto_nombre = $result_contenido[0]['pla_adjunto_nombre'];
 
 
+
     $pla_cuerpo = $result_contenido[0]['pla_cuerpo'];
     $pla_adjunto_texto = $result_contenido[0]['pla_adjunto_texto'];
+    $pla_id = $result_contenido[0]['pla_id'];
+
+
+    $adjunto_plantilla = q("
+        SELECT * 
+        FROM sai_adjunto_plantilla
+        ,sai_archivo
+        WHERE adp_borrado IS NULL
+        AND arc_borrado IS NULL
+        AND arc_id = adp_archivo 
+        AND adp_plantilla=$pla_id
+    ");
+
+
+
+
 
     //echo "<pre>";
     //var_dump($result_contenido);
     //die();
 
+    $campos_valores = array();
     require_once('_obtenerCampos.php');
 
     if (isset($campos) && is_array($campos)) {
@@ -225,6 +255,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         foreach($campos as $campo) {
             $search[] = '%'.$campo['cae_codigo'].'%';
             $replace[] = $campo['valor'];
+            $campos_valores['%'.$campo['cae_codigo'].'%'] = $campo['valor'];
         }
         $pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
         $pla_asunto = str_replace($search, $replace, $pla_asunto);
@@ -241,6 +272,36 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 
 
     try{
+        //////////////
+        //Excel
+
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('uploads/'.$adjunto_plantilla['arc_nombre']);
+
+        $worksheet = $spreadsheet->getActiveSheet();
+
+        $filas = $worksheet->toArray();
+
+        //var_dump($filas);
+        foreach($filas as $x => $fila){
+            foreach($fila as $y => $celda){
+                if (!empty($celda)) {
+                    echo "[$x, $y: $celda]";
+                    if (preg_match('/\%.+\%/', $celda)){
+                        $nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
+                        $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
+                    }
+                }
+            }
+        }
+
+        //$worksheet->getCell('A1')->setValue('John');
+        //$worksheet->getCell('A2')->setValue('Smith');
+
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
+        $writer->save('adjunto.xls');
+
+
+        //////////////
         //PDF
         if (file_exists('adjunto.html')) {
             unlink('adjunto.html');
@@ -271,10 +332,12 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         $mail->MsgHTML($pla_cuerpo);
         $mail->AddAddress($email_cliente);
         $mail->AddAddress($email_proveedor);
+        $mail->AddAddress($email_usuario);
         //$mail->AddAddress('sminga@nedetel.net');
         //$mail->AddAddress('dcedeno@nedetel.net');
         //$mail->AddAttachment('prueba.txt');
         $mail->AddAttachment($pla_adjunto_nombre.'.pdf');
+        $mail->AddAttachment('adjunto.xls');
         //$mail->AddAttachment('example.xlsx');
         $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
 
@@ -386,7 +449,7 @@ EOT;
         echo <<< EOT
 <div class="panel panel-info" style="width:500px;">
   <div class="panel-heading">
-    <h3 class="panel-title">Servicio de {$r[ser_nombre]} a {$r[cli_razon_social]}</h3>
+    <h3 class="panel-title"><a name="atencion_{$r[ate_secuencial]}">{$r[ate_secuencial]}. Servicio de {$r[ser_nombre]} a {$r[cli_razon_social]}</a></h3>
   </div>
   <div class="panel-body">
   $fecha_formateada 

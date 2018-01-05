@@ -590,7 +590,7 @@ function p_guardar_campo(id){
             //$('#modal').modal('hide');
         });
     } else {
-        alert ('Ingrese el usuario');
+        alert ('Ingrese el nombre del campo');
     }
 }
 
@@ -744,6 +744,8 @@ function p_abrir(x, y){
     desde = x;
     hacia = y;
 
+
+    //$('#campo_agregar_'+id).hide();
     console.log(4);
     $('.badge-servicio').each(function(){
         $(this).text(0);
@@ -783,6 +785,7 @@ function p_mostrar_desde_hacia(x, y, target) {
 function p_eliminar(ser_id, pro_id, des_id){
     if (confirm('Seguro desea eliminar esta acción de transición?')) {
         var tea_id = $('#tea_id_'+ser_id+'_'+pro_id+'_'+des_id).val();
+        console.log('tea_id', tea_id);
         if (tea_id != null && tea_id != '') {
             $.get('/_eliminarTransicion/'+tea_id, function(data){
                 console.log('Respuesta de eliminada:', data);

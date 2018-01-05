@@ -30,7 +30,10 @@ $result = q("
     ate_borrado IS NULL
     AND peu_borrado IS NULL
     AND ate_pertinencia_usuario = peu_id
-    AND peu_usuario = $usu_id
+    AND (
+        peu_usuario = $usu_id
+        OR ate_usuario_comercial = $usu_id
+    )
 ");
 
 if ($result) {
@@ -40,14 +43,14 @@ if ($result) {
         //$estado = '#';
         $estado = $r['esa_codigo'];
         echo <<<EOT
-<div class="panel panel-default">
+<div class="panel panel-default" style="width:300px;float:left;margin:10px;">
   <div class="panel-heading">
     <h3 class="panel-title">
-      Atención de servicio de $ser_nombre a $cli_razon_social
+      {$r[ate_secuencial]}. Atención de servicio de $ser_nombre a $cli_razon_social
     </h3>
   </div>
   <div class="panel-body">
-    <a class="btn btn-primary" href="/$estado">Ir a la resolución</a>
+    <a class="btn btn-primary" href="/$estado#atencion_{$r[ate_secuencial]}">Ir a la resolución</a>
   </div>
 </div>
 EOT;
