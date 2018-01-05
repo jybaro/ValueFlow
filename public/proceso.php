@@ -234,6 +234,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
             ");
     if ($result_contenido) {
         q("UPDATE sai_paso_atencion SET paa_borrado=now() WHERE paa_atencion=$ate_id");
+
         foreach ($result_contenido as $rc) {
             $pla_asunto = $rc['pla_asunto'];
             $pla_adjunto_nombre = $rc['pla_adjunto_nombre'];

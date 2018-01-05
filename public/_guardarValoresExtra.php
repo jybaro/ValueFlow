@@ -8,6 +8,9 @@ $paa_id = "(SELECT paa_id FROM sai_paso_atencion WHERE paa_borrado IS NULL AND p
 $result = q($paa_id);
 if (!$result) {
     $paa_id = q("INSERT INTO sai_paso_atencion (paa_atencion) VALUES ($ate_id) RETURNING *")[0]['paa_id'];
+} else if (count($result) > 1) {
+    q("UPDATE sai_paso_atencion SET paa_borrado = now() WHERE paa_atencion=$ate_id AND paa_id <> (SELECT MAX(paa_id) FROM sai_paso_atencion WHERE paa_atencion=$ate_id)");
+    $paa_id = "(SELECT paa_id FROM sai_paso_atencion WHERE paa_borrado IS NULL AND paa_atencion=$ate_id)";
 }
 //echo $paa_id;
 $respuesta = array();
