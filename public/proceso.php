@@ -405,7 +405,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
                 if(!$mail->Send()) throw new Exception($mail->ErrorInfo);
             }
             catch(Exception $e){
-                //echo $e->getMessage();
+                echo $e->getMessage();
                 l($e->getMessage());
             }
 
