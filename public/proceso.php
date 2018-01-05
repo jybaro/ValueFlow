@@ -627,7 +627,7 @@ function p_desplegar_campos(campos, padre_id) {
         if (padre_id == campo['cae_padre']) {
             if (campo['hijos'].length == 0 ) {
                 //if (campo['padre'] != null) {
-                contenido += '<div class="form-group">' + '<label for="'+campo['cae_codigo']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>    <div class="col-sm-' + col2 + '"><input '+campo['cae_validacion']+' class="form-control" id="'+campo['cae_codigo']+'" name="'+campo['cae_codigo']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)"></div>' + '</div>';
+                contenido += '<div class="form-group">' + '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>    <div class="col-sm-' + col2 + '"><input '+campo['cae_validacion']+' class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)"></div>' + '</div>';
             } else if(campo['hijos'].length > 0) {
 
                 var contenidohijos = p_desplegar_campos(campo['hijos'], campo['cae_id']);
