@@ -267,15 +267,15 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 
 
 
-echo '<pre>';
-var_dump($rc);
+//echo '<pre>';
+//var_dump($rc);
             //  var_dump($adjunto_plantilla);
     //echo $sql;
 
     //echo "<pre>";
   //  echo "<hr><h1>RESULT CONTENIDO</h1>";
     //var_dump($result_contenido);
-echo '</pre>';
+//echo '</pre>';
     //die();
 
             $campos_valores = array();
@@ -303,6 +303,7 @@ echo '</pre>';
 
             $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
             $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
+            $pla_cuerpo = (empty($pla_cuerpo)) ? 'Favor revisar' : $pla_cuerpo;
 
 
             //require_once('../vendor/autoload.php');
@@ -368,7 +369,7 @@ echo '</pre>';
                 }
 
                 //MAIL
-                echo "[[$pla_asunto - $pla_cuerpo]]";
+                //echo "[[$pla_asunto - $pla_cuerpo]]";
                 $mail = new PHPMailer\PHPMailer\PHPMailer(true);
                 $mail->IsSMTP();
                 $mail->SMTPSecure = 'tls';
@@ -377,7 +378,7 @@ echo '</pre>';
                 $mail->Port = SMTP_PORT;
                 $mail->Username = SMTP_USERNAME;
                 $mail->Password = SMTP_PASSWORD;
-                $mail->SMTPDebug = 2;
+                //$mail->SMTPDebug = 2;
                 $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
                 $mail->Subject = $pla_asunto;
                 $mail->MsgHTML($pla_cuerpo);
@@ -394,11 +395,11 @@ echo '</pre>';
                 //$mail->AddAddress('edgar.valarezo@gmail.com');
                 //$mail->AddAttachment('prueba.txt');
                 if (!empty($pla_adjunto_texto)) {
-                    echo "AGREGANDO ADJUNTO PDF";
+                    //echo "AGREGANDO ADJUNTO PDF";
                     $mail->AddAttachment($pla_adjunto_nombre.'.pdf');
                 }
                 if ($xls_generado) {
-                    echo "AGREGANDO ADJUNTO XLS";
+                    //echo "AGREGANDO ADJUNTO XLS";
                     $mail->AddAttachment('adjunto.xls');
                 }
                 //$mail->AddAttachment('example.xlsx');
@@ -407,7 +408,7 @@ echo '</pre>';
                 if(!$mail->Send()) throw new Exception($mail->ErrorInfo);
             }
             catch(Exception $e){
-                echo $e->getMessage();
+                //echo $e->getMessage();
                 l($e->getMessage());
             }
 
