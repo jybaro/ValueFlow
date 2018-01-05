@@ -15,6 +15,7 @@ $result = q("
     tea_estado_atencion_actual,
     tea_estado_atencion_siguiente
     FROM sai_transicion_estado_atencion
+    WHERE tea_borrado IS NULL
     GROUP BY tea_estado_atencion_actual, tea_estado_atencion_siguiente
     ");
 $transiciones = array();
@@ -316,7 +317,11 @@ $num_formulario = 0;
   <ul class="nav nav-tabs" role="tablist">
     <?php //$servicios = array_merge(array(array('ser_id'=>'0', 'ser_nombre'=>'todos los servicios')), $servicios); ?>
     <?php foreach($servicios as $k => $servicio): ?>
-    <li role="presentation" <?php if($k==0): ?>class="active"<?php endif; ?>><a href="#tab_servicio_<?=$servicio['ser_id']?>" aria-controls="tab_servicio_<?=$servicio['ser_id']?>" role="tab" data-toggle="tab"><?=$servicio['ser_nombre']?></a></li>
+      <li role="presentation" <?php if($k==0): ?>class="active"<?php endif; ?>>
+        <a href="#tab_servicio_<?=$servicio['ser_id']?>" aria-controls="tab_servicio_<?=$servicio['ser_id']?>" role="tab" data-toggle="tab">
+          <?=$servicio['ser_nombre']?> <span class="badge badge-servicio" id="badge_servicio_<?=$servicio['ser_id']?>">0</span>
+        </a>
+      </li>
     <?php endforeach; ?>
   </ul>
   <!-- EBD Nav tabs -->
@@ -344,6 +349,7 @@ $num_formulario = 0;
       <a <?=$kp==0?'':'class="collapsed"'?> role="button" data-toggle="collapse" data-parent="#accordion_<?=$k?>" onclick="p_cargar_detalle_transicion(<?=$servicio['ser_id']?>, <?=$proveedor['pro_id']?>)" href="#panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>" aria-expanded="<?=$kp==0?'true':'false'?>" aria-controls="#panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>"> 
         <?=$proveedor['pro_razon_social']?>
         <?=$proveedor['pep_servicio']==0?' de '.$servicio['ser_nombre']:''?>
+        <span class="badge-proveedor" id="badge_proveedor_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>"></span>
       </a>
     </h4>
   </div>
@@ -351,7 +357,27 @@ $num_formulario = 0;
 <div id="panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>" class="panel-collapse collapse <?=$kp==0?'in':''?>" role="tabpanel" aria-labelledby="panelHeading_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>">
   <div class="panel-body">
 
-  <?php foreach($destinatarios as $des_id => $destinatario): ?>
+
+
+
+<ul class="nav nav-tabs navbar-right" role="tablist">
+  <?php $first=true;foreach($destinatarios as $des_id => $destinatario): ?>
+  <li role="presentation" <?=$first?'class="active"':''?>>
+    <a href="#tab_destinatario_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" aria-controls="tab_destinatario_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" role="tab" data-toggle="tab">
+      <?=ucfirst($destinatario)?>
+    </a>
+  </li>
+  <?php $first=false;endforeach; ?>
+</ul>
+
+
+
+
+
+
+  <div class="tab-content">
+  <?php $first=true;foreach($destinatarios as $des_id => $destinatario): ?>
+  <div role="tabpanel" class="tab-pane fade <?php if($first): ?>in active<?php endif; ?>" id="tab_destinatario_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>">
   <h3>Acciones para <?=$destinatario?> (<?=$proveedor['pro_razon_social']?>)</h3>
 <form id="formulario" class="form-horizontal" onsubmit="p_guardar(this);return false;" enctype="multipart/form-data">
 <input type="hidden" id="desde_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="desde" value="">
@@ -431,6 +457,7 @@ if (isset($pertinencias_usuario[$servicio['ser_id']])) {
     <div class="col-sm-2">&nbsp;</div>
     <div class="col-sm-10">
     <button class="btn btn-info" onclick="//p_guardar('<?="formulario_"?>')">Guardar</button>
+    <button class="btn btn-danger" onclick="p_eliminar(<?=$servicio['ser_id']?>, <?=$proveedor['pro_id']?>, <?=$des_id?>)" type="button">Eliminar</button>
     </div>
   </div>
 </form>
@@ -455,8 +482,18 @@ if (isset($pertinencias_usuario[$servicio['ser_id']])) {
 
 <hr />
 
-    <?php endforeach; ?>
-  </div>
+</div><!-- tab-pane -->
+    <?php $first=false;endforeach; ?>
+
+
+  </div><!-- tab-content -->
+
+  </div><!-- panel-body  -->
+
+
+
+
+
 </div>
 </div>
     <?php endforeach; ?>
@@ -667,12 +704,15 @@ function p_actualizar_archivos(archivos, id) {
 }
 
 function p_abrir(x, y){
+    console.log('p_abrir', x, y);
     //alert(x+' - '+ y);
     var col_titulo_x = $('#col_titulo_' + x).attr('title');
     var fila_titulo_y = $('#fila_titulo_' + y).attr('title');
     $('#formulario_titulo_desde').text(col_titulo_x);
     $('#formulario_titulo_hacia').text(fila_titulo_y);
+            //$('#campo_agregar_'+id).hide();
 
+    console.log(1);
     $('#modal').find(':input').each(function() {
         switch(this.type) {
         case 'password':
@@ -693,14 +733,44 @@ function p_abrir(x, y){
             break;
         }
     });
+    console.log(2);
     $('#modal').find('.panel-collapse.in').each(function() {
         $(this).collapse('hide');
     });
+    console.log(3);
     for ( instance in CKEDITOR.instances ) {
         CKEDITOR.instances[instance].setData('');
     }
     desde = x;
     hacia = y;
+
+    console.log(4);
+    $('.badge-servicio').each(function(){
+        $(this).text(0);
+        $(this).hide();
+    });
+    $('.badge-proveedor').each(function(){
+        $(this).html('');
+    });
+    console.log(5);
+    $.get('_obtenerTransicionResumen/'+desde+'/'+hacia, function(data){
+        console.log(data);
+        data = JSON.parse(data);
+        console.log('_obtenerTransicionResumen/'+desde+'/'+hacia, data);
+        data.forEach(function(d, k){
+            var ser_id = d['ser_id'];
+            var pro_id = d['pro_id'];
+            var tea_id = d['tea_id'];
+
+            var count;
+
+            $('#badge_servicio_'+ser_id).show();
+            count = parseInt($('#badge_servicio_'+ser_id).text());
+            $('#badge_servicio_'+ser_id).text(count+1);
+
+            $('#badge_proveedor_'+ser_id+'_'+pro_id).append('<span class="badge" id="nuevabadge_'+tea_id+'">'+d['destinatario']+'</span>');
+        });
+    });
     $('#modal').modal('show');
 }
 
@@ -708,6 +778,22 @@ function p_mostrar_desde_hacia(x, y, target) {
     var col_titulo_x = $('#col_titulo_' + x).attr('title');
     var fila_titulo_y = $('#fila_titulo_' + y).attr('title');
     target.title = 'DESDE: ' + col_titulo_x + '\n' + 'HACIA: ' + fila_titulo_y;
+}
+
+function p_eliminar(ser_id, pro_id, des_id){
+    if (confirm('Seguro desea eliminar esta acción de transición?')) {
+        var tea_id = $('#tea_id_'+ser_id+'_'+pro_id+'_'+des_id).val();
+        if (tea_id != null && tea_id != '') {
+            $.get('/_eliminarTransicion/'+tea_id, function(data){
+                console.log('Respuesta de eliminada:', data);
+                data = JSON.parse(data);
+                console.log('eliminando transicion:', data);
+                $('#nuevabadge_' + tea_id).remove();
+            });
+        } else {
+            alert('No se encuentra registrada la acción de la transición, no se ha eliminado nada.');
+        }
+    }
 }
 
 function p_guardar(target) {

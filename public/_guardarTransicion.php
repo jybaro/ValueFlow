@@ -66,7 +66,11 @@ $result = q($sql);
 //var_dump($result);
 //echo ')UPDATE';
 //return;
-$tea_id_old = $result[0]['tea_id'];
+if ($result) {
+    $tea_id_old = $result[0]['tea_id'];
+} else {
+    $tea_id_old = 0;
+}
 $sql = ("
     INSERT INTO 
     sai_transicion_estado_atencion(
@@ -97,12 +101,14 @@ if ($result) {
     $tea_id = $result[0]['tea_id'];
 
     //hereda los campos hacia la nueva transición de estado
-    q("
+    $sql = ("
         UPDATE sai_campo_extra
         SET cae_transicion_estado_atencion=$tea_id
         WHERE cae_transicion_estado_atencion=$tea_id_old
         RETURNING *
-    ");
+        ");
+    //echo $sql;
+    q($sql);
 
 
     //arma los mensajes de correo:

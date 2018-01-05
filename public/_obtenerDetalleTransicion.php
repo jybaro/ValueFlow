@@ -21,6 +21,7 @@ if (!empty($args) && isset($args[0]) && isset($args[1]) && isset($args[2]) && is
         ,sai_plantilla
         WHERE 
         tea_borrado IS NULL
+        AND pla_borrado IS NULL
         AND pla_transicion_estado_atencion = tea_id
         AND tea_estado_atencion_actual=$desde
         AND tea_estado_atencion_siguiente=$hacia
@@ -47,7 +48,8 @@ if (!empty($args) && isset($args[0]) && isset($args[1]) && isset($args[2]) && is
             $r['campos'] = q("
                 SELECT *
                 FROM sai_campo_extra
-                WHERE cae_transicion_estado_atencion={$r[tea_id]}
+                WHERE cae_borrado IS NULL 
+                AND cae_transicion_estado_atencion={$r[tea_id]}
                 ");
 
             $transicion[] = $r;
