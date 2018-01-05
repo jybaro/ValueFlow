@@ -200,6 +200,9 @@ if ($result) {
                 $errormsg .= "Upload error. [".$error."] on file '".$nombre."'<br/>\n";
             }
         }
+        if (!empty($errormsg)) {
+            l($errormsg);
+        }
 
         if (!empty($arc_id)) {
             //creacion de plantilla de archivo
