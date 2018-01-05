@@ -221,8 +221,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 
     //echo "[$email_cliente - $email_proveedor - $email_usuario]";
     $result_contenido = q("
-            SELECT *,
-            pla_cuerpo,pla_adjunto_texto, pla_asunto, pla_adjunto_nombre
+            SELECT *
             ,(SELECT des_nombre FROM sai_destinatario WHERE des_id = tea_destinatario) AS destinatario
             FROM sai_atencion
             ,sai_transicion_estado_atencion
