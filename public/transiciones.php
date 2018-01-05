@@ -194,7 +194,9 @@ function p_cols($hijos){
                     $count_transicion = (isset($transiciones[$x]) && isset($transiciones[$x][$y])) ? $transiciones[$x][$y] : 0;
 
                     $style_class = ($count_transicion == 0) ? '' : 'alert alert-info';
-                    $contenido = ($count_transicion == 0) ? '' : ' ' . n2t($count_transicion);
+                    //$contenido = ($count_transicion == 0) ? '' : ' ' . n2t($count_transicion);
+                    $contenido = ($count_transicion == 0) ? '' : ' ' . ($count_transicion);
+                    $contenido = "<span class='badge'>$contenido</span>";
                     echo "<td class='text-center {$style_class}' id='celda_{$x}_{$y}'><a href='#' title='X' onmouseover='p_mostrar_desde_hacia($x, $y, this)' onclick='p_abrir($x, $y);return false;'><span class='glyphicon glyphicon-cog' aria-hidden='true'></span>$contenido</a></td>";
                 }
             }
