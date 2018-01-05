@@ -180,7 +180,12 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
             con_correo_electronico
             FROM sai_contacto
             ,sai_atencion
-            WHERE ate_contacto = con_id
+            ,sai_cuenta
+            WHERE ate_borrado IS NULL
+            AND cue_borrado IS NULL
+            AND con_borrado IS NULL 
+            AND ate_cuenta = cue_id
+            AND cue_contacto = con_id
             AND ate_id=$ate_id
     ")[0]['con_correo_electronico'];
 
@@ -374,10 +379,10 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
                 $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
                 $mail->Subject = $pla_asunto;
                 $mail->MsgHTML($pla_cuerpo);
-                if ($destinatario == 'cliente') {
+                if ($destinatario == 'cliente' && !empty($email_cliente)) {
                     $mail->AddAddress($email_cliente);
                 }
-                if ($destinatario == 'proveedor') {
+                if ($destinatario == 'proveedor' && !empty($email_proveedor)) {
                     $mail->AddAddress($email_proveedor);
                 }
                 $mail->AddAddress($email_usuario);
