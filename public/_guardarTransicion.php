@@ -110,6 +110,16 @@ if ($result) {
     //echo $sql;
     q($sql);
 
+    //Hereda las plantillas:
+    $sql = ("
+        UPDATE sai_plantilla
+        SET pla_transicion_estado_atencion=$tea_id
+        WHERE pla_transicion_estado_atencion=$tea_id_old
+        RETURNING *
+        ");
+    //echo $sql;
+    q($sql);
+
 
     //arma los mensajes de correo:
     $asunto = (empty($asunto)) ? 'null' : "'$asunto'";
