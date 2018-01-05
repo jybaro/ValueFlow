@@ -427,12 +427,14 @@ $sql = ("
         $filtro
 
     ORDER BY 
+        ate_id, estado_actual,
         ate_creado DESC
 ");
 $result = q($sql);
 //echo $sql;
 if ($result) {
     $estado_actual = null;
+    $estado_siguiente = null;
     foreach ($result as $r) {
         //echo '<div><form><button class="btn btn-info" onclick="">'."Servicio de {$r[ser_nombre]} a {$r[cli_razon_social]}, ".p_formatear_fecha($r['ate_creado']).' (estado '.$r['esa_nombre'].')</button></form></div>';
         if ($estado_actual != $r[ate_id] . $r[estado_actual]) {
@@ -511,18 +513,23 @@ EOT;
         ");
          */
         
+        if ($estado_siguiente != $r['ate_id'] . '-' . $r['estado_siguiente']) {
+            //se repite por múltiples destinatarios (cliente, proveedor, usuario), por eso se consolida:
+            //
                 echo "<form method='POST' onsubmit='return p_validar_transicion(this, ".$r['tea_id'].", ".$r['ate_id'].")'>";
                 echo "<input type='hidden' name='estado' value='".$r['estado_siguiente_id']."'>";
                 echo "<input type='hidden' name='tea_id' value='".$r['tea_id']."'>";
                 echo "<input type='hidden' name='id' value='".$r['ate_id']."'>";
                 echo "<li><button class='btn btn-success'>" . '<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> ';
                 //echo "Pasar al estado: ". $r2['esa_nombre'] . ", Proveedor {$r2[pro_razon_social]} - {$r2[tea_]}";
+                //echo "Pasar al estado: ". $r['estado_siguiente'] . ' - '. $r['tea_destinatario']; 
                 echo "Pasar al estado: ". $r['estado_siguiente']; 
                 echo "</button></li>";
                 echo "</form>";
+        }
 
+        $estado_siguiente = $r['ate_id'] . '-' . $r['estado_siguiente'];
     }
-
 }
 ?>
 
