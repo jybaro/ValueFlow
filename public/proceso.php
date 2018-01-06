@@ -225,7 +225,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 
 
     //echo "[$email_cliente - $email_proveedor - $email_usuario]";
-    $result_contenido = q("
+    $sql = ("
             SELECT *
             ,(SELECT des_nombre FROM sai_destinatario WHERE des_id = tea_destinatario) AS destinatario
             FROM sai_atencion
@@ -238,7 +238,12 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
             AND tea_estado_atencion_actual = ate_estado_atencion
             AND ate_pertinencia_proveedor = tea_pertinencia_proveedor
             AND ate_id=$ate_id
-            ");
+    ");
+    $result_contenido = q($sql);
+    echo "<pre>";
+    echo "$sql<hr>";
+    var_dump($result_contenido);
+    echo "</pre>";
     if ($result_contenido) {
         q("UPDATE sai_paso_atencion SET paa_borrado=now() WHERE paa_atencion=$ate_id");
 
