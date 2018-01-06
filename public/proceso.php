@@ -241,7 +241,7 @@ if (isset($_POST['estado']) && !empty($_POST['estado'])) {
     ");
     $result_contenido = q($sql);
     echo "<pre>";
-    echo "$sql<hr>";
+    echo "$sql<hr>"; 
     var_dump($result_contenido);
     echo "</pre>";
     if ($result_contenido) {
