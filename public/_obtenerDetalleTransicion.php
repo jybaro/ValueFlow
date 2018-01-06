@@ -14,9 +14,9 @@ if (!empty($args) && isset($args[0]) && isset($args[1]) && isset($args[2]) && is
         //,CASE WHEN tea_pertinencia_usuario IS NULL THEN null ELSE (SELECT peu_usuario FROM sai_pertinencia_usuario where peu_id=tea_pertinencia_usuario) END AS usu_id
     $sql = ("
         SELECT * 
-        ,(SELECT peu_usuario FROM sai_pertinencia_usuario WHERE peu_id=tea_pertinencia_usuario) AS usu_id
-        ,(SELECT pep_proveedor FROM sai_pertinencia_proveedor WHERE pep_id=tea_pertinencia_proveedor) AS pro_id
-        ,(SELECT pep_servicio FROM sai_pertinencia_proveedor WHERE pep_id=tea_pertinencia_proveedor) AS ser_id
+        ,(SELECT peu_usuario FROM sai_pertinencia_usuario WHERE peu_borrado IS NULL AND peu_id=tea_pertinencia_usuario) AS usu_id
+        ,(SELECT pep_proveedor FROM sai_pertinencia_proveedor WHERE pep_borrado IS NULL AND pep_id=tea_pertinencia_proveedor) AS pro_id
+        ,(SELECT pep_servicio FROM sai_pertinencia_proveedor WHERE pep_borrado IS NULL AND pep_id=tea_pertinencia_proveedor) AS ser_id
         FROM sai_transicion_estado_atencion 
         ,sai_plantilla
         WHERE 
@@ -30,7 +30,8 @@ if (!empty($args) && isset($args[0]) && isset($args[1]) && isset($args[2]) && is
             SELECT
             pep_id
             FROM sai_pertinencia_proveedor
-            WHERE pep_servicio = $ser_id
+            WHERE pep_borrado IS NULL
+            AND pep_servicio = $ser_id
             AND pep_proveedor=$pro_id
         ) END
         ");
@@ -42,7 +43,9 @@ if (!empty($args) && isset($args[0]) && isset($args[1]) && isset($args[2]) && is
                 SELECT * 
                 FROM sai_adjunto_plantilla 
                 ,sai_archivo
-                WHERE adp_archivo = arc_id
+                WHERE adp_borrado IS NULL
+                AND arc_borrado IS NULL
+                AND adp_archivo = arc_id
                 AND adp_plantilla={$r[pla_id]}
                 ");
             $r['campos'] = q("

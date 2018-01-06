@@ -196,7 +196,7 @@ function p_cols($hijos){
                     $style_class = ($count_transicion == 0) ? '' : 'alert alert-info';
                     //$contenido = ($count_transicion == 0) ? '' : ' ' . n2t($count_transicion);
                     $contenido = ($count_transicion == 0) ? '' : ' ' . ($count_transicion);
-                    $contenido = "<span class='badge'>$contenido</span>";
+                    $contenido = "<span class='badge' id='badge_transicion_{$x}_{$y}'>$contenido</span>";
                     echo "<td class='text-center {$style_class}' id='celda_{$x}_{$y}'><a href='#' title='X' onmouseover='p_mostrar_desde_hacia($x, $y, this)' onclick='p_abrir($x, $y);return false;'><span class='glyphicon glyphicon-cog' aria-hidden='true'></span>$contenido</a></td>";
                 }
             }
@@ -262,9 +262,12 @@ $servicios = q("SELECT * FROM sai_servicio");
 ///////////////////////
 //Pertinencias provedor:
 //
+/*
 $proveedor_generico = array(array('pep_servicio' => '0', 'ser_nombre' => 'Servicio General', 'pro_razon_social'=>'Para todos los proveedores', 'pro_id' => 0));
 
 $pertinencias_proveedor = array(0=>$proveedor_generico);
+ */
+
 foreach($servicios as $servicio){
     $pertinencias_proveedor[$servicio['ser_id']] = $proveedor_generico; 
 }
@@ -448,9 +451,9 @@ if (isset($pertinencias_usuario[$servicio['ser_id']])) {
     </div>
   </div>
   <div class="form-group">
-    <label for="archivo-adjunto" class="col-sm-2 control-label">Adjunto:</label>
+    <label for="archivo_adjunto" class="col-sm-2 control-label">Adjunto:</label>
     <div class="col-sm-10">
-      <input type="file" class="form-control" id="archivo-adjunto_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="archivo-adjunto" placeholder="Archivo adjunto">
+      <input type="file" class="form-control" id="archivo_adjunto_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="archivo_adjunto" placeholder="Archivo adjunto">
       <div id="archivos_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="col-sm-10">
       </div>
     </div>
@@ -459,26 +462,27 @@ if (isset($pertinencias_usuario[$servicio['ser_id']])) {
     <div class="col-sm-2">&nbsp;</div>
     <div class="col-sm-10">
     <button class="btn btn-info" onclick="//p_guardar('<?="formulario_"?>')">Guardar</button>
-    <button class="btn btn-danger" onclick="p_eliminar(<?=$servicio['ser_id']?>, <?=$proveedor['pro_id']?>, <?=$des_id?>)" type="button">Eliminar</button>
+    <button class="btn btn-danger boton-eliminar" id="boton_eliminar_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" onclick="p_eliminar(<?=$servicio['ser_id']?>, <?=$proveedor['pro_id']?>, <?=$des_id?>)" type="button">Eliminar</button>
     </div>
   </div>
 </form>
 <hr />
 <strong>CAMPOS:</strong>
-<form id="formulario_cae_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="form-horizontal">
+<div id="formulario_cae_mensaje_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="alert alert-warning formulario-cae-mensaje">Guarde el formulario primero antes de poder agregar campos.</div>
+<form id="formulario_cae_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="form-horizontal formulario-cae" onsubmit="return false;">
   <div class="form-group">
     <label for="campo" class="col-sm-2 control-label">Campo:</label>
     <div class="col-sm-8">
       <input type="hidden" id="campo_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="campo" value="">
-      <input class="form-control" required type="text" id="campo_typeahead_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" data-provide="typeahead" autocomplete="off" placeholder="Ingrese al menos 2 caracteres" onblur="p_validar_campo()">
+      <input class="form-control" required type="text" id="campo_typeahead_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" data-provide="typeahead" autocomplete="off" placeholder="Ingrese al menos 2 caracteres" onblur="p_validar_campo('<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>')">
     </div>
     <div class="col-sm-1">
-      <button type="button" class="btn btn-info" id="campo_agregar_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" onclick="p_guardar_campo('<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+      <button type="button" class="btn btn-info boton-agregar" id="campo_agregar_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" onclick="p_guardar_campo('<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
     </div>
   </div>
 </form>
 
-<table class="table table-striped">
+<table id="tabla_cae_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="table table-striped">
 <tbody id="antiguos_cae_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>"></tbody>
 </table>
 
@@ -508,7 +512,9 @@ GENERAL
   <h3 class="panel-title">Sin proveedores</h3>
   </div>
   <div class="panel-body">
-No hay proveedores registrados para este servicio.
+
+<div class="alert alert-warning">No hay proveedores registrados para este servicio.</div>
+<a class="btn btn-primary" href="/autoadmin/sai_pertinencia_proveedor">Ir a administración de pertinencias de proveedor</a>
   </div>
 </div>
     <?php endif; ?>
@@ -546,10 +552,10 @@ $( document ).ready(function() {
 var desde=0, hacia=0;
 
 
-function p_validar_campo(){
-    console.log('on blur campo');
-    if ($('#campo').val() == ''){
-        $('#campo_typeahead').val('');
+function p_validar_campo(id){
+    console.log('on blur campo', id);
+    if ($('#campo_'+id).val() == ''){
+        $('#campo_typeahead_'+id).val('');
     }
 }
 
@@ -557,9 +563,10 @@ function p_guardar_campo(id){
     if ($('#campo_'+id).val() !== '') {
         var respuestas_json = $('#formulario_cae_'+id).serializeArray();
         console.log('respuestas json', id, respuestas_json);
-        dataset_json = {};
+        dataset_json = {}; 
         dataset_json['campo'] = $('#campo_'+id).val();
-        dataset_json['transicion'] = $('#tea_id_'+id).val();
+        var tea_id = $('#tea_id_'+id).val();
+        dataset_json['transicion'] = tea_id;
 
         console.log('dataset_json', dataset_json);
         $.ajax({
@@ -581,8 +588,10 @@ function p_guardar_campo(id){
                 var current_ser_id = partes[0];
                 var current_pro_id = partes[1];
                 console.log('current', current_ser_id, current_pro_id);
-                p_cargar_detalle_transicion(current_ser_id, current_pro_id);
+                //p_cargar_detalle_transicion(current_ser_id, current_pro_id);
+                p_actualizar_campos(tea_id, id);
             }
+
             $('#campo_agregar_'+id).hide();
             $('#campo_'+id).val('');
             $('#campo_typeahead_'+id).val('');
@@ -594,6 +603,23 @@ function p_guardar_campo(id){
     } else {
         alert ('Ingrese el nombre del campo');
     }
+}
+
+
+function p_borrar_archivo(adp_id, id) {
+
+    console.log('borrar archivo', adp_id);
+    if (confirm('Seguro desea borrar el archivo?')){
+        $.get('_borrarArchivo/'+adp_id, function(data){
+            console.log('Respuesta de borrarArchivo', data);
+            data = JSON.parse(data);
+            console.log('data', data);
+            var tea_id = $('#tea_id_' + id).val();
+            p_actualizar_archivos(tea_id, 0, id);
+
+        });
+    }
+
 }
 
 function p_borrar_campo(id, campo) {
@@ -633,9 +659,22 @@ function p_borrar_campo(id, campo) {
 function p_cargar_detalle_transicion(ser_id, pro_id){
     console.log(desde + '->'+ hacia, ser_id, pro_id);
     $.get('/_obtenerDetalleTransicion/'+desde+'/'+hacia+'/'+ser_id+'/'+pro_id, function(data){
+        console.log('data: ', data);
         data = JSON.parse(data);
         console.log('RESPUESTA: ', data);
+
+        var transiciones = [];
+
         data.forEach(function(transicion){
+            var tea_id = transicion['tea_id'];
+            if (typeof(transiciones[tea_id]) === 'undefined') {
+                transiciones[tea_id] = transicion;
+            } else if (transiciones[tea_id]['pla_id'] < transicion['pla_id']) {
+                transiciones[tea_id] = transicion;
+            }
+        });
+
+        transiciones.forEach(function(transicion){
             var des_id = transicion['tea_destinatario'];
             console.log(ser_id+'_'+pro_id+'_'+des_id);
             $('#tea_id_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['tea_id']);
@@ -647,9 +686,17 @@ function p_cargar_detalle_transicion(ser_id, pro_id){
             CKEDITOR.instances['cuerpo_'+ser_id+'_'+pro_id+'_'+des_id].setData(transicion['pla_cuerpo']);
             CKEDITOR.instances['adjunto_texto_'+ser_id+'_'+pro_id+'_'+des_id].setData(transicion['pla_adjunto_texto']);
             console.log('#usuario_responsable_'+ser_id+'_'+pro_id+'_'+des_id);
-            p_actualizar_archivos(transicion['archivos'], ser_id+'_'+pro_id+'_'+des_id);
-            p_actualizar_campos(transicion['campos'], ser_id+'_'+pro_id+'_'+des_id);
-            p_inicializar_autocompletar(ser_id+'_'+pro_id+'_'+des_id)
+
+            //p_actualizar_archivos(transicion['archivos'], ser_id+'_'+pro_id+'_'+des_id);
+            p_actualizar_archivos(transicion['tea_id'], transicion['pla_id'], ser_id+'_'+pro_id+'_'+des_id);
+
+            //p_actualizar_campos(transicion['campos'], ser_id+'_'+pro_id+'_'+des_id);
+            p_actualizar_campos(transicion['tea_id'], ser_id+'_'+pro_id+'_'+des_id);
+            p_inicializar_autocompletar(ser_id+'_'+pro_id+'_'+des_id);
+
+            //$('#boton_eliminar_'+ser_id+'_'+pro_id+'_'+des_id).show();
+            //$('#formulario_cae_'+ser_id+'_'+pro_id+'_'+des_id).show();
+            //$('#formulario_cae_mensaje_'+ser_id+'_'+pro_id+'_'+des_id).hide();
         });
     });
 }
@@ -680,29 +727,46 @@ function p_inicializar_autocompletar(id){
     });
 }
 
-function p_actualizar_campos(campos, id) {
-    console.log('p_actualizar_campos', campos, id);
-    var tbody_id = '#antiguos_cae_' + id;
-    $(tbody_id).html('');
-    if (Array.isArray(campos)) {
-        campos.forEach(function(campo){
-            var numero = $(tbody_id).children().length + 1;
-            //var nombre = $('#campo_typeahead_'+id).val();
-            var nombre = campo['cae_texto'] + ' ('+campo['cae_codigo']+')';
-            $(tbody_id).append('<tr class="alert alert-info" id="cae_'+campo['cae_id']+'"><th>'+numero+'.</th><td><span id="nombre_cae_'+campo['cae_id']+'">'+nombre+'</span></td><td><button class="btn btn-danger" onclick="p_borrar_campo(\''+id+'\','+campo['cae_id']+')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></td></tr>');
-        });
-    }
+//function p_actualizar_campos(campos, id) {
+function p_actualizar_campos(tea_id, id) {
+    console.log('p_actualizar_campos', tea_id, id);
+    var tbody = $('#antiguos_cae_' + id);
+    tbody.html('');
+    $.get('/_obtenerCampos/'+tea_id, function(data){
+        console.log('respuesta desde obtenerCampos', data);
+        data = JSON.parse(data);
+        console.log('data', data);
+        if (Array.isArray(data)) {
+            data.forEach(function(campo){
+                var numero = tbody.children().length + 1;
+                //var nombre = $('#campo_typeahead_'+id).val();
+                var nombre = campo['cae_texto'] + ' ('+campo['cae_codigo']+')';
+                tbody.append('<tr class="alert alert-info" id="cae_'+campo['cae_id']+'"><th>'+numero+'.</th><td><span id="nombre_cae_'+campo['cae_id']+'">'+nombre+'</span></td><td><button class="btn btn-danger" onclick="p_borrar_campo('+campo['cae_id']+', \''+id+'\')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></td></tr>');
+            });
+        }
+    });
 }
 
-function p_actualizar_archivos(archivos, id) {
-    console.log('p_actualizar_archivos', archivos, id);
-    var div_id = '#archivos_' + id;
-    $(div_id).html('');
-    if (Array.isArray(archivos)) {
-        archivos.forEach(function(archivo){
-            $(div_id).append('<div><a class="btn btn-default" href="/'+archivo['arc_ruta']+'" target="_blank">'+archivo['arc_nombre']+'</a></div>');
-        });
-    }
+//function p_actualizar_archivos(archivos, id) {
+function p_actualizar_archivos(tea_id, pla_id, id) {
+    console.log('p_actualizar_archivos', tea_id, pla_id, id);
+    var div = $('#archivos_' + id);
+    div.html('');
+
+    $.get('/_obtenerArchivos/' + tea_id + '/' + pla_id, function(data){
+        console.log('respuesta obetenerArchivos', data);
+        data = JSON.parse(data);
+        console.log('data', data);
+
+        if (Array.isArray(data)) {
+            data.forEach(function(archivo){
+                var hidden = '<input type="hidden" name="adp_id[]" value="'+archivo['adp_id']+'">';
+                var icono = '<span class="glyphicon glyphicon-download" aria-hidden="true"></span> ';
+                var trash = ' <button class="btn btn-danger" onclick="p_borrar_archivo('+archivo['adp_id']+', \''+id+'\')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
+                div.append('<div><a class="btn btn-default" href="/'+archivo['arc_ruta']+'" target="_blank" title="Descargar archivo">'+icono+archivo['arc_nombre']+'</a>'+hidden+trash+'</div>');
+            });
+        }
+    });
 }
 
 function p_abrir(x, y){
@@ -756,7 +820,11 @@ function p_abrir(x, y){
     $('.badge-proveedor').each(function(){
         $(this).html('');
     });
-    console.log(5);
+    $('.boton-eliminar').each(function(){$(this).hide();});
+    $('.formulario-cae').each(function(){$(this).hide();});
+    $('.formulario-cae-mensaje').each(function(){$(this).show();});
+    $('.boton-agregar').each(function(){$(this).hide();});
+
     $.get('_obtenerTransicionResumen/'+desde+'/'+hacia, function(data){
         console.log(data);
         data = JSON.parse(data);
@@ -765,6 +833,7 @@ function p_abrir(x, y){
             var ser_id = d['ser_id'];
             var pro_id = d['pro_id'];
             var tea_id = d['tea_id'];
+            var des_id = d['tea_destinatario'];
 
             var count;
 
@@ -773,6 +842,10 @@ function p_abrir(x, y){
             $('#badge_servicio_'+ser_id).text(count+1);
 
             $('#badge_proveedor_'+ser_id+'_'+pro_id).append('<span class="badge" id="nuevabadge_'+tea_id+'">'+d['destinatario']+'</span>');
+
+            $('#boton_eliminar_'+ser_id+'_'+pro_id+'_'+des_id).show();
+            $('#formulario_cae_'+ser_id+'_'+pro_id+'_'+des_id).show();
+            $('#formulario_cae_mensaje_'+ser_id+'_'+pro_id+'_'+des_id).hide();
         });
     });
     $('#modal').modal('show');
@@ -794,6 +867,30 @@ function p_eliminar(ser_id, pro_id, des_id){
                 data = JSON.parse(data);
                 console.log('eliminando transicion:', data);
                 $('#nuevabadge_' + tea_id).remove();
+                $('#tea_id_'+ser_id+'_'+pro_id+'_'+des_id).val('');
+
+                $('#boton_eliminar_'+ser_id+'_'+pro_id+'_'+des_id).hide();
+                $('#formulario_cae_'+ser_id+'_'+pro_id+'_'+des_id).hide();
+                $('#formulario_cae_mensaje_'+ser_id+'_'+pro_id+'_'+des_id).show();
+
+                var count;
+
+                count  = parseInt($('#badge_servicio_' + ser_id).text());
+                console.log('servicio count', ser_id, count - 1);
+                $('#badge_servicio_' + ser_id).text(count - 1);
+                if (count - 1 == 0) {
+                    $('#badge_servicio_' + ser_id).hide();
+                }
+
+                count  = parseInt($('#badge_transicion_' + desde + '_'+ hacia).text());
+                console.log('transicion count', desde + '_'+ hacia, count - 1);
+                $('#badge_transicion_' + desde + '_'+ hacia).text(count - 1);
+                if (count - 1 == 0) {
+                    $('#badge_transicion_' + desde + '_'+ hacia).hide();
+                }
+
+                p_actualizar_archivos(tea_id, 0, ser_id+'_'+pro_id+'_'+des_id);
+                p_actualizar_campos(tea_id, ser_id+'_'+pro_id+'_'+des_id);
             });
         } else {
             alert('No se encuentra registrada la acción de la transición, no se ha eliminado nada.');
@@ -806,22 +903,12 @@ function p_guardar(target) {
     for ( instance in CKEDITOR.instances ) {
         CKEDITOR.instances[instance].updateElement();
     }
-    /*
-            var respuestas_json = $('#formulario').serializeArray();
-
-            console.log('respuestas json', respuestas_json);
-            dataset_json = {};
-            respuestas_json.forEach(function(respuesta_json){
-                var name =  respuesta_json['name'];
-                var value = respuesta_json['value'];
-                dataset_json[name] = value;
-
-            });
-
-            console.log('dataset_json', dataset_json);
-     */
     $(target).find('input[name=desde]').val(desde);
     $(target).find('input[name=hacia]').val(hacia);
+    var ser_id =  $(target).find('input[name=ser_id]').val();
+    var pro_id =  $(target).find('input[name=pro_id]').val();
+    var des_id =  $(target).find('input[name=des_id]').val();
+    var destinatario =  $(target).find('input[name=destinatario]').val();
     var fd = new FormData(target);
     //console.log('p_guardar fd: ', fd);
     $.ajax({
@@ -847,13 +934,40 @@ function p_guardar(target) {
             console.log('nueva TRANSICION');
             var desde = data['tea_estado_atencion_actual'];
             var hacia = data['tea_estado_atencion_siguiente'];
-            var destinatario = data['tea_estado_atencion_siguiente'];
+            var tea_id = data['tea_id'];
+            $('#tea_id_'+ser_id+'_'+pro_id+'_'+des_id).val(tea_id);
             var celda_id = '#celda_' + desde + '_'+ hacia;
             console.log('id de celda:', celda_id, $(celda_id));
             $(celda_id).removeClass('alert alert-success alert-info alert-danger');
             $(celda_id).addClass('alert alert-success');
             //var id = desde + '_'+ hacia + '_' + data['tea_destinatario'];
             //p_actualizar_archivos(data['archivos'], id);
+            if ($('#badge_proveedor_'+ser_id+'_'+pro_id+":contains('"+destinatario+"')").length > 0) {
+                $('#badge_proveedor_'+ser_id+'_'+pro_id).find('span'+":contains('"+destinatario+"')").remove();
+            } else {
+                var count;
+
+                $('#badge_servicio_' + ser_id).show();
+                count  = parseInt($('#badge_servicio_' + ser_id).text());
+                console.log('servicio count', ser_id, count + 1);
+                $('#badge_servicio_' + ser_id).text(count + 1);
+
+                $('#badge_transicion_' + desde + '_'+ hacia).show();
+                count  = parseInt($('#badge_transicion_' + desde + '_'+ hacia).text());
+                console.log('transicion count', desde + '_'+ hacia, count + 1);
+                $('#badge_transicion_' + desde + '_'+ hacia).text(count + 1);
+
+            }
+            $('#badge_proveedor_'+ser_id+'_'+pro_id).append('<span class="badge" id="nuevabadge_' + tea_id + '">' + destinatario + '</span>');
+            $('#boton_eliminar_'+ser_id+'_'+pro_id+'_'+des_id).show();
+            $('#formulario_cae_'+ser_id+'_'+pro_id+'_'+des_id).show();
+            $('#formulario_cae_mensaje_'+ser_id+'_'+pro_id+'_'+des_id).hide();
+
+            $('#archivo_adjunto_'+ser_id+'_'+pro_id+'_'+des_id).val('');
+            p_actualizar_archivos(tea_id, 0, ser_id+'_'+pro_id+'_'+des_id);
+
+
+            p_inicializar_autocompletar(ser_id+'_'+pro_id+'_'+des_id);
 
             //$('#modal').modal('hide');
         }

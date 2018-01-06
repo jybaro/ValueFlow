@@ -38,7 +38,8 @@ if (isset($pro_id) && !empty($pro_id) && isset($ser_id) && !empty($ser_id)) {
     $pertinencia_proveedor = "(
         SELECT pep_id
         FROM sai_pertinencia_proveedor
-        WHERE pep_proveedor = $pro_id
+        WHERE pep_borrado IS NULL
+        AND pep_proveedor = $pro_id
         AND pep_servicio = $ser_id
     )";
 }
@@ -104,7 +105,8 @@ if ($result) {
     $sql = ("
         UPDATE sai_campo_extra
         SET cae_transicion_estado_atencion=$tea_id
-        WHERE cae_transicion_estado_atencion=$tea_id_old
+        WHERE cae_borrado IS NULL
+        AND cae_transicion_estado_atencion=$tea_id_old
         RETURNING *
         ");
     //echo $sql;
@@ -114,7 +116,8 @@ if ($result) {
     $sql = ("
         UPDATE sai_plantilla
         SET pla_transicion_estado_atencion=$tea_id
-        WHERE pla_transicion_estado_atencion=$tea_id_old
+        WHERE pla_borrado IS NULL
+        AND pla_transicion_estado_atencion=$tea_id_old
         RETURNING *
         ");
     //echo $sql;
@@ -149,10 +152,12 @@ if ($result) {
         q("
             UPDATE sai_adjunto_plantilla 
             SET adp_plantilla = $pla_id 
-            WHERE adp_plantilla = (
+            WHERE adp_borrado IS NULL
+            AND adp_plantilla IN (
                 SELECT pla_id 
                 FROM sai_plantilla 
-                WHERE pla_transicion_estado_atencion=$tea_id_old
+                WHERE pla_borrado IS NULL
+                AND pla_transicion_estado_atencion=$tea_id
             )
         ");
         
@@ -160,18 +165,18 @@ if ($result) {
         $errormsg = null;
         $arc_id = null;
         $tipo_archivo = null;
-        $error = $_FILES["archivo-adjunto"]["error"];
-        $tmp_name = $_FILES["archivo-adjunto"]["tmp_name"];
+        $error = $_FILES["archivo_adjunto"]["error"];
+        $tmp_name = $_FILES["archivo_adjunto"]["tmp_name"];
         if (!empty($tmp_name)) {
 
-            $nombre = basename($_FILES["archivo-adjunto"]["name"]);
+            $nombre = basename($_FILES["archivo_adjunto"]["name"]);
 
             if ($error == UPLOAD_ERR_OK){
                 $ruta = "uploads/".$nombre;
                 if ( move_uploaded_file($tmp_name, $ruta) ) {
                     $md5 = md5_file($ruta);
-                    $peso = $_FILES["archivo-adjunto"]["size"];
-                    $tipo_archivo = $_FILES["archivo-adjunto"]["type"];
+                    $peso = $_FILES["archivo_adjunto"]["size"];
+                    $tipo_archivo = $_FILES["archivo_adjunto"]["type"];
 
                     $result_archivo = q("
                         INSERT INTO sai_archivo (

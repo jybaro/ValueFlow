@@ -8,6 +8,7 @@ if (!empty($args) && isset($args[0]) && isset($args[1])) {
 
     $sql = ("
         SELECT tea_id 
+        ,tea_destinatario
         ,(SELECT peu_usuario FROM sai_pertinencia_usuario WHERE peu_id=tea_pertinencia_usuario) AS usu_id
         ,(SELECT pep_proveedor FROM sai_pertinencia_proveedor WHERE pep_id=tea_pertinencia_proveedor) AS pro_id
         ,(SELECT pep_servicio FROM sai_pertinencia_proveedor WHERE pep_id=tea_pertinencia_proveedor) AS ser_id
