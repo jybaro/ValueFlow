@@ -63,10 +63,13 @@ if ($result) {
         $cli_razon_social = $r['cli_razon_social'];
         //$estado = '#';
         $estado = $r['esa_padre_codigo'];
+        $fecha_formateada = p_formatear_fecha($r['ate_creado']);
         echo <<<EOT
 <div class="list-group" style="margin:0 5% 1% 5%;">
+
   <a class="list-group-item" href="/$estado#atencion_{$r[ate_secuencial]}">
-    {$r[ate_secuencial]}. {$r[esa_nombre]} de servicio de $ser_nombre ({$r[pro_razon_social]}) a $cli_razon_social
+    {$r[ate_secuencial]}. <strong>{$r[esa_nombre]}</strong> de servicio de $ser_nombre ({$r[pro_razon_social]}) a $cli_razon_social
+    <small class="text-muted">- $fecha_formateada</small> 
   </a>
 </div>
 EOT;
