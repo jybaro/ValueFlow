@@ -83,7 +83,7 @@ desired effect
 
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu tree" data-widget="tree">
-        <li class="header">ESTADOS</li>
+        <li class="header">ESTADOS DE ATENCIONES</li>
 <?php
 $result = q("
     SELECT * 
@@ -130,6 +130,7 @@ EOF;
         }
         if (!empty($texto)) {
             echo <<<EOF
+                <li><a href="/{$esa_codigo_padre}">TODOS</a></li>
               </ul>
             </li>
 EOF;
@@ -168,278 +169,7 @@ EOF;
         -------------------------->
 
 <?php
-if (isset($_POST['estado']) && !empty($_POST['estado'])) {
-    $estado = $_POST['estado'];
-    $id = $_POST['id'];
-    $ate_id = $id;
-    $tea_id = $_POST['tea_id'];
-    require_once('_obtenerCampos.php');
-
-    $email_cliente = q("
-            SELECT 
-            con_correo_electronico
-            FROM sai_contacto
-            ,sai_atencion
-            ,sai_cuenta
-            WHERE ate_borrado IS NULL
-            AND cue_borrado IS NULL
-            AND con_borrado IS NULL 
-            AND ate_cuenta = cue_id
-            AND cue_contacto = con_id
-            AND ate_id=$ate_id
-    ")[0]['con_correo_electronico'];
-
-    $email_proveedor = q("
-            SELECT
-            vpr_correo_electronico
-            FROM sai_vendedor_proveedor
-            ,sai_pertinencia_proveedor
-            ,sai_atencion
-            WHERE ate_pertinencia_proveedor = pep_id
-            AND pep_vendedor_proveedor = vpr_id
-            AND ate_id=$ate_id
-    ")[0]['vpr_correo_electronico'];
-
-    $email_usuario = q("
-            SELECT
-            usu_correo_electronico
-            FROM sai_usuario
-            ,sai_pertinencia_usuario
-            ,sai_atencion
-            WHERE ate_pertinencia_usuario = peu_id
-            AND peu_usuario = usu_id
-            AND ate_id=$ate_id
-    ")[0]['usu_correo_electronico'];
-
-
-    $email_usuario_comercial = q("
-            SELECT
-            usu_correo_electronico
-            FROM sai_usuario
-            ,sai_atencion
-            WHERE usu_borrado IS NULL
-            AND ate_usuario_comercial = usu_id
-            AND ate_id=$ate_id
-    ")[0]['usu_correo_electronico'];
-
-
-
-    //echo "[$email_cliente - $email_proveedor - $email_usuario]";
-    $sql = ("
-            SELECT *
-            ,(SELECT des_nombre FROM sai_destinatario WHERE des_id = tea_destinatario) AS destinatario
-            FROM sai_atencion
-            ,sai_transicion_estado_atencion
-            ,sai_plantilla
-            WHERE ate_borrado IS NULL
-            AND tea_borrado IS NULL
-            AND pla_borrado IS NULL
-            AND pla_transicion_estado_atencion = tea_id
-            AND tea_estado_atencion_actual = ate_estado_atencion
-            AND ate_pertinencia_proveedor = tea_pertinencia_proveedor
-            AND ate_id=$ate_id
-    ");
-    $result_contenido = q($sql);
-    echo "<pre>";
-    echo "$sql<hr>"; 
-    var_dump($result_contenido);
-    echo "</pre>";
-    if ($result_contenido) {
-        q("UPDATE sai_paso_atencion SET paa_borrado=now() WHERE paa_atencion=$ate_id");
-
-        foreach ($result_contenido as $rc) {
-            $pla_asunto = $rc['pla_asunto'];
-            $pla_adjunto_nombre = $rc['pla_adjunto_nombre'];
-
-            $pla_cuerpo = $rc['pla_cuerpo'];
-            $pla_adjunto_texto = $rc['pla_adjunto_texto'];
-            $pla_id = $rc['pla_id'];
-
-            $destinatario = $rc['destinatario'];
-
-            $sql = ("
-                SELECT * 
-                FROM sai_adjunto_plantilla
-                ,sai_archivo
-                WHERE adp_borrado IS NULL
-                AND arc_borrado IS NULL
-                AND arc_id = adp_archivo 
-                AND adp_plantilla=$pla_id
-            ");
-            $adjunto_plantilla = q($sql);
-
-
-
-
-
-//echo '<pre>';
-//var_dump($rc);
-            //  var_dump($adjunto_plantilla);
-    //echo $sql;
-
-    //echo "<pre>";
-  //  echo "<hr><h1>RESULT CONTENIDO</h1>";
-    //var_dump($result_contenido);
-//echo '</pre>';
-    //die();
-
-            $campos_valores = array();
-
-            if (isset($campos) && is_array($campos)) {
-                $search = array();
-                $replace = array();
-                foreach($campos as $campo) {
-                    $search[] = '%'.$campo['cae_codigo'].'%';
-                    $replace[] = $campo['valor'];
-                    $campos_valores['%'.$campo['cae_codigo'].'%'] = $campo['valor'];
-                }
-                //echo "<pre>";
-                //echo $pla_cuerpo;
-                //var_dump($search);
-                //var_dump($replace);
-                //var_dump($campos_valores);
-                //echo str_replace($search, $replace, $pla_cuerpo);
-                //echo "</pre>";
-                $pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
-                $pla_asunto = str_replace($search, $replace, $pla_asunto);
-                $pla_adjunto_nombre = str_replace($search, $replace, $pla_adjunto_nombre);
-                $pla_adjunto_texto = str_replace($search, $replace, $pla_adjunto_texto);
-            }
-
-            $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
-            $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
-            $pla_cuerpo = (empty($pla_cuerpo)) ? 'Favor revisar' : $pla_cuerpo;
-
-
-            //require_once('../vendor/autoload.php');
-
-
-//echo '<pre>';
-//var_dump($adjunto_plantilla);
-//echo '</pre>';
-
-            $xls_generado = false;
-            try{
-                if ($adjunto_plantilla) {
-                    $adjunto_plantilla = $adjunto_plantilla[0];
-                    //////////////
-                    //Excel
-
-                    //echo "sacando Excel";
-
-                    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('uploads/'.$adjunto_plantilla['arc_nombre']);
-
-                    $worksheet = $spreadsheet->getActiveSheet();
-
-                    $filas = $worksheet->toArray();
-
-                    //var_dump($filas);
-                    foreach($filas as $x => $fila){
-                        foreach($fila as $y => $celda){
-                            if (!empty($celda)) {
-                                //echo "[$x, $y: $celda]";
-                                if (preg_match('/\%.+\%/', $celda)){
-                                    $nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
-                                    $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
-                                }
-                            }
-                        }
-                    }
-
-                    //$worksheet->getCell('A1')->setValue('John');
-                    //$worksheet->getCell('A2')->setValue('Smith');
-
-                    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
-                    $writer->save('adjunto.xls');
-                    $xls_generado = true;
-                }
-
-
-                //////////////
-                //PDF
-                if (file_exists('adjunto.html')) {
-                    unlink('adjunto.html');
-                }
-                if (file_exists($pla_adjunto_nombre.'.pdf')) {
-                    unlink($pla_adjunto_nombre.'.pdf');
-                }
-
-                if (!empty($pla_adjunto_texto)) {
-                    $snappy = new Knp\Snappy\Pdf('../vendor/bin/wkhtmltopdf-amd64');
-                    $msg = ($pla_adjunto_texto);
-                    file_put_contents( 'adjunto.html', $msg);
-                    $msg = file_get_contents('adjunto.html');
-                    //$msg = utf8_decode($msg);
-                    $snappy->generateFromHtml($msg, $pla_adjunto_nombre.'.pdf', array('encoding' => 'utf-8'));
-                }
-
-                //MAIL
-                //echo "[[$pla_asunto - $pla_cuerpo]]";
-                $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-                $mail->IsSMTP();
-                $mail->SMTPSecure = 'tls';
-                $mail->SMTPAuth = true;
-                $mail->Host = SMTP_SERVER;
-                $mail->Port = SMTP_PORT;
-                $mail->Username = SMTP_USERNAME;
-                $mail->Password = SMTP_PASSWORD;
-                //$mail->SMTPDebug = 2;
-                $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
-                $mail->Subject = $pla_asunto;
-                $mail->MsgHTML($pla_cuerpo);
-                if ($destinatario == 'cliente' && !empty($email_cliente)) {
-                    $mail->AddAddress($email_cliente);
-                }
-                if ($destinatario == 'proveedor' && !empty($email_proveedor)) {
-                    $mail->AddAddress($email_proveedor);
-                }
-                $mail->AddAddress($email_usuario);
-                $mail->AddAddress($email_usuario_comercial);
-                //$mail->AddAddress('sminga@nedetel.net');
-                //$mail->AddAddress('dcedeno@nedetel.net');
-                //$mail->AddAddress('edgar.valarezo@gmail.com');
-                //$mail->AddAttachment('prueba.txt');
-                if (!empty($pla_adjunto_texto)) {
-                    //echo "AGREGANDO ADJUNTO PDF";
-                    $mail->AddAttachment($pla_adjunto_nombre.'.pdf');
-                }
-                if ($xls_generado) {
-                    //echo "AGREGANDO ADJUNTO XLS";
-                    $mail->AddAttachment('adjunto.xls');
-                }
-                //$mail->AddAttachment('example.xlsx');
-                $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
-
-                if(!$mail->Send()) throw new Exception($mail->ErrorInfo);
-            }
-            catch(Exception $e){
-                //echo $e->getMessage();
-                l($e->getMessage());
-            }
-
-            $result = q("
-                INSERT INTO sai_paso_atencion (
-                    paa_atencion
-                    ,paa_transicion_estado_atencion
-                    ,paa_codigo
-                    ,paa_asunto
-                    ,paa_cuerpo
-                    ,paa_destinatarios 
-                ) VALUES (
-                    $ate_id
-                    ,$tea_id
-                    ,''
-                    ,'$pla_asunto'
-                    ,'$pla_cuerpo'
-                    ,'$email_cliente,$email_proveedor'
-                ) RETURNING *
-            ");
-
-        }
-    }
-    $result = q("UPDATE sai_atencion SET ate_estado_atencion=$estado WHERE ate_id=$id RETURNING *");
-
-}
+//if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 
 $filtro = isset($filtro) ? "AND tea_estado_atencion_actual IN $filtro" : '';
 if (isset($args[0]) && !empty($args[0])) {
@@ -498,116 +228,101 @@ $sql = ("
         $filtro
 
     ORDER BY 
-        ate_id, estado_actual,
-        ate_creado DESC
+        ate_id, estado_actual, estado_siguiente
+        ,ate_creado DESC
 ");
 $result = q($sql);
 //echo $sql;
 if ($result) {
     $estado_actual = null;
     $estado_siguiente = null;
+    $atenciones = array();
     foreach ($result as $r) {
-        //echo '<div><form><button class="btn btn-info" onclick="">'."Servicio de {$r[ser_nombre]} a {$r[cli_razon_social]}, ".p_formatear_fecha($r['ate_creado']).' (estado '.$r['esa_nombre'].')</button></form></div>';
-        if ($estado_actual != $r[ate_id] . $r[estado_actual]) {
-            if (!empty($estado_actual)) {
+        if (!isset($atenciones[$r[ate_id]])) {
+            $atenciones[$r[ate_id]] = $r;
+            $atenciones[$r[ate_id]]['estados_siguientes'] = array();
+        }
+        $atenciones[$r[ate_id]]['estados_siguientes'][$r[estado_siguiente_id]] = $r;
+
+    }
+
+    echo '<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">';
+    foreach ($atenciones as $ate_id => $atencion) {
+        $estados_siguentes = $atencion['estados_siguientes'];
+        $r = $atencion;
+
+        $fecha_formateada = p_formatear_fecha($r['ate_creado']);
+        echo <<<EOT
+<div class="panel panel-info" xxxstyle="width:500px;">
+  <div class="panel-heading">
+    <div class="pull-right">
+      $fecha_formateada 
+    </div>
+    <h3 class="panel-title">
+      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{$r[ate_id]}" aria-expanded="false" aria-controls="collapse_{$r[ate_id]}" name="atencion_{$r[ate_secuencial]}">
+        {$r[ate_secuencial]}. <strong>{$r[estado_actual]}</strong> para servicio de {$r[ser_nombre]} ({$r[pro_razon_social]}) a {$r[cli_razon_social]}
+      </a>
+    </h3>
+  </div>
+
+  <div id="collapse_{$r[ate_id]}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{$r[ate_id]}">
+EOT;
+        echo <<<EOT
+      <div class="pull-right well" style="padding:20px;margin:20px;">
+      <h4>Pasar a un siguiente estado:</h4>
+EOT;
+        foreach ($estados_siguentes as $estado_siguiente_id => $estado_siguiente) {
+            $r = $estado_siguiente;
+            echo <<<EOT
+<form method="POST" onsubmit="return p_validar_transicion(this, {$r['tea_id']}, {$r['ate_id']})">
+<input type="hidden" name="estado" value="{$r['estado_siguiente_id']}">
+<input type="hidden" name="tea_id" value="{$r['tea_id']}">
+<input type="hidden" name="id" value="{$r['ate_id']}">
+<button class="btn btn-success">
+<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+ {$r['estado_siguiente']}
+</button>
+</form>
+EOT;
+
+        }
+        echo '</div>';
 
         echo <<<EOT
+    <div class="panel-body">
+      <div>&nbsp;</div>
+      <strong>Estado:</strong> {$r[estado_actual]}
+      <div>&nbsp;</div>
+      <strong>Proveedor:</strong> {$r[pro_razon_social]}
+      <div>&nbsp;</div>
+      <strong>Usuario:</strong> {$r[usu_nombres]} {$r[usu_apellidos]}
+      <div>&nbsp;</div>
+
+
+
+      <div>
+        <button class="btn btn-info" onclick="p_abrir({$r[tea_id]}, {$r[ate_id]})"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Recopilar datos</button>
+      </div>
+      <div>&nbsp;</div>
+EOT;
+        echo <<<EOT
+    </div>
   </div>
 </div>
 EOT;
-            } 
-        $fecha_formateada = p_formatear_fecha($r['ate_creado']);
-        //$vardump = print_r($result, true);
-        //<pre>$vardump</pre>
-        echo <<< EOT
-<div class="panel panel-info" style="width:500px;">
-  <div class="panel-heading">
-    <h3 class="panel-title"><a name="atencion_{$r[ate_secuencial]}">{$r[ate_secuencial]}. Servicio de {$r[ser_nombre]} a {$r[cli_razon_social]}</a></h3>
-  </div>
-  <div class="panel-body">
-  $fecha_formateada 
-  <br>
-  <div>&nbsp;</div>
-  <strong>Estado:</strong> {$r[estado_actual]}
-  <div>&nbsp;</div>
-  <strong>Proveedor:</strong> {$r[pro_razon_social]}
-  <div>&nbsp;</div>
-  <strong>Usuario:</strong> {$r[usu_nombres]} {$r[usu_apellidos]}
-  <div>&nbsp;</div>
-
-
-  <!--
-  <strong>Destinatario:</strong> {$r[tea_destinatario]}
-  <div>&nbsp;</div>
-  <strong>Estado padre:</strong> {$r[tea_estado_atencion_actual]}
-  <div>&nbsp;</div>
-  <strong>Estado hijo:</strong> {$r[tea_estado_atencion_siguiente]}
-  <div>&nbsp;</div>
-  <strong>Pertinencia proveedor:</strong> {$r[tea_pertinencia_proveedor]}
-  <div>&nbsp;</div>
-  <strong>Pertinencia usuario:</strong> {$r[tea_pertinencia_usuario]}
-  <div>&nbsp;</div>
-  -->
-
-
-  <div>
-  <button class="btn btn-info" onclick="p_abrir({$r[tea_id]}, {$r[ate_id]})"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Recopilar datos</button>
-  </div>
-  <div>&nbsp;</div>
-EOT;
-        }
-        $estado_actual = $r[ate_id] . $r[estado_actual];
-        $estado = $r['ate_estado_atencion'];
-        $servicio = $r['ate_servicio'];
-        $pertinencia_proveedor = $r['tea_pertinencia_proveedor'];
-        /*
-        $result2 = q("
-            SELECT * 
-            FROM sai_transicion_estado_atencion
-            , sai_estado_atencion 
-            , sai_pertinencia_proveedor
-            , sai_proveedor
-            , sai_servicio
-            WHERE esa_borrado IS NULL
-            AND tea_borrado IS NULL
-            AND pep_borrado IS NULL
-            AND ser_borrado IS NULL
-            AND pro_borrado IS NULL
-            AND tea_pertinencia_proveedor = pep_id
-            AND tea_estado_atencion_siguiente = esa_id 
-            AND pep_servicio = ser_id
-            AND pep_proveedor = pro_id
-            AND tea_estado_atencion_actual = $estado
-            AND pep_servicio = $servicio
-            AND tea_pertinencia_proveedor = $pertinencia_proveedor
-            ORDER BY esa_nombre, tea_estado_atencion_siguiente
-        ");
-         */
-        
-        if ($estado_siguiente != $r['ate_id'] . '-' . $r['estado_siguiente']) {
-            //se repite por múltiples destinatarios (cliente, proveedor, usuario), por eso se consolida:
-            //
-                echo "<form method='POST' onsubmit='return p_validar_transicion(this, ".$r['tea_id'].", ".$r['ate_id'].")'>";
-                echo "<input type='hidden' name='estado' value='".$r['estado_siguiente_id']."'>";
-                echo "<input type='hidden' name='tea_id' value='".$r['tea_id']."'>";
-                echo "<input type='hidden' name='id' value='".$r['ate_id']."'>";
-                echo "<li><button class='btn btn-success'>" . '<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span> ';
-                //echo "Pasar al estado: ". $r2['esa_nombre'] . ", Proveedor {$r2[pro_razon_social]} - {$r2[tea_]}";
-                //echo "Pasar al estado: ". $r['estado_siguiente'] . ' - '. $r['tea_destinatario']; 
-                echo "Pasar al estado: ". $r['estado_siguiente']; 
-                echo "</button></li>";
-                echo "</form>";
-        }
-
-        $estado_siguiente = $r['ate_id'] . '-' . $r['estado_siguiente'];
     }
+    echo '</div>';
 }
 ?>
 
+<script src="/js/ckeditor/ckeditor.js"></script>
 <script>
 $(document).ready(function() {
     $('.combo-select2').select2({
         language: "es"
+    });
+    $('textarea').each(function(){
+         CKEDITOR.replace(this);
     });
 });
 function p_validar_transicion(target, tea_id, ate_id){
@@ -640,7 +355,8 @@ function p_validar_transicion(target, tea_id, ate_id){
             });
         }
         if (completo){
-            target.submit();
+            //target.submit();
+            p_abrir_confirmacion(target, tea_id, ate_id);
             //console.log('submit');
         } else {
             alert('Faltan de completar campos.');
@@ -648,6 +364,28 @@ function p_validar_transicion(target, tea_id, ate_id){
     });
     return false;
 }
+
+function p_abrir_confirmacion(target, tea_id, ate_id) {
+    console.log('p_abrir_confirmacion');
+    for ( instance in CKEDITOR.instances ) {
+        CKEDITOR.instances[instance].setData('');
+    }
+    var dataset = $(target).serialize();
+    $.post('/_calcularPreTransicion/' + tea_id + '/' + ate_id, dataset, function(data){
+        console.log('Respuesta _calcularPreTransicion', data);
+        data = JSON.parse(data);
+        console.log('data', data);
+        $('#modal_confirmacion').modal('show');
+    });
+}
+
+function p_ejecutar_transicion(){
+    for ( instance in CKEDITOR.instances ) {
+        CKEDITOR.instances[instance].updateElement();
+    }
+    console.log('p_ejecutar_transicion');
+}
+
 function p_abrir(tea_id, ate_id) {
     console.log('abrir', tea_id, ate_id);
     $.get('/_obtenerCampos/'+tea_id + '/'+ate_id, function(data){
@@ -853,6 +591,70 @@ function p_crear(){
      user experience. -->
 
 
+<div id="modal_confirmacion" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-nuevo-title">Confirmar acciones de cambio de estado</h4>
+      </div>
+      <div class="modal-body">
+
+      <?php foreach(array('cliente', 'proveedor', 'usuario') as $destinatario): ?>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <strong><?=ucfirst($destinatario)?></strong>
+  </div>
+  <div class="panel-body">
+
+
+<form id="formulario_accion_<?=$destinatario?>" class="form-horizontal">
+
+  <div class="form-group">
+    <label for="destinatarios_<?=$destinatario?>" class="col-sm-3 control-label">Destinatarios:</label>
+    <div class="col-sm-9">
+      <input class="form-control" id="destinatarios_<?=$destinatario?>">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="asunto_<?=$destinatario?>" class="col-sm-3 control-label">Asunto:</label>
+    <div class="col-sm-9">
+      <input class="form-control" id="asunto_<?=$destinatario?>">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="mensaje_<?=$destinatario?>" class="col-sm-3 control-label">Mensaje:</label>
+    <div class="col-sm-9">
+      <textarea class="form-control" id="mensaje_<?=$destinatario?>"></textarea>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="adjunto_<?=$destinatario?>" class="col-sm-3 control-label">Adjuntos:</label>
+    <div class="col-sm-9">
+      <input type="file" class="form-control" id="adjunto_<?=$destinatario?>">
+      <div id="adjuntos_lista_<?=$destinatario?>"></div>
+    </div>
+  </div>
+
+</form>
+
+  </div>
+</div>
+
+<?php endforeach; ?>
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success" onclick="p_ejecutar_transicion()" id="formulario_nuevo_crear">Ejecutar Transición</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div id="modal-nuevo" class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
