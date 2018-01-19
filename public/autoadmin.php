@@ -195,9 +195,9 @@ FROM
     $result = q("SELECT * FROM $tabla ORDER BY {$prefijo}id");
 
 
-    echo '<a href="#" download><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Descargar XML </a>';
-    echo '|';
-    echo '<a href="#" onclick="p_xlsx();return false;"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Exportar datos</a>';
+    //echo '<a href="#" download><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Descargar XML </a>';
+    //echo '|';
+    //echo '<a href="#" onclick="p_xlsx();return false;"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Exportar datos</a>';
 
     echo "<table id='tabla' class='table table-striped table-condensed table-hover'>";
     echo "<thead>";

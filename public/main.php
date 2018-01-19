@@ -1,3 +1,6 @@
+<div class="page-header">
+  <h1>Pendientes asignados</h1>
+</div>
 <?php
 
 $usu_id = $_SESSION['usu_id'];
@@ -16,6 +19,15 @@ $result = q("
         AND cli_id = ate_cliente
     )
     ,(
+        SELECT pro_razon_social
+        FROM sai_proveedor
+        ,sai_pertinencia_proveedor
+        WHERE pro_borrado IS NULL
+        AND pep_borrado IS NULL
+        AND pro_id = pep_proveedor
+        AND pep_id = ate_pertinencia_proveedor
+    )
+    ,(
         SELECT esa_codigo
         FROM sai_estado_atencion
         WHERE esa_id = (
@@ -23,16 +35,25 @@ $result = q("
             FROM sai_estado_atencion
             WHERE esa_id=ate_estado_atencion
         )
-    )
+    ) AS esa_padre_codigo
     FROM sai_atencion
     ,sai_pertinencia_usuario
+    ,sai_estado_atencion
     WHERE
     ate_borrado IS NULL
     AND peu_borrado IS NULL
+    AND esa_borrado IS NULL
     AND ate_pertinencia_usuario = peu_id
+    AND ate_estado_atencion = esa_id
+    AND (
+        esa_nombre ILIKE '%proceso%'
+        OR 
+        esa_nombre ILIKE '%nuev%'
+    )
     AND (
         peu_usuario = $usu_id
-        OR ate_usuario_comercial = $usu_id
+        OR 
+        ate_usuario_comercial = $usu_id
     )
 ");
 
@@ -41,17 +62,12 @@ if ($result) {
         $ser_nombre = $r['ser_nombre'];
         $cli_razon_social = $r['cli_razon_social'];
         //$estado = '#';
-        $estado = $r['esa_codigo'];
+        $estado = $r['esa_padre_codigo'];
         echo <<<EOT
-<div class="panel panel-default" style="width:300px;float:left;margin:10px;">
-  <div class="panel-heading">
-    <h3 class="panel-title">
-      {$r[ate_secuencial]}. Atención de servicio de $ser_nombre a $cli_razon_social
-    </h3>
-  </div>
-  <div class="panel-body">
-    <a class="btn btn-primary" href="/$estado#atencion_{$r[ate_secuencial]}">Ir a la resolución</a>
-  </div>
+<div class="list-group">
+  <a class="list-group-item" href="/$estado#atencion_{$r[ate_secuencial]}">
+    {$r[ate_secuencial]}. {$r[esa_nombre]} de servicio de $ser_nombre ({$r[pro_razon_social]}) a $cli_razon_social
+  </a>
 </div>
 EOT;
     }
