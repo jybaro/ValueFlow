@@ -64,7 +64,7 @@ if ($result) {
         //$estado = '#';
         $estado = $r['esa_padre_codigo'];
         echo <<<EOT
-<div class="list-group">
+<div class="list-group" style="margin:0 5% 1% 5%;">
   <a class="list-group-item" href="/$estado#atencion_{$r[ate_secuencial]}">
     {$r[ate_secuencial]}. {$r[esa_nombre]} de servicio de $ser_nombre ({$r[pro_razon_social]}) a $cli_razon_social
   </a>
