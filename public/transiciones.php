@@ -36,15 +36,18 @@ $result= q("
         SELECT 
         COUNT(*) 
         FROM sai_estado_atencion AS t 
-        WHERE t.esa_padre=esa_id
+        WHERE t.esa_borrado IS NULL
+        AND t.esa_padre=esa_id
     ) AS count_hijos
     ,(
         SELECT 
         COUNT(*)
         FROM sai_transicion_estado_atencion
-        WHERE tea_estado_atencion_actual = esa_id
+        WHERE tea_borrado IS NULL
+        AND tea_estado_atencion_actual = esa_id
     ) AS count_transicion
     FROM sai_estado_atencion 
+    WHERE esa_borrado IS NULL
     ORDER BY esa_padre DESC, 
     esa_orden, 
     esa_id
@@ -257,7 +260,11 @@ foreach($estados as $estado){
 echo '</tbody></table>';
 
 
-$servicios = q("SELECT * FROM sai_servicio");
+$servicios = q("
+    SELECT * 
+    FROM sai_servicio
+    WHERE ser_borrado IS NULL
+");
 
 ///////////////////////
 //Pertinencias provedor:
@@ -271,7 +278,14 @@ $pertinencias_proveedor = array(0=>$proveedor_generico);
 foreach($servicios as $servicio){
     $pertinencias_proveedor[$servicio['ser_id']] = $proveedor_generico; 
 }
-$result = q("SELECT *  FROM sai_pertinencia_proveedor, sai_proveedor WHERE pro_id = pep_proveedor");
+$result = q("
+    SELECT * 
+    FROM sai_pertinencia_proveedor
+    , sai_proveedor 
+    WHERE pep_borrado IS NULL
+    AND pro_borrado IS NULL
+    AND pro_id = pep_proveedor
+");
 
 if ($result) {
     foreach ($result as $r) {
@@ -283,7 +297,17 @@ if ($result) {
 //Pertinencias usuario:
 //
 $pertinencias_usuario = array();
-$result = q("SELECT * FROM sai_pertinencia_usuario, sai_usuario, sai_servicio WHERE usu_id = peu_usuario AND ser_id=peu_servicio");
+$result = q("
+    SELECT * 
+    FROM sai_pertinencia_usuario
+    , sai_usuario
+    , sai_servicio 
+    WHERE peu_borrado IS NULL
+    AND usu_borrado IS NULL
+    AND ser_borrado IS NULL
+    AND usu_id = peu_usuario 
+    AND ser_id = peu_servicio
+");
 
 if ($result) {
     foreach($result as $r) {

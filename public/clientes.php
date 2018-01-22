@@ -27,27 +27,6 @@
   <!-- Google Font -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 <!--script type="text/javascript" src="chrome-extension://aggiiclaiamajehmlfpkjmlbadmkledi/lib/popup.js" async=""></script><script type="text/javascript" src="chrome-extension://aggiiclaiamajehmlfpkjmlbadmkledi/lib/tat_popup.js" async=""></script><script src="chrome-extension://hbhhpaojmpfimakffndmpmpndcmonkfa/generated/eval.js"></script--></head>
-<!--
-BODY TAG OPTIONS:
-=================
-Apply one or more of the following classes to get the
-desired effect
-|---------------------------------------------------------|
-| SKINS         | skin-blue                               |
-|               | skin-black                              |
-|               | skin-purple                             |
-|               | skin-yellow                             |
-|               | skin-red                                |
-|               | skin-green                              |
-|---------------------------------------------------------|
-|LAYOUT OPTIONS | fixed                                   |
-|               | layout-boxed                            |
-|               | layout-top-nav                          |
-|               | sidebar-collapse                        |
-|               | sidebar-mini                            |
-|---------------------------------------------------------|
--->
-<!-- body class="skin-blue sidebar-mini" style="height: auto; min-height: 100%;" -->
 <body class="skin-blue-light sidebar-mini" style="height: auto; min-height: 100%;">
 <div class="wrapper" style="height: auto; min-height: 100%;">
 
@@ -83,26 +62,16 @@ desired effect
 
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu tree" data-widget="tree">
-        <li class="header">ESTADOS DE ATENCIONES</li>
+        <li class="header">CLIENTES</li>
 <?php
 $result = q("
     SELECT * 
-    FROM sai_estado_atencion ORDER BY esa_padre, esa_orden, esa_id
+    FROM sai_cliente ORDER BY cli_razon_social
 ");
-    $tree = array();
-    $estados = array();
     foreach($result as $r){
-        $id = $r['esa_id'];
-        $padre = $r['esa_padre'];
-        $tree[$id] = $r;
-        $tree[$id]['padre'] = null;
-        $tree[$id]['hijos'] = array();
-    }
-    foreach($result as $r){
-        $id = $r['esa_id'];
-        $padre = $r['esa_padre'];
-        $tree[$id]['padre'] = & $tree[$padre];
-        $tree[$padre]['hijos'][$id] = & $tree[$id];
+        echo <<<EOF
+          <li><a href="#">{$r['cli_razon_social']}</a></li>
+EOF;
     }
     function p_tree($hijos, $texto = null, $esa_codigo_padre = null) {
         if (!empty($texto)) {
@@ -130,16 +99,13 @@ EOF;
         }
         if (!empty($texto)) {
             echo <<<EOF
-                <li><a href="/{$esa_codigo_padre}">TODOS</a></li>
               </ul>
             </li>
 EOF;
         }
     }
-    p_tree($tree[""]['hijos']);
-    //echo "<pre>";
-    //var_dump($tree[""]);
 ?>
+      </ul>
       <!-- /.sidebar-menu -->
     </section>
     <!-- /.sidebar -->
@@ -152,7 +118,7 @@ EOF;
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-      <?=(isset($titulo_proceso) ? $titulo_proceso : 'Atenciones')?>
+        Clientes
         <!--small>Optional description</small-->
       </h1>
       <!--ol class="breadcrumb">
@@ -168,329 +134,8 @@ EOF;
         | Your Page Content Here |
         -------------------------->
 
-<?php
-//if (isset($_POST['estado']) && !empty($_POST['estado'])) {
-
-$filtro = isset($filtro) ? "AND tea_estado_atencion_actual IN $filtro" : '';
-if (isset($args[0]) && !empty($args[0])) {
-    $filtro = "AND tea_estado_atencion_actual = {$args[0]}";
-}
-$sql = ("
-    SELECT * 
-    ,e1.esa_nombre AS estado_actual
-    ,e2.esa_nombre AS estado_siguiente
-    ,e2.esa_id AS estado_siguiente_id
-
-    FROM sai_atencion
-
-    LEFT OUTER JOIN sai_servicio
-        ON ser_borrado IS NULL
-        AND ate_servicio = ser_id
-
-    LEFT OUTER JOIN sai_cuenta
-        ON cue_borrado IS NULL
-        AND cue_id = ate_cuenta
-
-    LEFT OUTER JOIN sai_cliente
-        ON cli_borrado IS NULL
-        AND cli_id = ate_cliente
-
-    LEFT OUTER JOIN sai_pertinencia_proveedor
-        ON pep_borrado IS NULL
-        AND ate_pertinencia_proveedor = pep_id
-
-    LEFT OUTER JOIN sai_proveedor
-        ON pro_borrado IS NULL
-        AND pep_proveedor = pro_id
-
-    LEFT OUTER JOIN sai_pertinencia_usuario
-        ON peu_borrado IS NULL
-        AND ate_pertinencia_usuario = peu_id
-
-    LEFT OUTER JOIN sai_usuario
-        ON usu_borrado IS NULL
-        AND peu_usuario = usu_id
-
-    LEFT OUTER JOIN sai_transicion_estado_atencion
-        ON tea_borrado IS NULL
-        AND tea_pertinencia_proveedor = pep_id
-        AND tea_estado_atencion_actual = ate_estado_atencion
-
-    LEFT OUTER JOIN sai_estado_atencion AS e1 
-        ON e1.esa_borrado IS NULL
-        AND tea_estado_atencion_actual = e1.esa_id
-
-    LEFT OUTER JOIN sai_estado_atencion AS e2 
-        ON e2.esa_borrado IS NULL
-        AND tea_estado_atencion_siguiente = e2.esa_id
-
-    WHERE ate_borrado IS NULL
-        $filtro
-
-    ORDER BY 
-        ate_id, estado_actual, estado_siguiente
-        ,ate_creado DESC
-");
-$result = q($sql);
-//echo $sql;
-if ($result) {
-    $estado_actual = null;
-    $estado_siguiente = null;
-    $atenciones = array();
-    foreach ($result as $r) {
-        if (!isset($atenciones[$r[ate_id]])) {
-            $atenciones[$r[ate_id]] = $r;
-            $atenciones[$r[ate_id]]['estados_siguientes'] = array();
-        }
-        $atenciones[$r[ate_id]]['estados_siguientes'][$r[estado_siguiente_id]] = $r;
-
-    }
-
-    echo '<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">';
-    foreach ($atenciones as $ate_id => $atencion) {
-        $estados_siguentes = $atencion['estados_siguientes'];
-        $r = $atencion;
-
-        $fecha_formateada = p_formatear_fecha($r['ate_creado']);
-        echo <<<EOT
-<div class="panel panel-info" xxxstyle="width:500px;">
-  <div class="panel-heading">
-    <div class="pull-right">
-      $fecha_formateada 
-    </div>
-    <h3 class="panel-title">
-      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{$r[ate_id]}" aria-expanded="false" aria-controls="collapse_{$r[ate_id]}" name="atencion_{$r[ate_secuencial]}">
-        {$r[ate_secuencial]}. <strong>{$r[estado_actual]}</strong> para servicio de {$r[ser_nombre]} ({$r[pro_razon_social]}) a {$r[cli_razon_social]}
-      </a>
-    </h3>
-  </div>
-
-  <div id="collapse_{$r[ate_id]}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{$r[ate_id]}">
-EOT;
-        echo <<<EOT
-      <div class="pull-right well" style="padding:20px;margin:20px;">
-      <h4>Pasar a un siguiente estado:</h4>
-EOT;
-        foreach ($estados_siguentes as $estado_siguiente_id => $estado_siguiente) {
-            $r = $estado_siguiente;
-            echo <<<EOT
-<form method="POST" onsubmit="return p_validar_transicion(this, {$r['tea_id']}, {$r['ate_id']})">
-<input type="hidden" name="estado" value="{$r['estado_siguiente_id']}">
-<input type="hidden" name="tea_id" value="{$r['tea_id']}">
-<input type="hidden" name="id" value="{$r['ate_id']}">
-<button class="btn btn-success">
-<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
- {$r['estado_siguiente']}
-</button>
-</form>
-EOT;
-
-        }
-        echo '</div>';
-
-        echo <<<EOT
-    <div class="panel-body">
-      <div>&nbsp;</div>
-      <strong>Estado:</strong> {$r[estado_actual]}
-      <div>&nbsp;</div>
-      <strong>Proveedor:</strong> {$r[pro_razon_social]}
-      <div>&nbsp;</div>
-      <strong>Usuario:</strong> {$r[usu_nombres]} {$r[usu_apellidos]}
-      <div>&nbsp;</div>
 
 
-
-      <div>
-        <button class="btn btn-info" onclick="p_abrir({$r[tea_id]}, {$r[ate_id]})"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Recopilar datos</button>
-      </div>
-      <div>&nbsp;</div>
-EOT;
-        echo <<<EOT
-    </div>
-  </div>
-</div>
-EOT;
-    }
-    echo '</div>';
-}
-?>
-
-<script src="/js/ckeditor/ckeditor.js"></script>
-<script>
-$(document).ready(function() {
-    $('.combo-select2').select2({
-        language: "es"
-    });
-    $('textarea').each(function(){
-         CKEDITOR.replace(this);
-    });
-});
-function p_validar_transicion(target, tea_id, ate_id){
-    $.get('/_obtenerCampos/'+tea_id + '/'+ate_id, function(data){
-        console.log(data);
-        data = JSON.parse(data);
-        console.log(data);
-
-        var completo = true;
-        if (data) {
-            var campos = [];
-            data.forEach(function(d){
-                var id = d['cae_id'];
-                campos[id] = d;
-                campos[id]['padre'] = null;
-                campos[id]['hijos'] = [];
-            });
-            campos.forEach(function(campo){
-                var id = campo['cae_id'];
-                var padre = campo['cae_padre'];
-                if (typeof(campos[padre]) != 'undefined') {
-                    campos[padre]['hijos'][id] = campos[id];
-                    campos[id]['padre'] = campos[padre];
-                }
-            });
-            campos.forEach(function(campo){
-                if (campo['hijos'].length == 0 && (campo['valor'] == null || campo['valor'].trim() == '')) {
-                    completo = false;
-                }
-            });
-        }
-        if (completo){
-            //target.submit();
-            p_abrir_confirmacion(target, tea_id, ate_id);
-            //console.log('submit');
-        } else {
-            alert('Faltan de completar campos.');
-        }
-    });
-    return false;
-}
-
-function p_abrir_confirmacion(target, tea_id, ate_id) {
-    console.log('p_abrir_confirmacion');
-    for ( instance in CKEDITOR.instances ) {
-        CKEDITOR.instances[instance].setData('');
-    }
-    var dataset = $(target).serialize();
-    $.post('/_calcularPreTransicion/' + tea_id + '/' + ate_id, dataset, function(data){
-        console.log('Respuesta _calcularPreTransicion', data);
-        data = JSON.parse(data);
-        console.log('data', data);
-        $('#modal_confirmacion').modal('show');
-    });
-}
-
-function p_ejecutar_transicion(){
-    for ( instance in CKEDITOR.instances ) {
-        CKEDITOR.instances[instance].updateElement();
-    }
-    console.log('p_ejecutar_transicion');
-}
-
-function p_abrir(tea_id, ate_id) {
-    console.log('abrir', tea_id, ate_id);
-    $.get('/_obtenerCampos/'+tea_id + '/'+ate_id, function(data){
-        console.log(data);
-        data = JSON.parse(data);
-        console.log(data);
-
-        $('#campos').html("");
-        $('#ate_id').val(ate_id);
-        if (data) {
-            var campos = [];
-            data.forEach(function(d){
-                var id = d['cae_id'];
-                campos[id] = d;
-                campos[id]['padre'] = null;
-                campos[id]['hijos'] = [];
-            });
-            campos.forEach(function(campo){
-                var id = campo['cae_id'];
-                var padre = campo['cae_padre'];
-                if (typeof(campos[padre]) != 'undefined') {
-                    campos[padre]['hijos'][id] = campos[id];
-                    campos[id]['padre'] = campos[padre];
-                }
-            });
-
-            $('#campos').append(p_desplegar_campos(campos));
-
-            $('#modal').modal('show');
-        } else {
-            alert('No hay campos asociados');
-        }
-    });
-}
-
-function p_desplegar_campos(campos, padre_id) {
-    var respuesta = '';
-    padre_id = padre_id || null;
-    console.log('En p_desplegar_campos: ', campos, padre_id) ;
-    var col1 = (padre_id == null) ? 2 : 3;
-    var col2 = (padre_id == null) ? 10 : 8;
-
-    campos.forEach(function(campo){
-        var valor = (campo['valor'] == 'null' || campo['valor'] == null) ? '' : campo['valor'];
-
-        var contenido = '';
-        console.log('CAMPO:', campo);
-        if (padre_id == campo['cae_padre']) {
-            if (campo['hijos'].length == 0 ) {
-                //if (campo['padre'] != null) {
-                contenido += '<div class="form-group">' + '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>    <div class="col-sm-' + col2 + '"><input '+campo['cae_validacion']+' class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)"></div>' + '</div>';
-            } else if(campo['hijos'].length > 0) {
-
-                var contenidohijos = p_desplegar_campos(campo['hijos'], campo['cae_id']);
-
-                contenido += '<div class="panel panel-default"><div class="panel-heading"><strong>' + campo['cae_texto'] + '</strong></div><div class="panel-body">' + contenidohijos + '</div></div>';
-                console.log('grupo', campo['cae_texto'], campo['cae_padre'], padre_id);
-
-            }
-        }
-        //respuesta += ('<div class="form-group">' + contenido + '</div>');
-        respuesta += contenido;
-    });
-    return respuesta;
-}
-
-function p_validar(target){
-    console.log('validando', target);
-    var resultado = true;
-    if (!$(target)[0].checkValidity()) {
-        console.log('no valida...');
-        $('<input type="submit">').hide().appendTo('#formulario').click().remove();
-        resultado = false;
-    }
-    return resultado;
-}
-
-function p_guardar(){
-    if (p_validar($('#formulario'))) {
-        var dataset = $('#formulario').serialize();
-        console.log('dataset: ', dataset   );
-        $.post('_guardarValoresExtra', dataset, function(data){
-
-            console.log('OK guardado', data);
-            $('#modal').modal('hide');
-        })
-    }
-}
-function p_nuevo(){
-    $('#modal-nuevo').modal('show');
-}
-
-function p_crear(){
-    //if (p_validar($('#formulario_nuevo'))) {
-        var dataset = $('#formulario_nuevo').serialize();
-        console.log('dataset: ', dataset   );
-        $.post('_crearAtencion', dataset, function(data){
-
-            console.log('OK creacion de atencion', data);
-            $('#modal').modal('hide');
-            location.reload();
-        })
-    //}
-}
-</script>
 
 
     </section>
@@ -871,6 +516,5 @@ if ($result) {
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
-</body></html>
-
-
+</body>
+</html>

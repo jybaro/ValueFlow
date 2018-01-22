@@ -104,7 +104,7 @@ FROM
                 }
             }
             $campo_etiqueta = $campos[0]['nombre'];
-            $campo_borrado = $prefijo . 'borrado';
+           // $campo_borrado = $prefijo . 'borrado';
         }
 //die();
     } 
@@ -119,7 +119,6 @@ FROM
         ");
         //var_dump($campos);
         $campo_etiqueta = 'id';
-        $campo_borrado = $prefijo . 'borrado';
 
         foreach ($campos as $key => $campo){
 
@@ -137,6 +136,7 @@ FROM
         }
     }
     $campo_id = $prefijo . 'id';
+    $campo_borrado = $prefijo . 'borrado';
 
     //var_dump($campos);
     $listado_campos_fk = array();
@@ -145,7 +145,7 @@ FROM
         $c = $campo['nombre']; 
 
         if ($campo['validacion'] != 'hidden') {
-        $campos_js[] = $c;
+            $campos_js[] = $c;
         }
 
         if (isset($fkeys[$c])) {
