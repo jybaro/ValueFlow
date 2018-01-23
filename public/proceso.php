@@ -532,11 +532,12 @@ function p_desplegar_campos(campos, padre_id) {
 }
 
 function p_validar(target){
-    console.log('validando', target);
+    var id = $(target).attr('id');
+    console.log('validando', target, id, $(target)[0].checkValidity());
     var resultado = true;
     if (!$(target)[0].checkValidity()) {
         console.log('no valida...');
-        $('<input type="submit">').hide().appendTo('#formulario').click().remove();
+        $('<input type="submit">').hide().appendTo('#' + id).click().remove();
         resultado = false;
     }
     return resultado;
@@ -558,7 +559,8 @@ function p_nuevo(){
 }
 
 function p_crear(){
-    //if (p_validar($('#formulario_nuevo'))) {
+    console.log('p_crear');
+    if (p_validar($('#formulario_nuevo'))) {
         var dataset = $('#formulario_nuevo').serialize();
         console.log('dataset: ', dataset   );
         $.post('_crearAtencion', dataset, function(data){
@@ -567,7 +569,7 @@ function p_crear(){
             $('#modal').modal('hide');
             //location.reload();
         })
-    //}
+    }
 }
 </script>
 
@@ -756,8 +758,8 @@ function p_crear(){
   <div class="form-group">
     <label for="cliente" class="col-sm-4 control-label">Cliente</label>
     <div class="col-sm-8">
-      <select class="form-control combo-select2" style="width: 50%" id="cliente" name="cliente" tabindex="-1" aria-hidden="true">
-        <option>&nbsp;</option>
+      <select required class="form-control combo-select2" style="width: 50%" id="cliente" name="cliente" tabindex="-1" aria-hidden="true">
+        <option value="">&nbsp;</option>
       <?php
 $result = q("
     SELECT *
@@ -780,9 +782,9 @@ if ($result) {
   <div class="form-group">
     <label for="cuenta" class="col-sm-4 control-label">Cuenta</label>
     <div class="col-sm-8">
-      <select class="form-control combo-select2" style="width: 50%" id="cuenta" name="cuenta" tabindex="-1" aria-hidden="true">
+      <select required class="form-control combo-select2" style="width: 50%" id="cuenta" name="cuenta" tabindex="-1" aria-hidden="true">
 
-        <option>&nbsp;</option>
+        <option value="">&nbsp;</option>
       <?php
 $result = q("
     SELECT *
@@ -805,9 +807,9 @@ if ($result) {
   <div class="form-group">
     <label for="servicio" class="col-sm-4 control-label">Servicio</label>
     <div class="col-sm-8">
-      <select class="form-control combo-select2" style="width: 50%" id="servicio" name="servicio" tabindex="-1" aria-hidden="true">
+      <select required class="form-control combo-select2" style="width: 50%" id="servicio" name="servicio" tabindex="-1" aria-hidden="true">
 
-        <option>&nbsp;</option>
+        <option value="">&nbsp;</option>
       <?php
 $result = q("
     SELECT *
@@ -832,8 +834,8 @@ if ($result) {
   <div class="form-group">
     <label for="proveedor" class="col-sm-4 control-label">Proveedor</label>
     <div class="col-sm-8">
-      <select multiple class="form-control combo-select2" style="width: 50%" id="proveedor" name="proveedor[]" tabindex="-1" aria-hidden="true">
-        <option>&nbsp;</option>
+      <select required multiple class="form-control combo-select2" style="width: 50%" id="proveedor" name="proveedor[]" tabindex="-1" aria-hidden="true">
+        <option value="">&nbsp;</option>
       <?php
 $result = q("
     SELECT *
@@ -859,8 +861,8 @@ if ($result) {
 
       <!--pre>FOREIGN KEY
                   </pre-->
-      <select class="form-control combo-select2" style="width: 50%" id="pertinencia_usuario" name="pertinencia_usuario" tabindex="-1" aria-hidden="true">
-        <option>&nbsp;</option>
+      <select required class="form-control combo-select2" style="width: 50%" id="pertinencia_usuario" name="pertinencia_usuario" tabindex="-1" aria-hidden="true">
+        <option value="">&nbsp;</option>
       <?php
 $result = q("
     SELECT *
@@ -894,8 +896,8 @@ if ($result) {
 
       <!--pre>FOREIGN KEY
                   </pre-->
-      <select class="form-control combo-select2" style="width: 50%" id="usuario_comercial" name="usuario_comercial" tabindex="-1" aria-hidden="true">
-        <option>&nbsp;</option>
+      <select required class="form-control combo-select2" style="width: 50%" id="usuario_comercial" name="usuario_comercial" tabindex="-1" aria-hidden="true">
+        <option value="">&nbsp;</option>
       <?php
 $result = q("
     SELECT *
