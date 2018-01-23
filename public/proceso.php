@@ -302,6 +302,8 @@ EOT;
 
         echo <<<EOT
     <div class="panel-body">
+      <strong>Usuario asignado:</strong> {$r[usu_nombres]} {$r[usu_apellidos]}
+      <div>&nbsp;</div>
       <div>&nbsp;</div>
 EOT;
 
@@ -324,9 +326,11 @@ EOT;
                 $dato = $rdato['vae_texto'];
                 echo <<<EOT
           <strong>$label:</strong> $dato
+        <br>
 EOT;
             }
         }
+        /*
         echo <<<EOT
       <div>&nbsp;</div>
       <strong>Estado:</strong> {$r[estado_actual]}
@@ -337,6 +341,7 @@ EOT;
       <div>&nbsp;</div>
 
 EOT;
+         */
         echo <<<EOT
 
 
