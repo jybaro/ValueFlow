@@ -44,6 +44,8 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 }
             }
 
+            $email_count = 0;
+
             try {
                 //MAIL
                 //echo "[[$pla_asunto - $pla_cuerpo]]";
@@ -61,7 +63,10 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 $mail->MsgHTML($mensaje);
 
                 foreach ($emails as $email) {
-                    $mail->AddAddress($email);
+                    if (!empty($email)) {
+                        $mail->AddAddress($email);
+                        $email_count++;
+                    }
                 }
 
                 foreach ($adjuntos as $adjunto) {
@@ -101,7 +106,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             } catch (Exception $e) {
                 //echo $e->getMessage();
                 l('Error en ' . $e->getFile() . ', linea ' . $e->getLine() . ': ' . $e->getMessage());
-                echo json_encode(array('ERROR'));
+                echo json_encode(array('ERROR'=>$e->getMessage() . " [$email_count]"));
                 return;
             }
         }
