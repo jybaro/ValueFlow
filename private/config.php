@@ -10,6 +10,9 @@ define('SMTP_PASSWORD', 'n3D1$207*');
 define('MAIL_ORDERS_ADDRESS', 'sait@nedetel.net');
 define('MAIL_ORDERS_NAME', 'SAIT');
 
+define('MAIL_COPY_ALL_ADDRESS', 'soporte@nedetel.net');
+define('MAIL_COPY_ALL_NAME', 'Soporte');
+
 $bdd_config = array(
     'host' => '127.0.0.1',
     'port' => '5432',

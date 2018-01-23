@@ -1,16 +1,14 @@
 <?php
 
 $respuesta = array();
-if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0]) && isset($args[1]) && !empty($args[1])) {
-    $tea_id = $args[0];
-    $ate_id = $args[1];
+if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
+    $ate_id = $args[0];
 
     if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         $estado = $_POST['estado'];
         $id = $_POST['id'];
         $ate_id = $id;
-        $tea_id = $_POST['tea_id'];
-        require_once('_obtenerCampos.php');
+        //$tea_id = $_POST['tea_id'];
 
         $email_cliente = q("
             SELECT 
@@ -60,10 +58,15 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0]) && isse
         ")[0]['usu_correo_electronico'];
 
         //echo "[$email_cliente - $email_proveedor - $email_usuario]";
-        $respuesta['emails'] = array($email_cliente, $email_proveedor, $email_usuario, $email_usuario_comercial);
+        $respuesta['emails'] = array('cliente'=>$email_cliente, 'proveedor'=>$email_proveedor, 'usuario'=>$email_usuario . ',' . $email_usuario_comercial);
         $sql = ("
             SELECT *
-            ,(SELECT des_nombre FROM sai_destinatario WHERE des_id = tea_destinatario) AS destinatario
+            ,(
+                SELECT 
+                des_nombre 
+                FROM sai_destinatario 
+                WHERE des_id = tea_destinatario
+            ) AS destinatario
             FROM sai_atencion
             ,sai_transicion_estado_atencion
             ,sai_plantilla
@@ -71,14 +74,14 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0]) && isse
             AND tea_borrado IS NULL
             AND pla_borrado IS NULL
             AND pla_transicion_estado_atencion = tea_id
-            AND tea_estado_atencion_actual = ate_estado_atencion
+            AND ate_estado_atencion = tea_estado_atencion_actual
             AND ate_pertinencia_proveedor = tea_pertinencia_proveedor
-            AND ate_id=$ate_id
+            AND ate_id = $ate_id
         ");
         $result_contenido = q($sql);
 
         $respuesta['contenido'] = $result_contenido;
-        $respuesta['plantilas'] = array();
+        $respuesta['plantillas'] = array();
 
         //echo "<pre>";
         //echo "$sql<hr>"; 
@@ -91,6 +94,17 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0]) && isse
             //q("UPDATE sai_paso_atencion SET paa_borrado=now() WHERE paa_atencion=$ate_id");
 
             foreach ($result_contenido as $rc) {
+                $tea_id = $rc['tea_id'];
+                $traer_campos_asociados = 1;
+
+                //Se obtienen todos los campos que pertenecen a la transición de estado
+                // definida por $tea_id, al igual que sus transiciones hermanas que 
+                // compartan estado actual, estado siguiente y pertinencia de proveedor,
+                // es decir también trae los campos de las transiciones de todos los otros 
+                // destinatarios (cliente, usuario, proveedor)
+
+                require('_obtenerCampos.php');
+
                 $pla_asunto = $rc['pla_asunto'];
                 $pla_adjunto_nombre = $rc['pla_adjunto_nombre'];
 
@@ -98,7 +112,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0]) && isse
                 $pla_adjunto_texto = $rc['pla_adjunto_texto'];
                 $pla_id = $rc['pla_id'];
 
-                $respuesta['plantilas'][$pla_id] = array();
+                $respuesta['plantillas'][$pla_id] = array();
 
                 $destinatario = $rc['destinatario'];
 
@@ -115,8 +129,8 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0]) && isse
 
                 //if ($adjunto_plantilla) {
 
-                $respuesta['plantilas'][$pla_id]['adjunto'] = $adjunto_plantilla;
-                $respuesta['plantilas'][$pla_id]['campos'] = array();
+                $respuesta['plantillas'][$pla_id]['adjunto'] = $adjunto_plantilla;
+                $respuesta['plantillas'][$pla_id]['campos'] = array();
 
 
                 $campos_valores = array();
@@ -134,15 +148,17 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0]) && isse
                     $pla_asunto = str_replace($search, $replace, $pla_asunto);
                     $pla_adjunto_nombre = str_replace($search, $replace, $pla_adjunto_nombre);
                     $pla_adjunto_texto = str_replace($search, $replace, $pla_adjunto_texto);
-                    $respuesta['plantilas'][$pla_id]['campos'] = $campos;
+                    $respuesta['plantillas'][$pla_id]['campos'] = $campos;
                 }
 
                 $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
+                $pla_adjunto_nombre = $pla_adjunto_nombre . '-' . random_int(10000, 99999);
+
                 $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
                 $pla_cuerpo = (empty($pla_cuerpo)) ? 'Favor revisar' : $pla_cuerpo;
 
 
-                $respuesta['plantilas'][$pla_id]['textos'] = array($pla_cuerpo, $pla_asunto, $pla_adjunto_nombre, $pla_adjunto_texto);
+                $respuesta['plantillas'][$pla_id]['textos'] = array($pla_cuerpo, $pla_asunto, $pla_adjunto_nombre, $pla_adjunto_texto);
 
                 //require_once('../vendor/autoload.php');
 
@@ -183,10 +199,10 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0]) && isse
                         //$worksheet->getCell('A2')->setValue('Smith');
 
                         $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
-                        $writer->save('adjunto.xls');
+                        $writer->save($pla_adjunto_nombre . '.xls');
                         $xls_generado = true;
                     }
-                    $respuesta['plantilas'][$pla_id]['xls_generado'] = $xls_generado;
+                    $respuesta['plantillas'][$pla_id]['xls_generado'] = $xls_generado;
 
 
                     //////////////
@@ -206,7 +222,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0]) && isse
                         //$msg = utf8_decode($msg);
                         $snappy->generateFromHtml($msg, $pla_adjunto_nombre.'.pdf', array('encoding' => 'utf-8'));
                     }
-                    $respuesta['plantilas'][$pla_id]['pdf_generado'] = $pla_adjunto_nombre;
+                    $respuesta['plantillas'][$pla_id]['pdf_generado'] = $pla_adjunto_nombre;
 
                     //////////////////////////
                     //MAIL va en confirmacion

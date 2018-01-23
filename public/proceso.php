@@ -1,3 +1,15 @@
+<?php
+    $result_destinatarios = q("
+        SELECT des_nombre FROM sai_destinatario
+    ");
+    //$destinatarios = array('cliente', 'proveedor', 'usuario');
+    $destinatarios = array();
+    if ($result_destinatarios) {
+        foreach($result_destinatarios  as $r) {
+            $destinatarios[] = $r['des_nombre'];
+        }
+    }
+?>
 <html style="height: auto; min-height: 100%;">
 <head>
   <meta charset="utf-8">
@@ -274,7 +286,7 @@ EOT;
         foreach ($estados_siguentes as $estado_siguiente_id => $estado_siguiente) {
             $r = $estado_siguiente;
             echo <<<EOT
-<form method="POST" onsubmit="return p_validar_transicion(this, {$r['tea_id']}, {$r['ate_id']})">
+<form method="POST" onsubmit="return p_validar_transicion(this, {$r['tea_id']}, {$r['ate_id']}, {$r['estado_siguiente_id']})">
 <input type="hidden" name="estado" value="{$r['estado_siguiente_id']}">
 <input type="hidden" name="tea_id" value="{$r['tea_id']}">
 <input type="hidden" name="id" value="{$r['ate_id']}">
@@ -325,8 +337,12 @@ $(document).ready(function() {
          CKEDITOR.replace(this);
     });
 });
-function p_validar_transicion(target, tea_id, ate_id){
-    $.get('/_obtenerCampos/'+tea_id + '/'+ate_id, function(data){
+
+var destinatarios = <?=json_encode($destinatarios)?>;
+
+function p_validar_transicion(target, tea_id, ate_id, estado_siguiente_id){
+    var traer_campos_extra = 1;
+    $.get('/_obtenerCampos/' + tea_id + '/' + ate_id + '/' + traer_campos_extra, function(data){
         console.log(data);
         data = JSON.parse(data);
         console.log(data);
@@ -356,7 +372,7 @@ function p_validar_transicion(target, tea_id, ate_id){
         }
         if (completo){
             //target.submit();
-            p_abrir_confirmacion(target, tea_id, ate_id);
+            p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id);
             //console.log('submit');
         } else {
             alert('Faltan de completar campos.');
@@ -365,30 +381,93 @@ function p_validar_transicion(target, tea_id, ate_id){
     return false;
 }
 
-function p_abrir_confirmacion(target, tea_id, ate_id) {
+function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
     console.log('p_abrir_confirmacion');
+    //$('#formulario_titulo_hacia').text(fila_titulo_y);
+
+    $('#modal_confirmacion').find(':input').each(function() {
+        switch(this.type) {
+        case 'password':
+        case 'text':
+        case 'textarea':
+        case 'file':
+        case 'select-one':
+        case 'select-multiple':
+        case 'date':
+        case 'number':
+        case 'tel':
+        case 'email':
+        case 'hidden':
+            $(this).val('');
+            break;
+        case 'checkbox':
+        case 'radio':
+            this.checked = false;
+            break;
+        }
+    });
+    $('#modal_confirmacion').find('.panel-collapse.in').each(function() {
+        $(this).collapse('hide');
+    });
     for ( instance in CKEDITOR.instances ) {
         CKEDITOR.instances[instance].setData('');
     }
+    destinatarios.forEach(function(destinatario){
+        $('#adjuntos_lista_'+destinatario).html('');
+    });
+
     var dataset = $(target).serialize();
-    $.post('/_calcularPreTransicion/' + tea_id + '/' + ate_id, dataset, function(data){
+    $.post('/_calcularPreTransicion/' + ate_id, dataset, function(data){
         console.log('Respuesta _calcularPreTransicion', data);
         data = JSON.parse(data);
         console.log('data', data);
+        $('#ate_id_accion').val(ate_id);
+        $('#estado_siguiente_id_accion').val(estado_siguiente_id);
+
+        var emails = data.emails;
+        var plantillas = data.plantillas;
+        data.contenido.forEach(function(contenido){
+            var destinatario = contenido.destinatario;
+            var pla_id = contenido.pla_id;
+            var plantilla = plantillas[pla_id];
+            var tea_id = contenido.tea_id;
+
+            $('#tea_id_accion_'+destinatario).val(tea_id);
+            $('#email_'+destinatario).val(emails[destinatario]);
+            $('#asunto_'+destinatario).val(plantilla.textos[0]);
+            CKEDITOR.instances['mensaje_'+destinatario].setData(plantilla.textos[1]);
+            if (plantilla.xls_generado) {
+                var hidden = '<input type="hidden" name="adjunto_' + destinatario + '[]" value="' + plantilla.textos[2] + '">';
+                var icono = '<span class="glyphicon glyphicon-download" aria-hidden="true"></span> ';
+                $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + plantilla.textos[2] + '.xls">' + icono + plantilla.textos[2] + '.xls</a></div>');
+            }
+        });
         $('#modal_confirmacion').modal('show');
     });
 }
 
 function p_ejecutar_transicion(){
+    console.log('p_ejecutar_transicion');
     for ( instance in CKEDITOR.instances ) {
         CKEDITOR.instances[instance].updateElement();
     }
-    console.log('p_ejecutar_transicion');
+
+    var dataset = $('#formulario_accion').serialize(); 
+    console.log('dataset: ', dataset   );
+    $.post('_confirmarTransicion', dataset, function(data){
+
+        console.log('_confirmarTransicion: ', data);
+        data = JSON.parse(data);
+        console.log(data);
+        $('#modal_confirmacion').modal('hide');
+        location.reload();
+    })
 }
 
 function p_abrir(tea_id, ate_id) {
     console.log('abrir', tea_id, ate_id);
-    $.get('/_obtenerCampos/'+tea_id + '/'+ate_id, function(data){
+    var traer_campos_extra = 1;
+    $.get('/_obtenerCampos/'+tea_id + '/'+ate_id + '/' + traer_campos_extra, function(data){
         console.log(data);
         data = JSON.parse(data);
         console.log(data);
@@ -486,7 +565,7 @@ function p_crear(){
 
             console.log('OK creacion de atencion', data);
             $('#modal').modal('hide');
-            location.reload();
+            //location.reload();
         })
     //}
 }
@@ -600,7 +679,11 @@ function p_crear(){
       </div>
       <div class="modal-body">
 
-      <?php foreach(array('cliente', 'proveedor', 'usuario') as $destinatario): ?>
+<form id="formulario_accion" class="form-horizontal">
+<input type="hidden" id="ate_id_accion" name="ate_id">
+<input type="hidden" id="estado_siguiente_id_accion" name="estado_siguiente_id">
+      <?php foreach($destinatarios as $destinatario): ?>
+<input type="hidden" id="tea_id_accion_<?=$destinatario?>" name="tea_id_<?=$destinatario?>">
 <div class="panel panel-default">
   <div class="panel-heading">
     <strong><?=ucfirst($destinatario)?></strong>
@@ -608,44 +691,45 @@ function p_crear(){
   <div class="panel-body">
 
 
-<form id="formulario_accion_<?=$destinatario?>" class="form-horizontal">
 
   <div class="form-group">
-    <label for="destinatarios_<?=$destinatario?>" class="col-sm-3 control-label">Destinatarios:</label>
+    <label for="email_<?=$destinatario?>" class="col-sm-3 control-label">Destinatarios:</label>
     <div class="col-sm-9">
-      <input class="form-control" id="destinatarios_<?=$destinatario?>">
+      <input class="form-control" id="email_<?=$destinatario?>" name="email_<?=$destinatario?>">
     </div>
   </div>
 
   <div class="form-group">
     <label for="asunto_<?=$destinatario?>" class="col-sm-3 control-label">Asunto:</label>
     <div class="col-sm-9">
-      <input class="form-control" id="asunto_<?=$destinatario?>">
+      <input class="form-control" id="asunto_<?=$destinatario?>" name="asunto_<?=$destinatario?>">
     </div>
   </div>
 
   <div class="form-group">
     <label for="mensaje_<?=$destinatario?>" class="col-sm-3 control-label">Mensaje:</label>
     <div class="col-sm-9">
-      <textarea class="form-control" id="mensaje_<?=$destinatario?>"></textarea>
+      <textarea class="form-control" id="mensaje_<?=$destinatario?>" name="mensaje_<?=$destinatario?>"></textarea>
     </div>
   </div>
 
   <div class="form-group">
     <label for="adjunto_<?=$destinatario?>" class="col-sm-3 control-label">Adjuntos:</label>
     <div class="col-sm-9">
-      <input type="file" class="form-control" id="adjunto_<?=$destinatario?>">
+      <!--
+      <input type="file" class="form-control" id="adjunto_<?=$destinatario?>" name="adjunto_<?=$destinatario?>">
+      -->
       <div id="adjuntos_lista_<?=$destinatario?>"></div>
     </div>
   </div>
 
-</form>
 
   </div>
 </div>
 
 <?php endforeach; ?>
 
+</form>
 
       </div>
       <div class="modal-footer">
@@ -748,7 +832,7 @@ if ($result) {
   <div class="form-group">
     <label for="proveedor" class="col-sm-4 control-label">Proveedor</label>
     <div class="col-sm-8">
-      <select multiple class="form-control combo-select2" style="width: 50%" id="proveedor" name="proveedor" tabindex="-1" aria-hidden="true">
+      <select multiple class="form-control combo-select2" style="width: 50%" id="proveedor" name="proveedor[]" tabindex="-1" aria-hidden="true">
         <option>&nbsp;</option>
       <?php
 $result = q("

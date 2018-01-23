@@ -646,11 +646,11 @@ function p_borrar_archivo(adp_id, id) {
 
 }
 
-function p_borrar_campo(id, campo) {
-    console.log('FUNCTION p_borrar_campo: ', id, campo);
+function p_borrar_campo(cae_id, id) {
+    console.log('FUNCTION p_borrar_campo: ', cae_id, id);
     if (confirm('Seguro desea quitar este campo a la transición?')) {
         dataset_json = {};
-        dataset_json['campo'] = campo;
+        dataset_json['campo'] = cae_id;
         dataset_json['transicion'] = $('#tea_id_'+id).val();
         dataset_json['borrar'] = 'borrar';
 

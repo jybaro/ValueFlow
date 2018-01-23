@@ -63,9 +63,9 @@ $sql = ("
     ");
     //AND tea_pertinencia_usuario $comparacion_usuario $pertinencia_usuario
 $result = q($sql);
-//echo 'UPDATE'."[$sql] (";
+//echo ' --UPDATE'."[$sql] (";
 //var_dump($result);
-//echo ')UPDATE';
+//echo ')UPDATE-- ';
 //return;
 if ($result) {
     $tea_id_old = $result[0]['tea_id'];
@@ -92,9 +92,10 @@ $sql = ("
         $tiempo_alerta_horas
     ) RETURNING *
 ");
-//echo $sql;
 $result = q($sql);
 
+//echo "[$sql]";
+//var_dump($result);
 //echo json_encode(array('data' =>$result, 'error' => $error));
 //echo json_encode($result);
 
@@ -113,15 +114,14 @@ if ($result) {
     q($sql);
 
     //Hereda las plantillas:
-    $sql = ("
-        UPDATE sai_plantilla
-        SET pla_transicion_estado_atencion=$tea_id
-        WHERE pla_borrado IS NULL
-        AND pla_transicion_estado_atencion=$tea_id_old
-        RETURNING *
-        ");
-    //echo $sql;
-    q($sql);
+    
+    //$sql = ("
+    //    UPDATE sai_plantilla
+    //    SET pla_transicion_estado_atencion=$tea_id
+    //    WHERE pla_borrado IS NULL
+    //    AND pla_transicion_estado_atencion=$tea_id_old
+    //    RETURNING *
+    //");
 
 
     //arma los mensajes de correo:
@@ -149,6 +149,17 @@ if ($result) {
         //var_dump($result_plantilla);
         //pasa los archivos a la nueva plantilla
         $pla_id = $result_plantilla[0]['pla_id'];
+        //q("
+        //    UPDATE sai_adjunto_plantilla 
+        //    SET adp_plantilla = $pla_id 
+        //    WHERE adp_borrado IS NULL
+        //    AND adp_plantilla IN (
+        //        SELECT pla_id 
+        //        FROM sai_plantilla 
+        //        WHERE pla_borrado IS NULL
+        //        AND pla_transicion_estado_atencion=$tea_id
+        //    )
+        //");
         q("
             UPDATE sai_adjunto_plantilla 
             SET adp_plantilla = $pla_id 
@@ -157,7 +168,7 @@ if ($result) {
                 SELECT pla_id 
                 FROM sai_plantilla 
                 WHERE pla_borrado IS NULL
-                AND pla_transicion_estado_atencion=$tea_id
+                AND pla_transicion_estado_atencion=$tea_id_old
             )
         ");
         
@@ -227,6 +238,17 @@ if ($result) {
                 ) RETURNING *   
             ");
         }
+        $sql = ("
+            UPDATE sai_plantilla
+            SET pla_borrado=now()
+            WHERE pla_borrado IS NULL
+            AND pla_transicion_estado_atencion=$tea_id_old
+            AND pla_id <> $pla_id
+            RETURNING *
+        ");
+
+        //echo $sql;
+        q($sql);
     }
 }
 
