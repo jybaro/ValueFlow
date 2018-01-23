@@ -4,10 +4,9 @@
 //return;
 
 $respuesta = array();
-if (!empty($_POST) && isset($_POST['tea_id']) && !empty($_POST['tea_id']) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && isset($_POST['estado_siguiente_id']) && !empty($_POST['estado_siguiente_id'])) {
+if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && isset($_POST['estado_siguiente_id']) && !empty($_POST['estado_siguiente_id'])) {
 
 
-    $tea_id = $_POST['tea_id'];
     $ate_id = $_POST['ate_id'];
     $estado_siguiente_id = $_POST['estado_siguiente_id'];
 
@@ -29,6 +28,7 @@ if (!empty($_POST) && isset($_POST['tea_id']) && !empty($_POST['tea_id']) && iss
 
     foreach ($destinatarios as $destinatario) {
         if (isset($_POST['email_' . $destinatario]) && !empty($_POST['email_' . $destinatario])) {
+            $tea_id = $_POST['tea_id_' . $destinatario];
             $asunto = (isset($_POST['asunto_' . $destinatario]) && !empty($_POST['asunto_' . $destinatario])) ? $_POST['asunto_' . $destinatario] : 'Notificación SAIT';
 
             $mensaje = (isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) ? $_POST['mensaje_' . $destinatario] : 'Notificación SAIT';
