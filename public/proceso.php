@@ -304,7 +304,6 @@ EOT;
     <div class="panel-body">
       <strong>Usuario asignado:</strong> {$r[usu_nombres]} {$r[usu_apellidos]}
       <div>&nbsp;</div>
-      <div>&nbsp;</div>
 EOT;
 
         $result_campos = q("
@@ -325,8 +324,10 @@ EOT;
                 $label = ucfirst($rdato['cae_texto']);
                 $dato = $rdato['vae_texto'];
                 echo <<<EOT
-          <strong>$label:</strong> $dato
-        <br>
+            <div class="row">
+          <div class="col-sm-4"><strong>$label:</strong> </div>
+         <div class="col-sm-8">$dato</div>
+            </div>
 EOT;
             }
         }
@@ -344,6 +345,7 @@ EOT;
          */
         echo <<<EOT
 
+      <div>&nbsp;</div>
 
       <div>
         <button class="btn btn-info" onclick="p_abrir({$r[tea_id]}, {$r[ate_id]})"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Recopilar datos</button>
