@@ -303,6 +303,32 @@ EOT;
         echo <<<EOT
     <div class="panel-body">
       <div>&nbsp;</div>
+EOT;
+
+        $result_campos = q("
+            SELECT *
+            FROM sai_campo_extra
+            ,sai_paso_atencion
+            ,sai_valor_extra
+            WHERE cae_borrado IS NULL
+            AND paa_borrado IS NULL
+            AND vae_borrado IS NULL
+            AND vae_campo_extra = cae_id
+            AND vae_paso_atencion = paa_id
+            AND paa_atencion={$r[ate_id]}
+            AND NOT paa_paso_anterior IS NULL
+        ");
+        if ($result_campos) {
+            foreach($result_campos as $rdato){
+                $label = ucfirst($rdato['cae_texto']);
+                $dato = $rdato['vae_texto'];
+                echo <<<EOT
+          <strong>$label:</strong> $dato
+EOT;
+            }
+        }
+        echo <<<EOT
+      <div>&nbsp;</div>
       <strong>Estado:</strong> {$r[estado_actual]}
       <div>&nbsp;</div>
       <strong>Proveedor:</strong> {$r[pro_razon_social]}
@@ -310,6 +336,8 @@ EOT;
       <strong>Usuario:</strong> {$r[usu_nombres]} {$r[usu_apellidos]}
       <div>&nbsp;</div>
 
+EOT;
+        echo <<<EOT
 
 
       <div>
