@@ -462,8 +462,8 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
 
             $('#tea_id_accion_'+destinatario).val(tea_id);
             $('#email_'+destinatario).val(emails[destinatario]);
-            $('#asunto_'+destinatario).val(plantilla.textos[0]);
-            CKEDITOR.instances['mensaje_'+destinatario].setData(plantilla.textos[1]);
+            CKEDITOR.instances['mensaje_'+destinatario].setData(plantilla.textos[0]);
+            $('#asunto_'+destinatario).val(plantilla.textos[1]);
             if (plantilla.xls_generado) {
                 var hidden = '<input type="hidden" name="adjunto_' + destinatario + '[]" value="' + plantilla.textos[2] + '">';
                 var icono = '<span class="glyphicon glyphicon-download" aria-hidden="true"></span> ';
