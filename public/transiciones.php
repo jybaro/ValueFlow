@@ -478,7 +478,7 @@ if (isset($pertinencias_usuario[$servicio['ser_id']])) {
     <label for="archivo_adjunto" class="col-sm-2 control-label">Adjunto:</label>
     <div class="col-sm-10">
       <input type="file" class="form-control" id="archivo_adjunto_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="archivo_adjunto" placeholder="Archivo adjunto">
-      <div id="archivos_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="col-sm-10">
+      <div id="archivos_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="col-sm-10 archivos">
       </div>
     </div>
   </div>
@@ -507,7 +507,7 @@ if (isset($pertinencias_usuario[$servicio['ser_id']])) {
 </form>
 
 <table id="tabla_cae_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="table table-striped">
-<tbody id="antiguos_cae_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>"></tbody>
+<tbody class="antiguos-cae" id="antiguos_cae_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>"></tbody>
 </table>
 
 <hr />
@@ -575,6 +575,7 @@ $( document ).ready(function() {
 });
 var desde=0, hacia=0;
 
+var destinatarios = <?=json_encode($destinatarios)?>;
 
 function p_validar_campo(id){
     console.log('on blur campo', id);
@@ -683,7 +684,7 @@ function p_borrar_campo(cae_id, id) {
 function p_cargar_detalle_transicion(ser_id, pro_id){
     console.log(desde + '->'+ hacia, ser_id, pro_id);
     $.get('/_obtenerDetalleTransicion/'+desde+'/'+hacia+'/'+ser_id+'/'+pro_id, function(data){
-        console.log('data: ', data);
+        console.log('/_obtenerDetalleTransicion/: ', data);
         data = JSON.parse(data);
         console.log('RESPUESTA: ', data);
 
@@ -842,6 +843,12 @@ function p_abrir(x, y){
         $(this).hide();
     });
     $('.badge-proveedor').each(function(){
+        $(this).html('');
+    });
+    $('.archivo').each(function(){
+        $(this).html('');
+    });
+    $('.antiguos-cae').each(function(){
         $(this).html('');
     });
     $('.boton-eliminar').each(function(){$(this).hide();});
