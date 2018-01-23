@@ -4,6 +4,7 @@
 //return;
 
 $respuesta = array();
+$email_count = 0;
 if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && isset($_POST['estado_siguiente_id']) && !empty($_POST['estado_siguiente_id'])) {
 
 
@@ -44,7 +45,6 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 }
             }
 
-            $email_count = 0;
 
             try {
                 //MAIL

@@ -488,7 +488,7 @@ function p_ejecutar_transicion(){
         data = JSON.parse(data);
         console.log(data);
         $('#modal_confirmacion').modal('hide');
-        //location.reload();
+        location.reload();
     })
 }
 
