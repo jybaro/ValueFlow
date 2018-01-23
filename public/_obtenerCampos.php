@@ -82,7 +82,7 @@ if ($traer_campos_asociados == 0) {
         ORDER BY cae_orden
     ");
 }
-echo "[$sql]";
+//echo "[$sql]";
 $campos = q($sql);
 
 if ($imprimir_json) {
