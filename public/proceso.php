@@ -567,7 +567,7 @@ function p_crear(){
 
             console.log('OK creacion de atencion', data);
             $('#modal').modal('hide');
-            //location.reload();
+            location.reload();
         })
     }
 }
