@@ -7,6 +7,7 @@ $ate_id = (isset($ate_id)) ? $ate_id : (isset($args[1])?$args[1]:0);
 
 $traer_campos_asociados = (isset($traer_campos_asociados)) ? $traer_campos_asociados : (isset($args[2])?$args[2]:0);
 
+
 if ($traer_campos_asociados == 0) {
     $sql = ("
         SELECT *
@@ -81,7 +82,7 @@ if ($traer_campos_asociados == 0) {
         ORDER BY cae_orden
     ");
 }
-//echo "[$sql]";
+echo "[$sql]";
 $campos = q($sql);
 
 if ($imprimir_json) {

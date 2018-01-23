@@ -544,7 +544,7 @@ function p_desplegar_campos(campos, padre_id) {
 
         var contenido = '';
         console.log('CAMPO:', campo);
-        if (padre_id == campo['cae_padre']) {
+        if (padre_id != null && padre_id == campo['cae_padre']) {
             if (campo['hijos'].length == 0 ) {
                 //if (campo['padre'] != null) {
                 contenido += '<div class="form-group">' + '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>    <div class="col-sm-' + col2 + '"><input '+campo['cae_validacion']+' class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)"></div>' + '</div>';

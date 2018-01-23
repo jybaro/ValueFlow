@@ -102,14 +102,25 @@ $result = q($sql);
 if ($result) {
     $tea_id = $result[0]['tea_id'];
 
+    //hereda los pasos hacia la nueva transición de estado
+    $sql = ("
+        UPDATE sai_paso_atencion
+        SET paa_transicion_estado_atencion = $tea_id
+        WHERE paa_borrado IS NULL
+        AND paa_transicion_estado_atencion = $tea_id_old
+        RETURNING *
+    ");
+    //echo $sql;
+    q($sql);
+
     //hereda los campos hacia la nueva transición de estado
     $sql = ("
         UPDATE sai_campo_extra
-        SET cae_transicion_estado_atencion=$tea_id
+        SET cae_transicion_estado_atencion = $tea_id
         WHERE cae_borrado IS NULL
-        AND cae_transicion_estado_atencion=$tea_id_old
+        AND cae_transicion_estado_atencion = $tea_id_old
         RETURNING *
-        ");
+    ");
     //echo $sql;
     q($sql);
 

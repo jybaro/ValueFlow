@@ -980,7 +980,6 @@ function p_guardar(target) {
                 count  = parseInt($('#badge_transicion_' + desde + '_'+ hacia).text());
                 console.log('transicion count', desde + '_'+ hacia, count + 1);
                 $('#badge_transicion_' + desde + '_'+ hacia).text(count + 1);
-
             }
             $('#badge_proveedor_'+ser_id+'_'+pro_id).append('<span class="badge" id="nuevabadge_' + tea_id + '">' + destinatario + '</span>');
             $('#boton_eliminar_'+ser_id+'_'+pro_id+'_'+des_id).show();
