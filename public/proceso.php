@@ -320,6 +320,9 @@ EOT;
             AND NOT paa_paso_anterior IS NULL
         ");
         if ($result_campos) {
+            echo '<div class="panel panel-warning">
+<div class="panel-heading">Información</div>
+  <div class="panel-body">';
             foreach($result_campos as $rdato){
                 $label = ucfirst($rdato['cae_texto']);
                 $dato = $rdato['vae_texto'];
@@ -330,6 +333,7 @@ EOT;
             </div>
 EOT;
             }
+            echo '</div></div>';
         }
         /*
         echo <<<EOT
