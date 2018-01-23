@@ -65,7 +65,6 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 foreach ($emails as $email) {
                     if (!empty($email)) {
                         $mail->AddAddress($email);
-                        $email_count++;
                     }
                 }
 
@@ -79,6 +78,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 if (!$mail->Send()) { 
                     throw new Exception($mail->ErrorInfo);
                 } else {
+                    $email_count++;
                     $emails = implode(',', $emails);
                     $result = q("
                         INSERT INTO sai_paso_atencion (
@@ -106,7 +106,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             } catch (Exception $e) {
                 //echo $e->getMessage();
                 l('Error en ' . $e->getFile() . ', linea ' . $e->getLine() . ': ' . $e->getMessage());
-                echo json_encode(array('ERROR'=>$e->getMessage() . " [$email_count]"));
+                echo json_encode(array('ERROR'=>$e->getMessage()));
                 return;
             }
         }
@@ -133,8 +133,14 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             RETURNING *
         ");
         $respuesta['atencion'] = $result;
+    } else {
+        $respuesta = array('ERROR' => 'No se pudo realizar el cambio de estado.');
     }
 
+}
+
+if ($email_count == 0) {
+    $respuesta = array('ERROR' => 'No se pudieron enviar los mensajes.');
 }
 
 echo json_encode($respuesta);

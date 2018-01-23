@@ -487,8 +487,12 @@ function p_ejecutar_transicion(){
         console.log('_confirmarTransicion: ', data);
         data = JSON.parse(data);
         console.log(data);
-        $('#modal_confirmacion').modal('hide');
-        location.reload();
+        if (typeof(data['ERROR']) !== 'undefined') {
+            alert (data['ERROR']);
+        } else {
+            $('#modal_confirmacion').modal('hide');
+            location.reload();
+        }
     })
 }
 
