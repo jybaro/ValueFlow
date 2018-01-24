@@ -909,11 +909,15 @@ $result = q("
     FROM sai_pertinencia_usuario
     ,sai_usuario
     ,sai_servicio
+    ,sai_rol
     WHERE peu_borrado IS NULL
     AND usu_borrado IS NULL
     AND ser_borrado IS NULL
+    AND rol_borrado IS NULL
     AND peu_usuario = usu_id
     AND peu_servicio = ser_id
+    AND usu_rol = rol_id
+    AND rol_codigo = 'tecnico'
 ");
 if ($result) {
     $nombres = array();
