@@ -478,7 +478,7 @@ if (isset($pertinencias_usuario[$servicio['ser_id']])) {
     <label for="archivo_adjunto" class="col-sm-2 control-label">Adjunto:</label>
     <div class="col-sm-10">
       <input type="file" class="form-control" id="archivo_adjunto_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="archivo_adjunto" placeholder="Archivo adjunto">
-      <div id="archivos_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="col-sm-10 archivos">
+      <div id="archivos_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="archivos col-sm-10">
       </div>
     </div>
   </div>
@@ -845,7 +845,7 @@ function p_abrir(x, y){
     $('.badge-proveedor').each(function(){
         $(this).html('');
     });
-    $('.archivo').each(function(){
+    $('.archivos').each(function(){
         $(this).html('');
     });
     $('.antiguos-cae').each(function(){
