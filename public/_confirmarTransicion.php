@@ -32,7 +32,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             $mensaje = (isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) ? $_POST['mensaje_' . $destinatario] : 'Notificación SAIT';
 
             $emails = $_POST['email_' . $destinatario];
-            $emails = explode(',', $email);
+            $emails = explode(',', $emails);
 
             $adjuntos = array();
 
@@ -54,7 +54,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 $mail->Port = SMTP_PORT;
                 $mail->Username = SMTP_USERNAME;
                 $mail->Password = SMTP_PASSWORD;
-                $mail->SMTPDebug = 2;
+                //$mail->SMTPDebug = 2;
                 $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
                 $mail->Subject = $asunto;
                 $mail->MsgHTML($mensaje);
