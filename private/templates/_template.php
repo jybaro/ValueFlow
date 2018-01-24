@@ -147,7 +147,7 @@ body {
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Administración<span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="/usuarios">Usuarios</a></li>
-            <li><a href="/autoadmin/sai_campo_extra">Campos</a></li>
+            <li><a href="/campos">Campos</a></li>
             <li><a href="/autoadmin/sai_archivo">Archivos</a></li>
             <li><a href="/autoadmin/sai_geografia">Geografías</a></li>
             <li><a href="/autoadmin/sai_conexion_nodo">Conexiones</a></li>
