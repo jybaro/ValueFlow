@@ -831,7 +831,7 @@ $result = q("
     WHERE cue_borrado IS NULL
 ");
 if ($result) {
-    foreach($result as $r) {
+    foreach ($result as $r) {
         $value = $r['cue_id'];
         $label = $r['cue_codigo'];
         echo "<option value='$value'>$label</option>";
@@ -905,6 +905,7 @@ if ($result) {
       <?php
 $result = q("
     SELECT *
+    ,(usu_nombres || ' ' || usu_apellidos) AS nombre
     FROM sai_pertinencia_usuario
     ,sai_usuario
     ,sai_servicio
@@ -915,10 +916,14 @@ $result = q("
     AND peu_servicio = ser_id
 ");
 if ($result) {
+    $nombres = array();
     foreach($result as $r) {
         $value = $r['peu_id'];
-        $label = $r['usu_nombres'] . ' ' .$r['usu_apellidos'] . ' (' . $r['ser_nombre'] . ')';
-        echo "<option value='$value'>$label</option>";
+        $label = $r['nombre'];
+        if (!isset($nombres[$label])) {
+            echo "<option value='$value'>$label</option>";
+            $nombres[$label] = $value;
+        }
     }
 }
         ?>
