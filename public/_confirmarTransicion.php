@@ -7,11 +7,8 @@ $respuesta = array();
 $email_count = 0;
 if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && isset($_POST['estado_siguiente_id']) && !empty($_POST['estado_siguiente_id'])) {
 
-
     $ate_id = $_POST['ate_id'];
     $estado_siguiente_id = $_POST['estado_siguiente_id'];
-
-
 
     $result_destinatarios = q("
         SELECT des_nombre FROM sai_destinatario
@@ -57,7 +54,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 $mail->Port = SMTP_PORT;
                 $mail->Username = SMTP_USERNAME;
                 $mail->Password = SMTP_PASSWORD;
-                //$mail->SMTPDebug = 2;
+                $mail->SMTPDebug = 2;
                 $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
                 $mail->Subject = $asunto;
                 $mail->MsgHTML($mensaje);
@@ -74,6 +71,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
 
                 $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
                 $mail->AddBCC(MAIL_COPY_ALL_ADDRESS, MAIL_COPY_ALL_NAME);
+
 
                 if (!$mail->Send()) { 
                     throw new Exception($mail->ErrorInfo);
