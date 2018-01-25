@@ -45,7 +45,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             ,sai_atencion
             WHERE usu_borrado IS NULL
             AND ate_borrado IS NULL 
-            AND ate_usuario = usu_id
+            AND ate_usuario_tecnico = usu_id
             AND ate_id = $ate_id
         ")[0]['usu_correo_electronico'];
 

@@ -11,7 +11,6 @@ if (!empty($args) && isset($args[0]) && isset($args[1]) && isset($args[2]) && is
     $des_id = (isset($args[4])) ? $args[4] : null;
     $filtro_destinatario = (empty($des_id)) ? '' : "AND tea_destinatario=$des_id";
 
-        //,CASE WHEN tea_pertinencia_usuario IS NULL THEN null ELSE (SELECT peu_usuario FROM sai_pertinencia_usuario where peu_id=tea_pertinencia_usuario) END AS usu_id
     $sql = ("
         SELECT * 
         , tea_usuario AS usu_id
