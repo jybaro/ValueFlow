@@ -415,29 +415,28 @@ if ($result) {
 
 
   <div class="form-group">
-    <label for="pertinencia_usuario" class="col-sm-4 control-label">Usuario técnico</label>
+    <label for="usuario_tecnico" class="col-sm-4 control-label">Usuario técnico</label>
     <div class="col-sm-8">
 
       <!--pre>FOREIGN KEY
                   </pre-->
-      <select class="form-control combo-select2" style="width: 50%" id="pertinencia_usuario" name="pertinencia_usuario" tabindex="-1" aria-hidden="true">
-        <option>&nbsp;</option>
+      <select class="form-control combo-select2" style="width: 50%" id="usuario_tecnico" name="usuario_tecnico" tabindex="-1" aria-hidden="true">
+        <option value="">&nbsp;</option>
       <?php
 $result = q("
     SELECT *
-    FROM sai_pertinencia_usuario
-    ,sai_usuario
-    ,sai_servicio
-    WHERE peu_borrado IS NULL
-    AND usu_borrado IS NULL
-    AND ser_borrado IS NULL
-    AND peu_usuario = usu_id
-    AND peu_servicio = ser_id
+    FROM sai_usuario
+    ,sai_rol
+    WHERE usu_borrado IS NULL
+    AND rol_borrado IS NULL
+    AND rol_id  = usu_rol
+    AND rol_codigo = 'tecnico'
 ");
+
 if ($result) {
     foreach($result as $r) {
-        $value = $r['peu_id'];
-        $label = $r['usu_nombres'] . ' ' .$r['usu_apellidos'] . ' (' . $r['ser_nombre'] . ')';
+        $value = $r['usu_id'];
+        $label = $r['usu_nombres'] . ' ' . $r['usu_apellidos'];
         echo "<option value='$value'>$label</option>";
     }
 }

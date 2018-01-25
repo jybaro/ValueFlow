@@ -296,28 +296,19 @@ if ($result) {
 ///////////////////////
 //Pertinencias usuario:
 //
-$pertinencias_usuario = array();
+$usuarios = array();
 $result = q("
-    SELECT * 
-    FROM sai_pertinencia_usuario
-    , sai_usuario
-    , sai_servicio 
-    WHERE peu_borrado IS NULL
-    AND usu_borrado IS NULL
-    AND ser_borrado IS NULL
-    AND usu_id = peu_usuario 
-    AND ser_id = peu_servicio
+    SELECT *
+    FROM sai_usuario
+    ,sai_rol
+    WHERE usu_borrado IS NULL
+    AND rol_borrado IS NULL
+    AND usu_rol = rol_id
 ");
 
 if ($result) {
     foreach($result as $r) {
-        $ser_id = $r['ser_id'];
-        $usu_id = $r['usu_id'];
-
-        if (!isset($pertinencias_usuario[$ser_id])) {
-            $pertinencias_usuario[$ser_id] = array();
-        }
-        $pertinencias_usuario[$ser_id][$usu_id] = $r;
+        $usuarios[$r[usu_id]] = $r;
     }
 }
 
@@ -420,16 +411,14 @@ $num_formulario = 0;
   <div class="form-group">
     <label for="asunto" class="col-sm-2 control-label">Responsable:</label>
     <div class="col-sm-10">
-      <select class="form-control" id="usuario_responsable_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="usuario_responsable">
+      <select class="form-control" id="usuario_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="usuario">
       <option></option>
 <?php
-if (isset($pertinencias_usuario[$servicio['ser_id']])) {
-    foreach($pertinencias_usuario[$servicio['ser_id']] as $pertinencia_usuario) {
-        $valor = $pertinencia_usuario['peu_id'];
-        $etiqueta = $pertinencia_usuario['usu_nombres'] . ' ' . $pertinencia_usuario['usu_apellidos'];
+    foreach($usuarios as $usu_id => $usuario) {
+        $valor = $usu_id;
+        $etiqueta = $usuario['usu_nombres'] . ' ' . $usuario['usu_apellidos'];
         echo "<option value='$valor'>$etiqueta</option>";
     }
-}
 
 ?>
       </select>
@@ -703,14 +692,14 @@ function p_cargar_detalle_transicion(ser_id, pro_id){
             var des_id = transicion['tea_destinatario'];
             console.log(ser_id+'_'+pro_id+'_'+des_id);
             $('#tea_id_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['tea_id']);
-            $('#usuario_responsable_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['tea_pertinencia_usuario']);
+            $('#usuario_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['tea_usuario']);
             $('#automatico_'+ser_id+'_'+pro_id+'_'+des_id).prop('checked', transicion['tea_automatico'] == '1');
             $('#tiempo_alerta_horas_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['tea_tiempo_alerta_horas']);
             $('#asunto_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['pla_asunto']);
             $('#adjunto_nombre_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['pla_adjunto_nombre']);
             CKEDITOR.instances['cuerpo_'+ser_id+'_'+pro_id+'_'+des_id].setData(transicion['pla_cuerpo']);
             CKEDITOR.instances['adjunto_texto_'+ser_id+'_'+pro_id+'_'+des_id].setData(transicion['pla_adjunto_texto']);
-            console.log('#usuario_responsable_'+ser_id+'_'+pro_id+'_'+des_id);
+            console.log('#usuario_'+ser_id+'_'+pro_id+'_'+des_id);
 
             //p_actualizar_archivos(transicion['archivos'], ser_id+'_'+pro_id+'_'+des_id);
             p_actualizar_archivos(transicion['tea_id'], transicion['pla_id'], ser_id+'_'+pro_id+'_'+des_id);

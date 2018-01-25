@@ -14,6 +14,7 @@ $result = q("
     FROM sai_campo_extra
     ,sai_tipo_dato
     WHERE cae_borrado IS NULL
+    ORDER BY cae_texto, cae_orden
     ");
 
 
@@ -196,6 +197,8 @@ function p_abrir(id){
             $('#' + key).trigger('change');
         }
         
+        $('#id').val(id);
+        $('#padre').val(campo['padre']);
         $('#modal').modal('show');
     }).fail(function(){
         console.error('ERROR AL ABRIR');
@@ -255,7 +258,8 @@ function p_guardar(){
     console.log('p_guardar');
     if (p_validar($('#formulario'))) {
         var dataset = $('#formulario').serialize();
-        $.post('_guardarCampo', dataset, function(data){
+        $.post('_modificarCampo', dataset, function(data){
+            console.log('_modificarCampo', data);
         });
     }
 }

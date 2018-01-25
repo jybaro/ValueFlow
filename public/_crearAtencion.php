@@ -7,8 +7,8 @@ $cli_id = $_POST['cliente'];
 $cue_id = $_POST['cuenta'];
 $pro_id_lista = $_POST['proveedor'];
 $ser_id = $_POST['servicio'];
-$peu_id = $_POST['pertinencia_usuario'];
-$usu_id = $_POST['usuario_comercial'];
+$usuario_tecnico = $_POST['usuario_tecnico'];
+$usuario_comercial = $_POST['usuario_comercial'];
 $esa_id = "(SELECT esa_id FROM sai_estado_atencion WHERE esa_nombre ILIKE '%factibilidad nueva%')";
 
 
@@ -22,7 +22,7 @@ foreach ($pro_id_lista as $pro_id) {
             ate_cliente
             ,ate_cuenta
             ,ate_pertinencia_proveedor
-            ,ate_pertinencia_usuario
+            ,ate_usuario_tecnico
             ,ate_usuario_comercial
             ,ate_estado_atencion
             ,ate_servicio
@@ -30,8 +30,8 @@ foreach ($pro_id_lista as $pro_id) {
             $cli_id
             ,$cue_id
             ,$pep_id
-            ,$peu_id
-            ,$usu_id
+            ,$usuario_tecnico
+            ,$usuario_comercial
             ,$esa_id
             ,$ser_id
         ) RETURNING *

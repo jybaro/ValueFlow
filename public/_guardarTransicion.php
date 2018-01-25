@@ -21,18 +21,8 @@ foreach($_POST as $k => $v) {
     $$k = $v;
 }
 
-$pertinencia_usuario='null';
-
-if (isset($usuario_responsable) && !empty($usuario_responsable) && isset($ser_id) && !empty($ser_id)) {
-//    $pertinencia_usuario = "(
-//        SELECT peu_id
-//        FROM sai_pertinencia_usuario
-//        WHERE peu_usuario = $usuario_responsable
-//        AND peu_servicio = $ser_id
-//    )";
-    $pertinencia_usuario = $usuario_responsable; 
-}
 $pertinencia_proveedor='null';
+
 if (isset($pro_id) && !empty($pro_id) && isset($ser_id) && !empty($ser_id)) {
 
     $pertinencia_proveedor = "(
@@ -49,7 +39,7 @@ $automatico = (isset($automatico)) ? 1 : 0;
 //echo "AUTOMATICO[$automatico]";
 $tiempo_alerta_horas = (isset($tiempo_alerta_horas) && !empty($tiempo_alerta_horas)) ? $tiempo_alerta_horas : 0;
 
-$comparacion_usuario = ($pertinencia_usuario == 'null') ? 'is' : '=';
+$comparacion_usuario = ($usuario == 'null') ? 'is' : '=';
 $comparacion_proveedor = ($pertinencia_provedor == 'null') ? 'is' : '=';
 $sql = ("
     UPDATE sai_transicion_estado_atencion 
@@ -61,7 +51,6 @@ $sql = ("
     AND tea_destinatario = $des_id
     RETURNING *
     ");
-    //AND tea_pertinencia_usuario $comparacion_usuario $pertinencia_usuario
 $result = q($sql);
 //echo ' --UPDATE'."[$sql] (";
 //var_dump($result);
@@ -77,7 +66,7 @@ $sql = ("
     sai_transicion_estado_atencion(
         tea_estado_atencion_actual,
         tea_estado_atencion_siguiente,
-        tea_pertinencia_usuario,
+        tea_usuario,
         tea_pertinencia_proveedor,
         tea_destinatario,
         tea_automatico,
@@ -85,7 +74,7 @@ $sql = ("
     ) VALUES (
         $desde,
         $hacia,
-        $pertinencia_usuario,
+        $usuario,
         $pertinencia_proveedor,
         $des_id,
         $automatico,

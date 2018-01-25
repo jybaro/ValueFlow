@@ -10,7 +10,7 @@ $result = q("
         SELECT ser_nombre 
         FROM sai_servicio
         WHERE ser_borrado IS NULL 
-        AND ser_id=peu_servicio
+        AND ser_id=pep_servicio
     )
     ,(
         SELECT cli_razon_social
@@ -21,11 +21,8 @@ $result = q("
     ,(
         SELECT pro_razon_social
         FROM sai_proveedor
-        ,sai_pertinencia_proveedor
         WHERE pro_borrado IS NULL
-        AND pep_borrado IS NULL
         AND pro_id = pep_proveedor
-        AND pep_id = ate_pertinencia_proveedor
     )
     ,(
         SELECT esa_codigo
@@ -37,21 +34,27 @@ $result = q("
         )
     ) AS esa_padre_codigo
     FROM sai_atencion
-    ,sai_pertinencia_usuario
     ,sai_estado_atencion
+    ,sai_usuario
+    ,sai_paso_atencion
+    ,sai_transicion_estado_atencion
+    ,sai_pertinencia_proveedor
     WHERE
     ate_borrado IS NULL
-    AND peu_borrado IS NULL
     AND esa_borrado IS NULL
-    AND ate_pertinencia_usuario = peu_id
+    AND usu_borrado IS NULL
+    AND paa_borrado IS NULL
+    AND tea_borrado IS NULL
+    AND pep_borrado IS NULL
+    AND ate_usuario_tecnico = usu_id
     AND ate_estado_atencion = esa_id
+    AND paa_atencion = ate_id
+    AND paa_transicion_estado_atencion = tea_id
+    AND pep_id = ate_pertinencia_proveedor
+    AND paa_paso_antiguo IS NULL
+    AND tea_tiempo_alerta_horas > 0
     AND (
-        esa_nombre ILIKE '%proceso%'
-        OR 
-        esa_nombre ILIKE '%nuev%'
-    )
-    AND (
-        peu_usuario = $usu_id
+        ate_usuario_tecnico = $usu_id
         OR 
         ate_usuario_comercial = $usu_id
     )

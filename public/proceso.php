@@ -215,13 +215,9 @@ $sql = ("
         ON pro_borrado IS NULL
         AND pep_proveedor = pro_id
 
-    LEFT OUTER JOIN sai_pertinencia_usuario
-        ON peu_borrado IS NULL
-        AND ate_pertinencia_usuario = peu_id
-
     LEFT OUTER JOIN sai_usuario
         ON usu_borrado IS NULL
-        AND peu_usuario = usu_id
+        AND usu_id = ate_usuario_tecnico
 
     LEFT OUTER JOIN sai_transicion_estado_atencion
         ON tea_borrado IS NULL
@@ -895,34 +891,28 @@ if ($result) {
 
 
   <div class="form-group">
-    <label for="pertinencia_usuario" class="col-sm-4 control-label">Usuario técnico</label>
+    <label for="usuario_tecnico" class="col-sm-4 control-label">Usuario técnico</label>
     <div class="col-sm-8">
 
       <!--pre>FOREIGN KEY
                   </pre-->
-      <select required class="form-control combo-select2" style="width: 50%" id="pertinencia_usuario" name="pertinencia_usuario" tabindex="-1" aria-hidden="true">
+      <select required class="form-control combo-select2" style="width: 50%" id="usuario_tecnico" name="usuario_tecnico" tabindex="-1" aria-hidden="true">
         <option value="">&nbsp;</option>
       <?php
 $result = q("
     SELECT *
     ,(usu_nombres || ' ' || usu_apellidos) AS nombre
-    FROM sai_pertinencia_usuario
-    ,sai_usuario
-    ,sai_servicio
+    FROM sai_usuario
     ,sai_rol
-    WHERE peu_borrado IS NULL
-    AND usu_borrado IS NULL
-    AND ser_borrado IS NULL
+    WHERE  usu_borrado IS NULL
     AND rol_borrado IS NULL
-    AND peu_usuario = usu_id
-    AND peu_servicio = ser_id
     AND usu_rol = rol_id
     AND rol_codigo = 'tecnico'
 ");
 if ($result) {
     $nombres = array();
     foreach($result as $r) {
-        $value = $r['peu_id'];
+        $value = $r['usu_id'];
         $label = $r['nombre'];
         if (!isset($nombres[$label])) {
             echo "<option value='$value'>$label</option>";

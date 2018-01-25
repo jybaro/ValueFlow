@@ -21,7 +21,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             AND con_borrado IS NULL 
             AND ate_cuenta = cue_id
             AND cue_contacto = con_id
-            AND ate_id=$ate_id
+            AND ate_id = $ate_id
         ")[0]['con_correo_electronico'];
 
         $email_proveedor = q("
@@ -30,20 +30,23 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             FROM sai_vendedor_proveedor
             ,sai_pertinencia_proveedor
             ,sai_atencion
-            WHERE ate_pertinencia_proveedor = pep_id
+            WHERE vpr_borrado IS NULL
+            AND pep_borrado IS NULL
+            AND ate_borrado IS NULL 
+            AND ate_pertinencia_proveedor = pep_id
             AND pep_vendedor_proveedor = vpr_id
-            AND ate_id=$ate_id
+            AND ate_id = $ate_id
         ")[0]['vpr_correo_electronico'];
 
         $email_usuario = q("
             SELECT
             usu_correo_electronico
             FROM sai_usuario
-            ,sai_pertinencia_usuario
             ,sai_atencion
-            WHERE ate_pertinencia_usuario = peu_id
-            AND peu_usuario = usu_id
-            AND ate_id=$ate_id
+            WHERE usu_borrado IS NULL
+            AND ate_borrado IS NULL 
+            AND ate_usuario = usu_id
+            AND ate_id = $ate_id
         ")[0]['usu_correo_electronico'];
 
 
