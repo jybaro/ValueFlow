@@ -258,7 +258,7 @@ function p_guardar(){
     console.log('p_guardar');
     if (p_validar($('#formulario'))) {
         var dataset = $('#formulario').serialize();
-        $.post('_modificarCampo', dataset, function(data){
+        $.post('/_modificarCampo', dataset, function(data){
             console.log('_modificarCampo', data);
         });
     }

@@ -13,8 +13,10 @@ $result = q("
 
 if ($result) {
     foreach ($result as $r) {
+        if ($r[paa_contador_alerta] == $r[tea_tiempo_alerta_horas]) {
         $asunto = 'Recordatorio';
         $mensaje = 'Hola, tienes pendientes en SAIT, por favor revísalos.';
+        $emails = $r[];
         try {
 
             $mail = new PHPMailer\PHPMailer\PHPMailer(true);

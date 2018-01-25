@@ -289,7 +289,7 @@ function p_guardar(){
 
     var dataset = $('#formulario').serialize();
     console.log('dataset: ', dataset   );
-    $.post('_guardarValoresExtra', dataset, function(data){
+    $.post('/_guardarValoresExtra', dataset, function(data){
 
         console.log('OK guardado', data);
         $('#modal').modal('hide');

@@ -484,7 +484,7 @@ function p_ejecutar_transicion(){
 
     var dataset = $('#formulario_accion').serialize(); 
     console.log('dataset: ', dataset   );
-    $.post('_confirmarTransicion', dataset, function(data){
+    $.post('/_confirmarTransicion', dataset, function(data){
 
         console.log('_confirmarTransicion: ', data);
         data = JSON.parse(data);
@@ -582,7 +582,7 @@ function p_guardar(){
     if (p_validar($('#formulario'))) {
         var dataset = $('#formulario').serialize();
         console.log('dataset: ', dataset   );
-        $.post('_guardarValoresExtra', dataset, function(data){
+        $.post('/_guardarValoresExtra', dataset, function(data){
 
             console.log('OK guardado', data);
             $('#modal').modal('hide');
@@ -598,7 +598,7 @@ function p_crear(){
     if (p_validar($('#formulario_nuevo'))) {
         var dataset = $('#formulario_nuevo').serialize();
         console.log('dataset: ', dataset   );
-        $.post('_crearAtencion', dataset, function(data){
+        $.post('/_crearAtencion', dataset, function(data){
 
             console.log('OK creacion de atencion', data);
             $('#modal').modal('hide');
