@@ -99,6 +99,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             foreach ($result_contenido as $rc) {
                 $tea_id = $rc['tea_id'];
                 $traer_campos_asociados = 1;
+                $extender_campos_anteriores = 1;
 
                 //Se obtienen todos los campos que pertenecen a la transición de estado
                 // definida por $tea_id, al igual que sus transiciones hermanas que 
@@ -155,6 +156,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 }
 
                 $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
+                $pla_adjunto_nombre = elimina_acentos($pla_adjunto_nombre);
                 $pla_adjunto_nombre = $pla_adjunto_nombre . '-' . random_int(10000, 99999);
 
                 $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
@@ -223,7 +225,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                         file_put_contents( 'adjunto.html', $msg);
                         $msg = file_get_contents('adjunto.html');
                         //$msg = utf8_decode($msg);
-                        $snappy->generateFromHtml($msg, $pla_adjunto_nombre.'.pdf', array('encoding' => 'utf-8'));
+                        $snappy->generateFromHtml($msg, $pla_adjunto_nombre . '.pdf', array('encoding' => 'utf-8'));
                     }
                     $respuesta['plantillas'][$pla_id]['pdf_generado'] = $pla_adjunto_nombre;
 
