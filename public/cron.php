@@ -3,11 +3,12 @@
 // cron job:
 // 0 * * * * php /var/www/nedetel/public/cron.php
 
+$ruta = '/var/www/nedetel/';
 
-require_once('../private/config.php');
-require_once('../private/utils.php');
-require_once('../private/bdd.php');
-require_once('../vendor/autoload.php');
+require_once($ruta . 'private/config.php');
+require_once($ruta . 'private/utils.php');
+require_once($ruta . 'private/bdd.php');
+require_once($ruta . 'vendor/autoload.php');
 
 $result = q("
     SELECT *
@@ -32,8 +33,10 @@ if ($result) {
         ");
         //$asunto = 'Recordatorio';
         $asunto = $r[paa_asunto];
+        $asunto = 'Recordatorio: ' . $asunto;
         //$mensaje = 'Hola, tienes pendientes en SAIT, por favor revísalos.';
         $mensaje = $r[paa_cuerpo];
+        $mensaje = empty($mensaje) ? $asunto : $mensaje;
 
         $emails = $r[paa_destinatarios];
         $emails = explode(',', $emails);
