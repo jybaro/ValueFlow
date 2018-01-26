@@ -147,6 +147,69 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                         $replace[] = $campo['valor'];
                         $campos_valores['%'.$campo['cae_codigo'].'%'] = $campo['valor'];
                     }
+                    //Agregando campos desde metadata de atencion:
+                    $result_metadata_atencion = q("
+                        SELECT *
+                        ,(usu_tecnico.usu_nombres || ' ' || usu_tecnico.usu_apellidos) AS usuario_tecnico
+                        ,(usu_tecnico.usu_correo_electronico) AS usuario_tecnico_correo_electronico
+                        ,(usu_comercial.usu_nombres || ' ' || usu_comercial.usu_apellidos) AS usuario_comercial
+                        ,(usu_comercial.usu_correo_electronico) AS usuario_comercial_correo_electronico
+                        FROM sai_atencion
+                        ,sai_cliente
+                        ,sai_contacto
+                        ,sai_cuenta
+                        ,sai_pertinencia_proveedor
+                        ,sai_proveedor
+                        ,sai_usuario AS usu_tecnico
+                        ,sai_usuario AS usu_comercial
+                        ,sai_servicio
+                        ,sai_estado_atencion
+                        WHERE ate_borrado IS NULL
+                        AND cli_borrado IS NULL
+                        AND con_borrado IS NULL
+                        AND cue_borrado IS NULL
+                        AND pep_borrado IS NULL
+                        AND pro_borrado IS NULL
+                        AND ser_borrado IS NULL
+                        AND esa_borrado IS NULL
+                        AND usu_tecnico.usu_borrado IS NULL
+                        AND usu_comercial.usu_borrado IS NULL
+                        AND ate_cuenta = cue_id
+                        AND cue_contacto = con_id
+                        AND ate_cliente = cli_id
+                        AND ate_usuario_tecnico = usu_tecnico.usu_id
+                        AND ate_usuario_comercial = usu_comercial.usu_id
+                        AND ate_pertinencia_proveedor = pep_id
+                        AND pep_proveedor = pro_id
+                        AND ate_servicio = ser_id
+                        AND ate_estado_atencion = esa_id
+                        AND ate_id = $ate_id
+                    ");
+                    if ($result_metadata_atencion) {
+                        $result_metadata_atencion = $result_metadata_atencion[0];
+                        foreach ($result_metadata_atencion as $k => $v) {
+                            $campos_valores['%' . strtoupper($k) . '%'] = $v;
+                        }
+                        if ($result_metadata_atencion[cli_es_persona_juridica] == 1) {
+                            $razon_social = $result_metadata_atencion[cli_razon_social];
+                            $nombre = $result_metadata_atencion[cli_representante_legal_nombre];
+                            $cedula = $result_metadata_atencion[cli_representante_legal_cedula];
+                            $email = $result_metadata_atencion[cli_representante_legal_email];
+                            $domiciliado = $result_metadata_atencion[cli_representante_legal_domiciliado];
+                            $canton = $result_metadata_atencion[cli_representante_legal_canton];
+                            $provincia = $result_metadata_atencion[cli_representante_legal_provincia];
+                            $campos_valores['%'.'CLIENTE_CONTRATO'.'%'] = <<<EOT
+$razon_social, representada por $nombre, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
+EOT;
+                        } else {
+                            $razon_social = $result_metadata_atencion[cli_razon_social];
+                            $ruc = $result_metadata_atencion[cli_ruc];
+                            $campos_valores['%'.'CLIENTE_CONTRATO'.'%'] = "$razon_social, con número de cédula/RUC $ruc";
+                        }
+                    }
+                    //Agregando campos automaticos:
+                    $campos_valores['%'.'FECHA'.'%'] = p_formatear_fecha(date("Y-m-d H:i:s"));
+                    $campos_valores['%'.'NOW'.'%'] = p_formatear_fecha(date("Y-m-d H:i:s"));
 
                     $pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
                     $pla_asunto = str_replace($search, $replace, $pla_asunto);
@@ -157,7 +220,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
 
                 $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
                 $pla_adjunto_nombre = limpiar_nombre_archivo($pla_adjunto_nombre);
-                $pla_adjunto_nombre = $pla_adjunto_nombre . '-' . random_int(10000, 99999);
+                $pla_adjunto_nombre = $pla_adjunto_nombre . '-' . random_int(100000, 999999);
 
                 $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
                 $pla_cuerpo = (empty($pla_cuerpo)) ? 'Favor revisar' : $pla_cuerpo;
@@ -176,36 +239,65 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 try {
                     if ($adjunto_plantilla) {
                         $adjunto_plantilla = $adjunto_plantilla[0];
-                        //////////////
-                        //Excel
+                        $ext = strtolower(pathinfo($adjunto_plantilla['arc_nombre'], PATHINFO_EXTENSION));
+                        $ruta_plantilla = 'uploads/' . $adjunto_plantilla['arc_nombre'];
+                        if ($ext == 'xls' || $ext == 'xlsx' || $ext == 'ods') {
+                            //////////////
+                            //Excel
 
-                        //echo "sacando Excel";
+                            //echo "sacando Excel";
 
-                        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load('uploads/'.$adjunto_plantilla['arc_nombre']);
+                            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($ruta_plantilla);
 
-                        $worksheet = $spreadsheet->getActiveSheet();
+                            $worksheet = $spreadsheet->getActiveSheet();
 
-                        $filas = $worksheet->toArray();
+                            $filas = $worksheet->toArray();
 
-                        //var_dump($filas);
-                        foreach($filas as $x => $fila){
-                            foreach($fila as $y => $celda){
-                                if (!empty($celda)) {
-                                    //echo "[$x, $y: $celda]";
-                                    if (preg_match('/\%.+\%/', $celda)){
-                                        $nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
-                                        $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
+                            //var_dump($filas);
+                            foreach($filas as $x => $fila){
+                                foreach($fila as $y => $celda){
+                                    if (!empty($celda)) {
+                                        //echo "[$x, $y: $celda]";
+                                        if (preg_match('/\%.+\%/', $celda)){
+                                            $nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
+                                            $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
+                                        }
                                     }
                                 }
                             }
+
+                            //$worksheet->getCell('A1')->setValue('John');
+                            //$worksheet->getCell('A2')->setValue('Smith');
+
+                            $pla_adjunto_nombre = $pla_adjunto_nombre . '.xls';
+                            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
+                            $writer->save($pla_adjunto_nombre);
+                            $xls_generado = true;
+
+                        } else if ($ext == 'doc' || $ext == 'docx' || $ext == 'odt') {
+                            ////////////
+                            // Word
+                            //$doc = \PhpOffice\PhpWord\IOFactory::load($ruta_plantilla);
+                            $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($ruta_plantilla);
+
+                            foreach ($campos_valores as $campo => $valor) {
+                                $templateProcessor->setValue($campo, $valor);
+                            }
+
+                            $pla_adjunto_nombre = $pla_adjunto_nombre .'.docx';
+
+                            // $writer = \PhpOffice\PhpWord\IOFactory::createWriter($doc, 'Word2007');
+                            // $writer->save($pla_adjunto_nombre);
+                            $templateProcessor->saveAs($pla_adjunto_nombre);
+                            $xls_generado = true;
+                        } else {
+                            //cualquier otro tipo de archivo se pasa como está, sin ninguna modificación
+                            $pla_adjunto_nombre = $pla_adjunto_nombre . '.' . $ext;
+                            $result_copy = copy($ruta_plantilla, $pla_adjunto_nombre);
+                            if ($result_copy) {
+                                l('no se pudo copiar el archivo ' . $ruta_plantilla);
+                            }
                         }
-
-                        //$worksheet->getCell('A1')->setValue('John');
-                        //$worksheet->getCell('A2')->setValue('Smith');
-
-                        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
-                        $writer->save($pla_adjunto_nombre . '.xls');
-                        $xls_generado = true;
                     }
                     $respuesta['plantillas'][$pla_id]['xls_generado'] = $xls_generado;
 

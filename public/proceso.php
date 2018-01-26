@@ -469,7 +469,7 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
             if (plantilla.xls_generado) {
                 var hidden = '<input type="hidden" name="adjunto_' + destinatario + '[]" value="' + plantilla.textos[2] + '">';
                 var icono = '<span class="glyphicon glyphicon-download" aria-hidden="true"></span> ';
-                $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + plantilla.textos[2] + '.xls">' + icono + plantilla.textos[2] + '.xls</a></div>');
+                $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + plantilla.textos[2] + '">' + icono + plantilla.textos[2] + '</a></div>');
             }
         });
         $('#modal_confirmacion').modal('show');

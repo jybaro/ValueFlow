@@ -18,8 +18,9 @@ $error = '';
 //$desde = $_POST['desde'];
 //$hacia= $_POST['hacia'];
 foreach($_POST as $k => $v) {
-    $$k = $v;
+    $$k = (empty($v) ? 'null' : $v);
 }
+$tiempo_alerta_horas = ($tiempo_alerta_horas == 'null') ? 0 : $tiempo_alerta_horas;
 
 $pertinencia_proveedor='null';
 
@@ -200,8 +201,8 @@ if ($result) {
                             '$ruta',
                             '$md5',
                             '$nombre',
-                        'Plantilla de transicion $tea_id',
-                        $peso
+                            'Plantilla de transicion $tea_id',
+                            $peso
                         ) RETURNING *
                     ");
                     if ($result_archivo) {

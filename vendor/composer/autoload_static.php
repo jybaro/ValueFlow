@@ -7,6 +7,11 @@ namespace Composer\Autoload;
 class ComposerStaticInitb67d6122aca1a34e215b61511eb2b68c
 {
     public static $prefixLengthsPsr4 = array (
+        'Z' => 
+        array (
+            'Zend\\Stdlib\\' => 12,
+            'Zend\\Escaper\\' => 13,
+        ),
         'S' => 
         array (
             'Symfony\\Component\\Process\\' => 26,
@@ -15,7 +20,9 @@ class ComposerStaticInitb67d6122aca1a34e215b61511eb2b68c
         array (
             'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
+            'PhpOffice\\PhpWord\\' => 18,
             'PhpOffice\\PhpSpreadsheet\\' => 25,
+            'PhpOffice\\Common\\' => 17,
             'PHPMailer\\PHPMailer\\' => 20,
         ),
         'K' => 
@@ -25,6 +32,14 @@ class ComposerStaticInitb67d6122aca1a34e215b61511eb2b68c
     );
 
     public static $prefixDirsPsr4 = array (
+        'Zend\\Stdlib\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/zendframework/zend-stdlib/src',
+        ),
+        'Zend\\Escaper\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/zendframework/zend-escaper/src',
+        ),
         'Symfony\\Component\\Process\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/process',
@@ -37,9 +52,17 @@ class ComposerStaticInitb67d6122aca1a34e215b61511eb2b68c
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
         ),
+        'PhpOffice\\PhpWord\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/phpword/src/PhpWord',
+        ),
         'PhpOffice\\PhpSpreadsheet\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpoffice/phpspreadsheet/src/PhpSpreadsheet',
+        ),
+        'PhpOffice\\Common\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpoffice/common/src/Common',
         ),
         'PHPMailer\\PHPMailer\\' => 
         array (
@@ -52,6 +75,7 @@ class ComposerStaticInitb67d6122aca1a34e215b61511eb2b68c
     );
 
     public static $classMap = array (
+        'PclZip' => __DIR__ . '/..' . '/pclzip/pclzip/pclzip.lib.php',
         'XLSXWriter' => __DIR__ . '/..' . '/mk-j/php_xlsxwriter/xlsxwriter.class.php',
         'XLSXWriter_BuffererWriter' => __DIR__ . '/..' . '/mk-j/php_xlsxwriter/xlsxwriter.class.php',
     );
