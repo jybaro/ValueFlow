@@ -30,10 +30,17 @@ if ($result) {
             SET paa_contador_alerta = 0
             WHERE paa_id = {$r[paa_id]}
         ");
-        $asunto = 'Recordatorio';
-        $mensaje = 'Hola, tienes pendientes en SAIT, por favor revísalos.';
+        //$asunto = 'Recordatorio';
+        $asunto = $r[paa_asunto];
+        //$mensaje = 'Hola, tienes pendientes en SAIT, por favor revísalos.';
+        $mensaje = $r[paa_cuerpo];
+
         $emails = $r[paa_destinatarios];
         $emails = explode(',', $emails);
+
+        $adjuntos = $r[paa_adjuntos];
+        $adjuntos = explode(',', $adjuntos);
+
         try {
 
             $mail = new PHPMailer\PHPMailer\PHPMailer(true);
@@ -55,11 +62,11 @@ if ($result) {
                 }
             }
 
-            /*
             foreach ($adjuntos as $adjunto) {
-                $mail->AddAttachment($adjunto);
+                if (!empty($adjunto)) {
+                    $mail->AddAttachment($adjunto);
+                }
             }
-             */
 
             $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
             $mail->AddBCC(MAIL_COPY_ALL_ADDRESS, MAIL_COPY_ALL_NAME);

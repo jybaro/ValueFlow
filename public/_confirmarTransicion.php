@@ -66,7 +66,9 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 }
 
                 foreach ($adjuntos as $adjunto) {
-                    $mail->AddAttachment($adjunto);
+                    if (!empty($adjunto)) {
+                        $mail->AddAttachment($adjunto);
+                    }
                 }
 
                 $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
@@ -78,6 +80,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 } else {
                     $email_count++;
                     $emails = implode(',', $emails);
+                    $adjuntos = implode(',', $adjuntos);
                     $result = q("
                         INSERT INTO sai_paso_atencion (
                             paa_atencion
@@ -85,7 +88,8 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                             ,paa_codigo
                             ,paa_asunto
                             ,paa_cuerpo
-                            ,paa_destinatarios 
+                            ,paa_destinatarios
+                            ,paa_adjuntos 
                         ) VALUES (
                             $ate_id
                             ,$tea_id
@@ -93,6 +97,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                             ,'$asunto'
                             ,'$mensaje'
                             ,'$emails'
+                            ,'$adjuntos'
                         ) RETURNING *
                     ");
                     if ($result) {
