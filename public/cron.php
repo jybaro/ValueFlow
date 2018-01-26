@@ -1,5 +1,14 @@
 <?php
 
+// cron job:
+// 0 * * * * php /var/www/nedetel/public/cron.php
+
+
+require_once('../private/config.php');
+require_once('../private/utils.php');
+require_once('../private/bdd.php');
+require_once('../vendor/autoload.php');
+
 $result = q("
     SELECT *
     FROM sai_transicion_estado_atencion
@@ -9,14 +18,22 @@ $result = q("
     AND paa_transicion_estado_atencion = tea_id
     AND paa_paso_anterior IS NULL
     AND tea_tiempo_alerta_horas > 0
+    AND paa_contador_alerta >= tea_tiempo_alerta_horas;
 ");
+
+
 
 if ($result) {
     foreach ($result as $r) {
-        if ($r[paa_contador_alerta] == $r[tea_tiempo_alerta_horas]) {
+        q("
+            UPDATE sai_paso_atencion
+            SET paa_contador_alerta = 0
+            WHERE paa_id = {$r[paa_id]}
+        ");
         $asunto = 'Recordatorio';
         $mensaje = 'Hola, tienes pendientes en SAIT, por favor revísalos.';
-        $emails = $r[];
+        $emails = $r[paa_destinatarios];
+        $emails = explode(',', $emails);
         try {
 
             $mail = new PHPMailer\PHPMailer\PHPMailer(true);
@@ -48,6 +65,9 @@ if ($result) {
             $mail->AddBCC(MAIL_COPY_ALL_ADDRESS, MAIL_COPY_ALL_NAME);
 
 
+            //echo '<pre>';
+            //var_dump($r);
+            //echo '</pre><hr>';
             if (!$mail->Send()) { 
                 throw new Exception($mail->ErrorInfo);
             }
@@ -58,3 +78,18 @@ if ($result) {
         }
     }
 }
+
+
+
+q("
+    UPDATE sai_paso_atencion
+    SET paa_contador_alerta = paa_contador_alerta + 1
+    WHERE paa_borrado IS NULL
+    AND paa_paso_anterior IS NULL
+    AND paa_transicion_estado_atencion IN (
+        SELECT tea_id
+        FROM sai_transicion_estado_atencion
+        WHERE tea_borrado IS NULL
+        AND tea_tiempo_alerta_horas > 0
+    )
+");
