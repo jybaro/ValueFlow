@@ -82,60 +82,19 @@ function p_formatear_fecha($timestamp){
     return $fecha;
 }
 
-// https://gist.github.com/luiscelismx/9281064
-function elimina_acentos($text) {
-    $text = htmlentities($text, ENT_QUOTES, 'UTF-8');
-    $text = strtolower($text);
-    $patron = array (
-        // Espacios, puntos y comas por guion
-        //'/[\., ]+/' => ' ',
+function limpiar_nombre_archivo($cadena){
+    $originales  = 'ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûýýþÿ';
+    $modificadas = 'aaaaaaaceeeeiiiidnoooooouuuuybsaaaaaaaceeeeiiiidnoooooouuuyyby';
 
-        // Vocales
-        '/\+/' => '',
-        '/&agrave;/' => 'a',
-        '/&egrave;/' => 'e',
-        '/&igrave;/' => 'i',
-        '/&ograve;/' => 'o',
-        '/&ugrave;/' => 'u',
+    $cadena     = utf8_decode($cadena);
+    $originales = utf8_decode($originales);
 
-        '/&aacute;/' => 'a',
-        '/&eacute;/' => 'e',
-        '/&iacute;/' => 'i',
-        '/&oacute;/' => 'o',
-        '/&uacute;/' => 'u',
+    $cadena = strtr($cadena, $originales, $modificadas);
+    $cadena = str_replace(' ', '-', $cadena);
 
-        '/&acirc;/' => 'a',
-        '/&ecirc;/' => 'e',
-        '/&icirc;/' => 'i',
-        '/&ocirc;/' => 'o',
-        '/&ucirc;/' => 'u',
+    $cadena = preg_replace('/[^a-zA-Z0-9\-\._]/','', $cadena);
 
-        '/&atilde;/' => 'a',
-        '/&etilde;/' => 'e',
-        '/&itilde;/' => 'i',
-        '/&otilde;/' => 'o',
-        '/&utilde;/' => 'u',
+    $cadena = utf8_encode($cadena);
 
-        '/&auml;/' => 'a',
-        '/&euml;/' => 'e',
-        '/&iuml;/' => 'i',
-        '/&ouml;/' => 'o',
-        '/&uuml;/' => 'u',
-
-        '/&auml;/' => 'a',
-        '/&euml;/' => 'e',
-        '/&iuml;/' => 'i',
-        '/&ouml;/' => 'o',
-        '/&uuml;/' => 'u',
-
-        // Otras letras y caracteres especiales
-        '/&aring;/' => 'a',
-        '/&ntilde;/' => 'n',
-
-        // Agregar aqui mas caracteres si es necesario
-
-    );
-
-    $text = preg_replace(array_keys($patron),array_values($patron),$text);
-    return $text;
+    return $cadena;
 }

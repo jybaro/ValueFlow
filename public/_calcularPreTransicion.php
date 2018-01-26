@@ -156,7 +156,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 }
 
                 $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
-                $pla_adjunto_nombre = elimina_acentos($pla_adjunto_nombre);
+                $pla_adjunto_nombre = limpiar_nombre_archivo($pla_adjunto_nombre);
                 $pla_adjunto_nombre = $pla_adjunto_nombre . '-' . random_int(10000, 99999);
 
                 $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
