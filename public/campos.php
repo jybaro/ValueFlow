@@ -14,7 +14,7 @@ $result = q("
     FROM sai_campo_extra
     ,sai_tipo_dato
     WHERE cae_borrado IS NULL
-    ORDER BY cae_orden, cae_texto
+    ORDER BY cae_orden, cae_id, cae_texto
     ");
 
 
