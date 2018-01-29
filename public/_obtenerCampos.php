@@ -66,6 +66,11 @@ $sql = "
         AND tea_destinatario = des_id
         AND tea_id = cae_transicion_estado_atencion
     ) AS destinatario
+    ,(
+        SELECT tid_codigo
+        FROM sai_tipo_dato
+        WHERE tid_id = cae_tipo_dato
+    ) AS tipo_dato
     FROM sai_campo_extra 
     WHERE cae_borrado IS NULL
     AND cae_transicion_estado_atencion IN (

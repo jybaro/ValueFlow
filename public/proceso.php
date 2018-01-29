@@ -366,6 +366,10 @@ $(document).ready(function() {
     $('textarea').each(function(){
          CKEDITOR.replace(this);
     });
+    $('.datetimepicker').datetimepicker({
+        locale: 'es',
+        format: 'YYYY-MM-DD'
+    });
 });
 
 var destinatarios = <?=json_encode($destinatarios)?>;
@@ -526,6 +530,10 @@ function p_abrir(tea_id, ate_id) {
             });
 
             $('#campos').append(p_desplegar_campos(campos));
+            $('.datetimepicker').datetimepicker({
+            locale: 'es',
+                format: 'YYYY-MM-DD'
+            });
 
             $('#modal').modal('show');
         } else {
@@ -550,7 +558,40 @@ function p_desplegar_campos(campos, padre_id) {
         if (padre_id == campo['cae_padre']) {
             if (campo['hijos'].length == 0 ) {
                 //if (campo['padre'] != null) {
-                contenido += '<div class="form-group">' + '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>    <div class="col-sm-' + col2 + '"><input '+campo['cae_validacion']+' class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)"></div>' + '</div>';
+                if (campo['tipo_dato'] == 'fecha') {
+                    contenido += ''+
+'            <div class="form-group">'+
+                        '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+'                <div class="input-group date" id="datetimepicker2-'+campo['cae_id']+'">'+
+'                    <input type="text" class="form-control datetimepicker" name="campo_extra_'+campo['cae_id']+'" id="campo_extra_'+campo['cae_id']+'" value="'+valor+'" />'+
+'                    <span class="input-group-addon">'+
+'                        <span class="glyphicon glyphicon-calendar"></span>'+
+'                    </span>'+
+'                </div>'+
+'              </div>'+
+'            </div>'+
+'';
+
+                } else if (campo['tipo_dato'] == 'numero') {
+                    contenido += ''+
+                        '<div class="form-group">' +
+                        '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<input type="number" '+campo['cae_validacion']+' class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
+                        '</div>' +
+                        '</div>'+
+                        '';
+
+                } else {
+                    contenido += '<div class="form-group">' +
+                        '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<input '+campo['cae_validacion']+' class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
+                        '</div>' +
+                        '</div>';
+
+                }
             } else if(campo['hijos'].length > 0) {
 
                 var contenidohijos = p_desplegar_campos(campo['hijos'], campo['cae_id']);
