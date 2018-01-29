@@ -40,12 +40,14 @@ if ($accion == 'duplicar') {
                     ,cae_codigo
                     ,cae_tipo_dato
                     ,cae_validacion
+                    ,cae_orden
                     ,cae_padre
                 ) SELECT 
                     cae_texto
                     ,cae_codigo
                     ,cae_tipo_dato
                     ,cae_validacion
+                    ,cae_orden
                     ,$cae_padre
                 FROM sai_campo_extra
                 WHERE cae_id = {$campo[cae_id]} 
@@ -93,6 +95,7 @@ if ($accion == 'duplicar') {
         ,cae_codigo = $codigo
         ,cae_tipo_dato = $tipo_dato
         ,cae_validacion = $validacion
+        ,cae_orden = $orden
         ,cae_padre = $padre
         WHERE cae_id = $id
         RETURNING *
@@ -104,12 +107,14 @@ if ($accion == 'duplicar') {
             ,cae_codigo
             ,cae_tipo_dato
             ,cae_validacion
+            ,cae_orden
             ,cae_padre
         ) VALUES (
             $texto
             ,$codigo
             ,$tipo_dato
             ,$validacion
+            ,$orden
             ,$padre
         ) RETURNING *
     ");

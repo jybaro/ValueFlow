@@ -549,6 +549,10 @@ function p_desplegar_campos(campos, padre_id) {
     var col1 = (padre_id == null) ? 2 : 3;
     var col2 = (padre_id == null) ? 10 : 8;
 
+    campos.sort(function(a, b){
+        return a['cae_orden'] - b['cae_orden'];
+    });
+
     campos.forEach(function(campo){
         var valor = (campo['valor'] == 'null' || campo['valor'] == null) ? '' : campo['valor'];
 
@@ -585,7 +589,7 @@ function p_desplegar_campos(campos, padre_id) {
 
                 } else {
                     contenido += '<div class="form-group">' +
-                        '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                        '<label for="campo_extra_' + campo['cae_id'] + '" class="col-sm-' + col1 + ' control-label">' + campo['cae_texto'] + ':</label>' +
                         '<div class="col-sm-' + col2 + '">' +
                         '<input '+campo['cae_validacion']+' class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
                         '</div>' +
