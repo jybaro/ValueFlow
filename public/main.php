@@ -51,7 +51,7 @@ $result = q("
     AND paa_atencion = ate_id
     AND paa_transicion_estado_atencion = tea_id
     AND pep_id = ate_pertinencia_proveedor
-    AND paa_paso_antiguo IS NULL
+    AND paa_paso_anterior IS NULL
     AND tea_tiempo_alerta_horas > 0
     AND (
         ate_usuario_tecnico = $usu_id
