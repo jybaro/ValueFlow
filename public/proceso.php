@@ -257,6 +257,7 @@ if ($result) {
     echo '<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">';
     foreach ($atenciones as $ate_id => $atencion) {
         $estados_siguentes = $atencion['estados_siguientes'];
+        $tea_id_actual = $atencion['tea_id'];
         $r = $atencion;
 
         $fecha_formateada = p_formatear_fecha($r['ate_creado']);
@@ -282,7 +283,7 @@ EOT;
         foreach ($estados_siguentes as $estado_siguiente_id => $estado_siguiente) {
             $r = $estado_siguiente;
             echo <<<EOT
-<form method="POST" onsubmit="return p_validar_transicion(this, {$r['tea_id']}, {$r['ate_id']}, {$r['estado_siguiente_id']})">
+<form method="POST" onsubmit="return p_validar_transicion(this, {$tea_id_actual}, {$r['ate_id']}, {$r['estado_siguiente_id']})">
 <input type="hidden" name="estado" value="{$r['estado_siguiente_id']}">
 <input type="hidden" name="tea_id" value="{$r['tea_id']}">
 <input type="hidden" name="id" value="{$r['ate_id']}">
