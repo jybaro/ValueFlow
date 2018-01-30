@@ -283,7 +283,7 @@ EOT;
         foreach ($estados_siguentes as $estado_siguiente_id => $estado_siguiente) {
             $r = $estado_siguiente;
             echo <<<EOT
-<form method="POST" onsubmit="return p_validar_transicion(this, {$tea_id_actual}, {$r['ate_id']}, {$r['estado_siguiente_id']})">
+<form method="POST" onsubmit="return p_validar_transicion(this, {$r['paa_transicion_estado_atencion']}, {$r['ate_id']}, {$r['estado_siguiente_id']})">
 <input type="hidden" name="estado" value="{$r['estado_siguiente_id']}">
 <input type="hidden" name="tea_id" value="{$r['tea_id']}">
 <input type="hidden" name="id" value="{$r['ate_id']}">
