@@ -401,6 +401,7 @@ function p_validar_transicion(target, tea_id, ate_id, estado_siguiente_id){
             campos.forEach(function(campo){
                 if (campo['hijos'].length == 0 && (campo['valor'] == null || campo['valor'].trim() == '')) {
                     completo = false;
+                    console.log('NO ESTA COMPLETO POR:', campo['hijos'].length, campo['valor'], campo);
                 }
             });
         }
