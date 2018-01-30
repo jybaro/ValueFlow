@@ -52,13 +52,13 @@ $result = q("
     AND paa_transicion_estado_atencion = tea_id
     AND pep_id = ate_pertinencia_proveedor
     AND paa_paso_anterior IS NULL
-    AND tea_tiempo_alerta_horas > 0
     AND (
         ate_usuario_tecnico = $usu_id
         OR 
         ate_usuario_comercial = $usu_id
     )
 ");
+    //AND tea_tiempo_alerta_horas > 0
 
 if ($result) {
     foreach($result as $r){
