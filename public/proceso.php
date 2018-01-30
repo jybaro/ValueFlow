@@ -375,6 +375,8 @@ $(document).ready(function() {
 var destinatarios = <?=json_encode($destinatarios)?>;
 
 function p_validar_transicion(target, tea_id, ate_id, estado_siguiente_id){
+    console.log('En p_validar_transicion', tea_id, ate_id);
+
     var traer_campos_extra = 1;
     $.get('/_obtenerCampos/' + tea_id + '/' + ate_id + '/' + traer_campos_extra, function(data){
         console.log(data);
@@ -504,6 +506,8 @@ function p_ejecutar_transicion(){
 }
 
 function p_abrir(tea_id, ate_id) {
+    console.log('En p_abrir', tea_id, ate_id);
+
     console.log('abrir', tea_id, ate_id);
     var traer_campos_extra = 1;
     $.get('/_obtenerCampos/'+tea_id + '/'+ate_id + '/' + traer_campos_extra, function(data){
