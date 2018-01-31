@@ -71,16 +71,21 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 WHERE des_id = tea_destinatario
             ) AS destinatario
             FROM sai_atencion
+            ,sai_paso_atencion
             ,sai_transicion_estado_atencion
             ,sai_plantilla
             WHERE ate_borrado IS NULL
+            AND paa_borrado IS NULL
             AND tea_borrado IS NULL
             AND pla_borrado IS NULL
+            AND ate_id = paa_atencion
+            AND paa_paso_anterior IS NULL
+            AND paa_transicion_estado_atencion = tea_id
             AND pla_transicion_estado_atencion = tea_id
-            AND ate_estado_atencion = tea_estado_atencion_actual
-            AND ate_pertinencia_proveedor = tea_pertinencia_proveedor
             AND ate_id = $ate_id
         ");
+            // AND ate_estado_atencion = tea_estado_atencion_actual
+            // AND ate_pertinencia_proveedor = tea_pertinencia_proveedor
         $result_contenido = q($sql);
 
         $respuesta['contenido'] = $result_contenido;

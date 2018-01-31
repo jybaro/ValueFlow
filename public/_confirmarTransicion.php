@@ -81,6 +81,38 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                     $email_count++;
                     $emails = implode(',', $emails);
                     $adjuntos = implode(',', $adjuntos);
+
+                    //obtiene el tea_id ultimo, por si haya sido actualizado durante el guardado:
+                    $result_tea_id = q("
+                        SELECT tea_id
+                        FROM sai_transicion_estado_atencion
+                        WHERE tea_borrado IS NULL
+                        AND tea_estado_atencion_actual = (
+                            SELECT tea_estado_atencion_actual 
+                            FROM sai_transicion_estado_atencion 
+                            WHERE tea_id = $tea_id
+                        )
+                        AND tea_estado_atencion_siguiente = (
+                            SELECT tea_estado_atencion_siguiente 
+                            FROM sai_transicion_estado_atencion 
+                            WHERE tea_id = $tea_id
+                        )
+                        AND tea_pertinencia_proveedor = (
+                            SELECT tea_pertinencia_proveedor 
+                            FROM sai_transicion_estado_atencion 
+                            WHERE tea_id = $tea_id
+                        )
+                        AND tea_destinatario = (
+                            SELECT tea_destinatario
+                            FROM sai_transicion_estado_atencion 
+                            WHERE tea_id = $tea_id
+                        )
+                    ");
+
+                    if ($result_tea_id) {
+                        $tea_id = $result_tea_id[0][tea_id];
+                    }
+
                     $result = q("
                         INSERT INTO sai_paso_atencion (
                             paa_atencion

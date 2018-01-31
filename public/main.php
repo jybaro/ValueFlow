@@ -4,7 +4,7 @@
 <?php
 
 $usu_id = $_SESSION['usu_id'];
-$result = q("
+$sql = ("
     SELECT * 
     ,(
         SELECT ser_nombre 
@@ -52,6 +52,7 @@ $result = q("
     AND paa_transicion_estado_atencion = tea_id
     AND pep_id = ate_pertinencia_proveedor
     AND paa_paso_anterior IS NULL
+    AND tea_tiempo_alerta_horas > 0
     AND (
         ate_usuario_tecnico = $usu_id
         OR 
@@ -60,6 +61,8 @@ $result = q("
 ");
     //AND tea_tiempo_alerta_horas > 0
 
+//echo $sql;
+$result = q($sql);
 if ($result) {
     foreach($result as $r){
         $ser_nombre = $r['ser_nombre'];
