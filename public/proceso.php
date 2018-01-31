@@ -192,6 +192,8 @@ $sql = ("
     ,e1.esa_nombre AS estado_actual
     ,e2.esa_nombre AS estado_siguiente
     ,e2.esa_id AS estado_siguiente_id
+    ,(usu_tecnico.usu_nombres || ' ' || usu_tecnico.usu_apellidos) AS usu_tecnico_nombre
+    ,(usu_comercial.usu_nombres || ' ' || usu_comercial.usu_apellidos) AS usu_comercial_nombre
 
     FROM sai_atencion
 
@@ -215,9 +217,14 @@ $sql = ("
         ON pro_borrado IS NULL
         AND pep_proveedor = pro_id
 
-    LEFT OUTER JOIN sai_usuario
-        ON usu_borrado IS NULL
-        AND usu_id = ate_usuario_tecnico
+    LEFT OUTER JOIN sai_usuario AS usu_tecnico
+        ON usu_tecnico.usu_borrado IS NULL
+        AND usu_tecnico.usu_id = ate_usuario_tecnico
+
+    LEFT OUTER JOIN sai_usuario AS usu_comercial
+        ON usu_comercial.usu_borrado IS NULL
+        AND usu_comercial.usu_id = ate_usuario_comercial
+
 
     LEFT OUTER JOIN sai_transicion_estado_atencion
         ON tea_borrado IS NULL
@@ -281,15 +288,15 @@ EOT;
       <h4>Pasar a un siguiente estado:</h4>
 EOT;
         foreach ($estados_siguentes as $estado_siguiente_id => $estado_siguiente) {
-            $r = $estado_siguiente;
+            $rsig = $estado_siguiente;
             echo <<<EOT
-<form method="POST" onsubmit="return p_validar_transicion(this, {$r['paa_transicion_estado_atencion']}, {$r['ate_id']}, {$r['estado_siguiente_id']})">
-<input type="hidden" name="estado" value="{$r['estado_siguiente_id']}">
-<input type="hidden" name="tea_id" value="{$r['tea_id']}">
-<input type="hidden" name="id" value="{$r['ate_id']}">
+<form method="POST" onsubmit="return p_validar_transicion(this, {$rsig['tea_id']}, {$rsig['ate_id']}, {$rsig['estado_siguiente_id']})">
+<input type="hidden" name="estado" value="{$rsig['estado_siguiente_id']}">
+<input type="hidden" name="tea_id" value="{$rsig['tea_id']}">
+<input type="hidden" name="id" value="{$rsig['ate_id']}">
 <button class="btn btn-success">
 <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
- {$r['estado_siguiente']}
+ {$rsig['estado_siguiente']}
 </button>
 </form>
 EOT;
@@ -299,8 +306,14 @@ EOT;
 
         echo <<<EOT
     <div class="panel-body">
-      <strong>Usuario asignado:</strong> {$r[usu_nombres]} {$r[usu_apellidos]}
+      <strong>Usuario técnico:</strong> {$r[usu_tecnico_nombre]}
+      <br>
+      <strong>Usuario comercial:</strong> {$r[usu_comercial_nombre]}
       <div>&nbsp;</div>
+EOT;
+        echo <<<EOT
+        <table style="width:400px" class="table table-striped table-condensed table-hover">
+        <tbody>
 EOT;
 
         $result_campos = q("
@@ -321,12 +334,14 @@ EOT;
                 $label = ucfirst($rdato['cae_texto']);
                 $dato = $rdato['vae_texto'];
                 echo <<<EOT
-          <strong>$label:</strong>
-         $dato
-            <br>
+            <tr>
+              <th style="width:30%;">$label:</th>
+              <td>$dato</td>
+            </tr>
 EOT;
             }
         }
+        echo '</tbody></table>';
         /*
         echo <<<EOT
       <div>&nbsp;</div>
