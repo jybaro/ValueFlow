@@ -58,10 +58,10 @@ body {
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Clientes<span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Empresas<span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="/autoadmin/sai_cliente">Clientes</a></li>
-            <li><a href="/autoadmin/sai_contacto">Contactos de clientes</a></li>
+            <li><a href="/autoadmin/sai_cliente">Empresas</a></li>
+            <li><a href="/autoadmin/sai_contacto">Contactos de empresas</a></li>
             <li><a href="/cuentas">Cuentas</a></li>
             <li role="separator" class="divider"></li>
             <!--li><a href="/autoadmin/sai_atencion">Atenciones</a></li>

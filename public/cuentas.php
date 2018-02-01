@@ -104,7 +104,7 @@ p_tree($cuentas[null][hijos]);
     </div>
   </div>
   <div class="form-group">
-    <label for="cliente" class="col-sm-4 control-label">Cliente:</label>
+    <label for="cliente" class="col-sm-4 control-label">Empresa:</label>
     <div class="col-sm-8">
       <select required id="cliente" name="cliente" class="form-control combo-select2" style="width:50%">
         <option value="">&nbsp;</option>
