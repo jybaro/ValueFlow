@@ -142,6 +142,7 @@ if ($result) {
       </select> 
     </div>
   </div>
+<!--
   <div class="form-group">
     <label for="usuario_tecnico" class="col-sm-4 control-label">Usuario Técnico:</label>
     <div class="col-sm-8">
@@ -181,6 +182,8 @@ if ($result) {
       </select>
     </div>
   </div>
+-->
+
 </form>
 
 
