@@ -254,7 +254,7 @@ function p_guardar(){
                             //nuevo:
                             console.log('nueva CUENTA');
                         }
-                        //location.reload();
+                        location.reload();
                         $('#modal').modal('hide');
                     }
                 }).fail(function(xhr, err){

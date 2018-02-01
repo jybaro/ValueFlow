@@ -102,6 +102,14 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
             if ($glue == ',') {
                 $sql = "INSERT INTO {$tabla} ({$sql_campos}) VALUES ({$sql_valores})";
                 //echo $sql;
+                if ($tabla == 'sai_cliente') {
+                    $sql_sai_cuenta = ("
+                        INSERT INTO sai_cuenta(
+                            cue_codigo
+                            ,cue_cliente
+                        ) VALUES (
+                    ");
+                }
             }
         }
 
@@ -112,6 +120,14 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
             $r = q($sql);
             foreach($r[0] as $k => $v){
                 $respuesta[substr($k, 4)] = $v;
+            }
+            if (isset($sql_sai_cuenta) && !empty($sql_sai_cuenta)) {
+                $sql_sai_cuenta .= "
+                        'Nueva cuenta del cliente {$respuesta[razon_social]}, con ID {$respuesta[id]}'
+                        ,{$respuesta[id]}
+                    )
+                ";
+                q($sql_sai_cuenta);
             }
         }
 
