@@ -1,5 +1,8 @@
 <?php
 
+
+var_dump($_POST);
+
 $respuesta = array();
 if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
     $ate_id = $args[0];
@@ -9,6 +12,8 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         $id = $_POST['id'];
         $ate_id = $id;
         //$tea_id = $_POST['tea_id'];
+        $tea_id_siguiente = $_POST['tea_id'];
+
 
         $email_cliente = q("
             SELECT 

@@ -123,7 +123,7 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
             }
             if (isset($sql_sai_cuenta) && !empty($sql_sai_cuenta)) {
                 $sql_sai_cuenta .= "
-                        'Nueva cuenta del cliente {$respuesta[razon_social]}, con ID {$respuesta[id]}'
+                        'Cuenta de la empresa {$respuesta[razon_social]}, con ID {$respuesta[id]}'
                         ,{$respuesta[id]}
                     )
                 ";
