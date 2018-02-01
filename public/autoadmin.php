@@ -236,8 +236,10 @@ FROM
                         $etiqueta = $valor;
                     }
 
+                    
                     $campo_nombre = $campo['nombre'];
                     if ($campo['nombre'] == $campo_etiqueta ){
+                        $etiqueta = empty($etiqueta) ? "(registro $id)" : $etiqueta;
                         echo "<td><a href='#' onclick='p_abrir($id, this);return false;' id='dato_{$id}_{$campo_nombre}'>$etiqueta</a></td>";
                     } else {
                         echo "<td id='dato_{$id}_{$campo_nombre}'>$etiqueta</td>";
