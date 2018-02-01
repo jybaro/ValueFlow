@@ -316,19 +316,20 @@ EOT;
         <tbody>
 EOT;
 
-        $result_campos = q("
+        $sql = ("
             SELECT *
             FROM sai_campo_extra
             ,sai_paso_atencion
             ,sai_valor_extra
             WHERE cae_borrado IS NULL
-            AND paa_borrado IS NULL
             AND vae_borrado IS NULL
             AND vae_campo_extra = cae_id
             AND vae_paso_atencion = paa_id
             AND paa_atencion={$r[ate_id]}
             AND NOT paa_paso_anterior IS NULL
         ");
+            //AND paa_borrado IS NULL
+        $result_campos = q($sql);
         if ($result_campos) {
             foreach($result_campos as $rdato){
                 $label = ucfirst($rdato['cae_texto']);
@@ -342,6 +343,7 @@ EOT;
             }
         }
         echo '</tbody></table>';
+        //echo "$sql";
         /*
         echo <<<EOT
       <div>&nbsp;</div>
