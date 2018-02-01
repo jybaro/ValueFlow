@@ -188,7 +188,7 @@ FROM
     }
     //var_dump($campos);
     echo "<script>var tabla='".substr($tabla, 4)."';var campos = ".json_encode($campos_js).";</script>";
-    echo "<a href='/autoadmin'><< Regresar al listado de tablas</a>";
+    //echo "<a href='/autoadmin'><< Regresar al listado de tablas</a>";
     echo "<h1>$nombre_tabla</h1>";
 
 
@@ -259,7 +259,8 @@ FROM
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Registro <span id="formulario_titulo"></span> de <?=n($tabla)?></h4>
+        <!--h4 class="modal-title">Registro <span id="formulario_titulo"></span> de <?=n($tabla)?></h4-->
+        <h4 class="modal-title">Registro <span id="formulario_titulo"></span> de <?=$nombre_tabla?></h4>
       </div>
       <div class="modal-body">
 
