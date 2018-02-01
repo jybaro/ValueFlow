@@ -143,7 +143,7 @@ if ($result) {
     </div>
   </div>
   <div class="form-group">
-    <label for="usuario_tecnico" class="col-sm-4 control-label">Cuenta Técnico:</label>
+    <label for="usuario_tecnico" class="col-sm-4 control-label">Usuario Técnico:</label>
     <div class="col-sm-8">
       <select required class="form-control combo-select2" style="width: 50%" id="usuario_tecnico" name="usuario_tecnico" tabindex="-1" aria-hidden="true">
         <option value="">&nbsp;</option>

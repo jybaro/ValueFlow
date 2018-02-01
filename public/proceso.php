@@ -243,7 +243,7 @@ $sql = ("
         $filtro
 
     ORDER BY 
-        ate_id, estado_actual, estado_siguiente
+        ate_id DESC, estado_actual, estado_siguiente
         ,ate_creado DESC
 ");
 $result = q($sql);
