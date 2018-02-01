@@ -6,6 +6,7 @@
 //var_dump($_POST);
 //
 function p_formatear_valor_sql($raw, $tipo = 'text'){
+    $raw = trim($raw);
     if ($raw === null || $raw === '' || $raw === 'null') {
         $result = 'null';
     } else if (strpos($raw, '(') !== false && substr($raw, -1) == ')') {
@@ -100,6 +101,7 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
             }
             if ($glue == ',') {
                 $sql = "INSERT INTO {$tabla} ({$sql_campos}) VALUES ({$sql_valores})";
+                //echo $sql;
             }
         }
 

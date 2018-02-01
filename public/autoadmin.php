@@ -285,7 +285,7 @@ FROM
         <span id="recursivo_<?=$c?>"></span>
         <?php endif; ?>
       <select class="form-control combo-select2" style="width: 50%" id="<?=$c?>" name="<?=$c?>" >
-        <option>&nbsp;</option>
+        <option value="">&nbsp;</option>
 <?php
     $opciones = $fkeys[$campo['nombre']]['__opciones'];
 

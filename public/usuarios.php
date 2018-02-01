@@ -251,7 +251,7 @@ function p_guardar_permiso_ingreso(zona){
 
         console.log('dataset_json', dataset_json);
         $.ajax({
-        url: '_guardarPermisoIngreso',
+        url: '/_guardarPermisoIngreso',
             type: 'POST',
             //dataType: 'json',
             data: JSON.stringify(dataset_json),
@@ -300,7 +300,7 @@ function p_borrar_permiso_ingreso(ess_id){
 
         console.log('dataset_json', dataset_json);
         $.ajax({
-        url: '_guardarPermisoIngreso',
+        url: '/_guardarPermisoIngreso',
             type: 'POST',
             //dataType: 'json',
             data: JSON.stringify(dataset_json),
@@ -371,7 +371,7 @@ function p_recuperar(){
 
     console.log('dataset_json', dataset_json);
     $.ajax({
-    url: '_guardarUsuario',
+    url: '/_guardarUsuario',
         type: 'POST',
         //dataType: 'json',
         data: JSON.stringify(dataset_json),
@@ -407,7 +407,7 @@ function p_borrar(){
 
         console.log('dataset_json', dataset_json);
         $.ajax({
-        url: '_guardarUsuario',
+        url: '/_guardarUsuario',
             type: 'POST',
             //dataType: 'json',
             data: JSON.stringify(dataset_json),
@@ -445,7 +445,7 @@ function p_reiniciar(){
 
         console.log('dataset_json', dataset_json);
         $.ajax({
-        url: '_guardarUsuario',
+        url: '/_guardarUsuario',
             type: 'POST',
             //dataType: 'json',
             data: JSON.stringify(dataset_json),
@@ -490,7 +490,7 @@ function p_guardar(){
 
                 console.log('dataset_json', dataset_json);
                 $.ajax({
-                url: '_guardarUsuario',
+                url: '/_guardarUsuario',
                     type: 'POST',
                     //dataType: 'json',
                     data: JSON.stringify(dataset_json),
@@ -555,7 +555,7 @@ function p_guardar_old(){
 
             console.log('dataset_json', dataset_json);
             $.ajax({
-                url: '_guardar/usuario',
+                url: '/_guardar/usuario',
                     type: 'POST',
                     dataType: 'json',
                     data: JSON.stringify(dataset_json),
@@ -595,7 +595,7 @@ function p_eliminar_old(cedula, nombre){
         var dataset_json = [{id:$('#id').val()}];
         console.log('dataset_json',dataset_json);
         $.ajax({
-            url: '_borrar/usuario',
+            url: '/_borrar/usuario',
             type: 'POST',
             //dataType: 'json',
             data: JSON.stringify(dataset_json),
