@@ -256,7 +256,9 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                             $campos_valores['%'.$campo['cae_codigo'].'%'] = $campo['valor'];
                         }
                         //Agregando campos desde metadata de atencion:
-                        $result_metadata_atencion = $result_metadata_atencion[0];
+                        //echo "[[RESULT METADATA ATENCION]]";
+                        //var_dump($result_metadata_atencion);
+                        //$result_metadata_atencion = $result_metadata_atencion[0];
                         foreach ($result_metadata_atencion as $k => $v) {
                             $campos_valores['%' . strtoupper($k) . '%'] = $v;
                         }
