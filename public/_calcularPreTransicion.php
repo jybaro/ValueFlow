@@ -1,7 +1,7 @@
 <?php
 
 
-var_dump($_POST);
+//var_dump($_POST);
 
 $respuesta = array();
 if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
@@ -12,7 +12,62 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         $id = $_POST['id'];
         $ate_id = $id;
         //$tea_id = $_POST['tea_id'];
-        $tea_id_siguiente = $_POST['tea_id'];
+        $tea_id = $_POST['tea_id'];
+        $traer_campos_asociados = 1;
+        $extender_campos_anteriores = 1;
+
+        //Se obtienen todos los campos que pertenecen a la transición de estado
+        // definida por $tea_id, al igual que sus transiciones hermanas que 
+        // compartan estado actual, estado siguiente y pertinencia de proveedor,
+        // es decir también trae los campos de las transiciones de todos los otros 
+        // destinatarios (cliente, usuario, proveedor)
+
+        require('_obtenerCampos.php');
+
+        $result_contenido = q("
+            SELECT * 
+            ,(
+                SELECT esa_nombre
+                FROM sai_estado_atencion
+                WHERE esa_id = tea_estado_atencion_actual
+            ) AS actual
+            ,(
+                SELECT esa_nombre
+                FROM sai_estado_atencion
+                WHERE esa_id = tea_estado_atencion_siguiente
+            ) AS siguiente 
+            ,(
+                SELECT 
+                des_nombre 
+                FROM sai_destinatario 
+                WHERE des_id = tea_destinatario
+            ) AS destinatario
+            FROM sai_transicion_estado_atencion 
+            ,sai_plantilla
+            WHERE tea_borrado IS NULL
+            AND pla_borrado IS NULL
+            AND pla_transicion_estado_atencion = tea_id
+            AND tea_id IN (
+                SELECT tea_id
+                FROM sai_transicion_estado_atencion
+                WHERE tea_borrado IS NULL
+                AND tea_estado_atencion_actual = (
+                    SELECT tea_estado_atencion_actual 
+                    FROM sai_transicion_estado_atencion 
+                    WHERE tea_id = $tea_id
+                )
+                AND tea_estado_atencion_siguiente = (
+                    SELECT tea_estado_atencion_siguiente 
+                    FROM sai_transicion_estado_atencion 
+                    WHERE tea_id = $tea_id
+                )
+                AND tea_pertinencia_proveedor = (
+                    SELECT tea_pertinencia_proveedor 
+                    FROM sai_transicion_estado_atencion 
+                    WHERE tea_id = $tea_id
+                )
+            )
+        ");
 
 
         $email_cliente = q("
@@ -43,7 +98,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             AND ate_id = $ate_id
         ")[0]['vpr_correo_electronico'];
 
-        $email_usuario = q("
+        $email_usuario_tecnico = q("
             SELECT
             usu_correo_electronico
             FROM sai_usuario
@@ -65,8 +120,20 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             AND ate_id=$ate_id
         ")[0]['usu_correo_electronico'];
 
+        $email_usuario_responsable = q("
+            SELECT
+            usu_correo_electronico
+            FROM sai_usuario
+            ,sai_transicion_estado_atencion
+            WHERE usu_borrado IS NULL
+            AND tea_borrado IS NULL
+            AND tea_usuario = usu_id
+            AND tea_id = $tea_id
+        ")[0]['usu_correo_electronico'];
+
         //echo "[$email_cliente - $email_proveedor - $email_usuario]";
-        $respuesta['emails'] = array('cliente'=>$email_cliente, 'proveedor'=>$email_proveedor, 'usuario'=>$email_usuario . ',' . $email_usuario_comercial);
+        $respuesta['emails'] = array('cliente'=>$email_cliente, 'proveedor'=>$email_proveedor, 'usuario'=>$email_usuario_tecnico . ',' . $email_usuario_comercial . ',' . $email_usuario_responsable);
+        /*
         $sql = ("
             SELECT *
             ,(
@@ -89,9 +156,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             AND pla_transicion_estado_atencion = tea_id
             AND ate_id = $ate_id
         ");
-            // AND ate_estado_atencion = tea_estado_atencion_actual
-            // AND ate_pertinencia_proveedor = tea_pertinencia_proveedor
-        $result_contenido = q($sql);
+         */
 
         $respuesta['contenido'] = $result_contenido;
         $respuesta['plantillas'] = array();
@@ -107,18 +172,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             //q("UPDATE sai_paso_atencion SET paa_borrado=now() WHERE paa_atencion=$ate_id");
 
             foreach ($result_contenido as $rc) {
-                $tea_id = $rc['tea_id'];
-                $traer_campos_asociados = 1;
-                $extender_campos_anteriores = 1;
-
-                //Se obtienen todos los campos que pertenecen a la transición de estado
-                // definida por $tea_id, al igual que sus transiciones hermanas que 
-                // compartan estado actual, estado siguiente y pertinencia de proveedor,
-                // es decir también trae los campos de las transiciones de todos los otros 
-                // destinatarios (cliente, usuario, proveedor)
-
-                require('_obtenerCampos.php');
-
+                //$tea_id = $rc['tea_id'];
                 $pla_asunto = $rc['pla_asunto'];
                 $pla_adjunto_nombre = $rc['pla_adjunto_nombre'];
 
