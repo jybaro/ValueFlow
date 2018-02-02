@@ -883,7 +883,7 @@ if ($result) {
 
 
   <div class="form-group">
-    <label for="cuenta" class="col-sm-4 control-label">Cuenta</label>
+    <label for="cuenta" class="col-sm-4 control-label">Dependencia de empresas:</label>
     <div class="col-sm-8">
       <select required class="form-control combo-select2" style="width: 50%" id="cuenta" name="cuenta" tabindex="-1" aria-hidden="true">
 

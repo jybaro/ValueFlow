@@ -1,4 +1,4 @@
-<h1>Cuentas</h1>
+<div class="page-header"><h1>Dependencia de Empresas</h1></div>
 <?php
 
 $result = q("
@@ -72,7 +72,7 @@ p_tree($cuentas[null][hijos]);
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Cuenta <span id="formulario_titulo"></span></h4>
+        <h4 class="modal-title">Dependencia <span id="formulario_titulo"></span></h4>
       </div>
       <div class="modal-body">
 
@@ -80,7 +80,7 @@ p_tree($cuentas[null][hijos]);
 <form id="formulario" class="form-horizontal">
 <input type="hidden" id="id" name="id" value="">
   <div class="form-group">
-    <label for="codigo" class="col-sm-4 control-label">Descripción de cuenta:</label>
+    <label for="codigo" class="col-sm-4 control-label">Descripción:</label>
     <div class="col-sm-8">
       <input type="text" required class="form-control" id="codigo" name="codigo" placeholder="Codigo">
     </div>
@@ -92,7 +92,7 @@ p_tree($cuentas[null][hijos]);
     </div>
   </div>
   <div class="form-group">
-    <label for="padre" class="col-sm-4 control-label">Cuenta padre:</label>
+    <label for="padre" class="col-sm-4 control-label">Dependiencia padre:</label>
     <div class="col-sm-8">
       <select id="padre" name="padre" class="form-control combo-select2" style="width:50%">
         <option value="">&nbsp;</option>
@@ -391,7 +391,7 @@ function p_recuperar(){
 
 function p_borrar(){
 
-    if (confirm('Seguro desea eliminar la Cuenta ' + $('#codigo').val() + '')) {
+    if (confirm('Seguro desea eliminar la Dependiencia ' + $('#codigo').val() + '')) {
         dataset_json = {};
         dataset_json['id'] = $('#id').val();
         dataset_json['codigo'] = $('#codigo').val();

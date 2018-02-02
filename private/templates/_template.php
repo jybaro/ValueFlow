@@ -62,7 +62,7 @@ body {
           <ul class="dropdown-menu">
             <li><a href="/autoadmin/sai_cliente">Empresas</a></li>
             <li><a href="/autoadmin/sai_contacto">Directorio</a></li>
-            <li><a href="/cuentas">Cuentas</a></li>
+            <li><a href="/cuentas">Dependencias</a></li>
             <li role="separator" class="divider"></li>
             <!--li><a href="/autoadmin/sai_atencion">Atenciones</a></li>
             <li><a href="/atenciones">Flujo de las atenciones</a></li-->
