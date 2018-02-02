@@ -14,7 +14,7 @@ if (empty($tabla)) {
     $count_tabla = 0;
     $count_campo = 0;
     echo "<div id='diccionario'>";
-    echo "<h1>Administración de la información del SAIT</h1>";
+    echo "<div class='page-header'><h1>Administración de la información del SAIT</h1></div>";
 
     $letra = '';
     foreach($result as $r){

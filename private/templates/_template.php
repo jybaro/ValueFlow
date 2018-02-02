@@ -156,6 +156,7 @@ body {
             <li role="separator" class="divider"></li>
             <li><a href="/autoadmin/sai_estado_atencion">Estados</a></li>
             <li><a href="/transiciones">Transiciones de estados</a></li>
+            <li><a href="/autoadmin/sai_catalogo">Catálogos</a></li>
             <li><a href="/autoadmin">Tablas del sistema</a></li>
             <li><a href="/respaldos">Respaldos</a></li>
             <li><a href="/seguridad">Seguridad</a></li>
