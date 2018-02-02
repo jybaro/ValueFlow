@@ -91,7 +91,7 @@ if (!empty($dataset_json)) {
 
                 }
                 $sql = ("UPDATE sai_cuenta SET $sql_update WHERE cue_id=$id RETURNING *");
-                echo $sql;
+                //echo $sql;
                 $result = q($sql);
             } else {
                 //borra cuentas con codigo repetida
