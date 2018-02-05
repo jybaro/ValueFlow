@@ -269,19 +269,20 @@ if ($result) {
 
         $fecha_formateada = p_formatear_fecha($r['ate_creado']);
         echo <<<EOT
+      <a name="atencion_{$r[ate_secuencial]}"></a>
 <div class="panel panel-info" xxxstyle="width:500px;">
   <div class="panel-heading">
     <div class="pull-right">
       $fecha_formateada 
     </div>
     <h3 class="panel-title">
-      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{$r[ate_id]}" aria-expanded="false" aria-controls="collapse_{$r[ate_id]}" name="atencion_{$r[ate_secuencial]}">
+      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{$r[ate_secuencial]}" aria-expanded="false" aria-controls="collapse_{$r[ate_secuencial]}" >
         {$r[ate_secuencial]}. <strong>{$r[estado_actual]}</strong> para servicio de {$r[ser_nombre]} ({$r[pro_razon_social]}) a {$r[cli_razon_social]}
       </a>
     </h3>
   </div>
 
-  <div id="collapse_{$r[ate_id]}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{$r[ate_id]}">
+  <div id="collapse_{$r[ate_secuencial]}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{$r[ate_secuencial]}">
 EOT;
         echo <<<EOT
       <div class="pull-right well" style="padding:20px;margin:20px;">
@@ -388,6 +389,28 @@ $(document).ready(function() {
         locale: 'es',
         format: 'YYYY-MM-DD'
     });
+    var hash = window.location.hash.substr(1);
+
+    console.log('HASH:', "["+hash+"]");
+    if (hash != '') {
+        //hace el scroll hasta el elemento:
+        var $anchor = $(':target'),
+            fixedElementHeight = 50;
+
+        if ($anchor.length > 0) {
+
+            $('html, body')
+                .stop()
+                .animate({
+                scrollTop: $anchor.offset().top - fixedElementHeight
+            }, 200);
+        }
+
+        // abre el acordeon adecuado:
+        ate_id = parseInt(hash.replace('atencion_', ''));
+        console.log('ate_id', ate_id);
+        $('#collapse_' + ate_id).collapse('show');
+    }
 });
 
 var destinatarios = <?=json_encode($destinatarios)?>;
