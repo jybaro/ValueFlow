@@ -328,6 +328,7 @@ EOT;
             AND vae_paso_atencion = paa_id
             AND paa_atencion={$r[ate_id]}
             AND NOT paa_paso_anterior IS NULL
+            ORDER BY vae_creado, cae_orden
         ");
             //AND paa_borrado IS NULL
         $result_campos = q($sql);

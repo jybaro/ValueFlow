@@ -74,7 +74,6 @@ body {
           <ul class="dropdown-menu">
             <li><a href="/autoadmin/sai_proveedor">Proveedores</a></li>
             <li><a href="/autoadmin/sai_vendedor_proveedor">Contactos de los proveedores</a></li>
-            <li><a href="/autoadmin/sai_pertinencia_proveedor">Pertinencia de proveedores</a></li>
             <li role="separator" class="divider"></li>
           </ul>
         </li>
@@ -146,6 +145,7 @@ body {
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Administración<span class="caret"></span></a>
           <ul class="dropdown-menu">
+            <li><a href="/autoadmin/sai_pertinencia_proveedor">Pertinencia de proveedores</a></li>
             <li><a href="/usuarios">Usuarios</a></li>
             <li><a href="/campos">Campos</a></li>
             <li><a href="/autoadmin/sai_archivo">Archivos</a></li>
