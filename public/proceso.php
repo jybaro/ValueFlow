@@ -505,7 +505,8 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
 
         var emails = data.emails;
         var plantillas = data.plantillas;
-        data.contenido.forEach(function(contenido){
+        Array.from(data.contenido).forEach(function(contenido){
+            console.log('CONTENIDO:', contenido);
             var destinatario = contenido.destinatario;
             var pla_id = contenido.pla_id;
             var plantilla = plantillas[pla_id];
@@ -515,10 +516,16 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
             $('#email_'+destinatario).val(emails[destinatario]);
             CKEDITOR.instances['mensaje_'+destinatario].setData(plantilla.textos[0]);
             $('#asunto_'+destinatario).val(plantilla.textos[1]);
+            console.log('PLANTILLA:', plantilla);
             if (plantilla.xls_generado) {
-                var hidden = '<input type="hidden" name="adjunto_' + destinatario + '[]" value="' + plantilla.textos[2] + '">';
                 var icono = '<span class="glyphicon glyphicon-download" aria-hidden="true"></span> ';
-                $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + plantilla.textos[2] + '">' + icono + plantilla.textos[2] + '</a></div>');
+                Array.from(plantilla.adjuntos_generados).forEach(function(archivo){
+                    console.log('ARCHIVO:', archivo);
+
+                    var hidden = '<input type="hidden" name="adjunto_' + destinatario + '[]" value="' + archivo + '">';
+                    //$('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + plantilla.textos[2] + '">' + icono + plantilla.textos[2] + '</a></div>');
+                    $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + archivo + '">' + icono + archivo + '</a></div>');
+                });
             }
         });
         $('#modal_confirmacion').modal('show');
@@ -542,7 +549,7 @@ function p_ejecutar_transicion(){
             alert (data['ERROR']);
         } else {
             $('#modal_confirmacion').modal('hide');
-            location.reload();
+            //location.reload();
         }
     })
 }

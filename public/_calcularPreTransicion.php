@@ -23,6 +23,8 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         // destinatarios (cliente, usuario, proveedor)
 
         require('_obtenerCampos.php');
+//echo "[$sql]";
+//var_dump($campos);
         if (isset($campos) && is_array($campos)) {
 
             $result_contenido = q("
@@ -239,11 +241,9 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                             AND arc_id = adp_archivo 
                             AND adp_plantilla=$pla_id
                         ");
-                        $adjunto_plantilla = q($sql);
+                        $adjuntos_plantilla = q($sql);
 
-                        //if ($adjunto_plantilla) {
-
-                        $respuesta['plantillas'][$pla_id]['adjunto'] = $adjunto_plantilla;
+                        $respuesta['plantillas'][$pla_id]['adjuntos'] = $adjuntos_plantilla;
                         $respuesta['plantillas'][$pla_id]['campos'] = array();
 
                         $campos_valores = array();
@@ -290,7 +290,6 @@ EOT;
 
                         $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
                         $pla_adjunto_nombre = limpiar_nombre_archivo($pla_adjunto_nombre);
-                        $pla_adjunto_nombre = $pla_adjunto_nombre . '-' . random_int(100000, 999999);
 
                         $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
                         $pla_cuerpo = (empty($pla_cuerpo)) ? 'Favor revisar' : $pla_cuerpo;
@@ -298,75 +297,77 @@ EOT;
 
                         $respuesta['plantillas'][$pla_id]['textos'] = array($pla_cuerpo, $pla_asunto, $pla_adjunto_nombre, $pla_adjunto_texto);
 
-                        //require_once('../vendor/autoload.php');
 
-
-                        //echo '<pre>';
-                        //var_dump($adjunto_plantilla);
-                        //echo '</pre>';
-
+                        $respuesta['plantillas'][$pla_id]['adjuntos_generados'] = array(); 
                         $xls_generado = false;
                         try {
-                            if ($adjunto_plantilla) {
-                                $adjunto_plantilla = $adjunto_plantilla[0];
-                                $ext = strtolower(pathinfo($adjunto_plantilla['arc_nombre'], PATHINFO_EXTENSION));
-                                $ruta_plantilla = 'uploads/' . $adjunto_plantilla['arc_nombre'];
-                                if ($ext == 'xls' || $ext == 'xlsx' || $ext == 'ods') {
-                                    //////////////
-                                    //Excel
+                            if ($adjuntos_plantilla) {
+                                foreach ($adjuntos_plantilla as $adjunto_plantilla) {
+                                    //$adjunto_plantilla = $adjunto_plantilla[0];
+                                    $nombre = $pla_adjunto_nombre;
+                                    $nombre = $nombre . '-' . random_int(100000, 999999);
+                                    $ext = strtolower(pathinfo($adjunto_plantilla['arc_nombre'], PATHINFO_EXTENSION));
+                                    $ruta_plantilla = 'uploads/' . $adjunto_plantilla['arc_nombre'];
+                                    if ($ext == 'xls' || $ext == 'xlsx' || $ext == 'ods') {
+                                        //////////////
+                                        //Excel
 
-                                    //echo "sacando Excel";
+                                        //echo "sacando Excel";
 
-                                    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($ruta_plantilla);
+                                        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($ruta_plantilla);
 
-                                    $worksheet = $spreadsheet->getActiveSheet();
+                                        $worksheet = $spreadsheet->getActiveSheet();
 
-                                    $filas = $worksheet->toArray();
+                                        $filas = $worksheet->toArray();
 
-                                    //var_dump($filas);
-                                    foreach($filas as $x => $fila){
-                                        foreach($fila as $y => $celda){
-                                            if (!empty($celda)) {
-                                                //echo "[$x, $y: $celda]";
-                                                if (preg_match('/\%.+\%/', $celda)){
-                                                    $nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
-                                                    $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
+                                        //var_dump($filas);
+                                        foreach($filas as $x => $fila){
+                                            foreach($fila as $y => $celda){
+                                                if (!empty($celda)) {
+                                                    //echo "[$x, $y: $celda]";
+                                                    if (preg_match('/\%.+\%/', $celda)){
+                                                        $nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
+                                                        $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
+                                                    }
                                                 }
                                             }
                                         }
+
+                                        //$worksheet->getCell('A1')->setValue('John');
+                                        //$worksheet->getCell('A2')->setValue('Smith');
+
+                                        $nombre = $nombre . '.xls';
+                                        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
+                                        $writer->save($nombre);
+                                        $xls_generado = true;
+
+                                    //} else if ($ext == 'doc' || $ext == 'docx' || $ext == 'odt') { //no funciona con .doc, sale este error:  
+                                    //                        ZipArchive::getFromName(): Invalid or uninitialized Zip object
+                                    } else if ($ext == 'docx' || $ext == 'odt') {
+                                        ////////////
+                                        // Word
+                                        //$doc = \PhpOffice\PhpWord\IOFactory::load($ruta_plantilla);
+                                        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($ruta_plantilla);
+
+                                        foreach ($campos_valores as $campo => $valor) {
+                                            $templateProcessor->setValue($campo, $valor);
+                                        }
+
+                                        $nombre = $nombre .'.docx';
+
+                                        // $writer = \PhpOffice\PhpWord\IOFactory::createWriter($doc, 'Word2007');
+                                        // $writer->save($pla_adjunto_nombre);
+                                        $templateProcessor->saveAs($nombre);
+                                        $xls_generado = true;
+                                    } else {
+                                        //cualquier otro tipo de archivo se pasa como está, sin ninguna modificación
+                                        $nombre = $nombre . '.' . $ext;
+                                        $result_copy = copy($ruta_plantilla, $nombre);
+                                        if ($result_copy) {
+                                            l('no se pudo copiar el archivo ' . $ruta_plantilla);
+                                        }
                                     }
-
-                                    //$worksheet->getCell('A1')->setValue('John');
-                                    //$worksheet->getCell('A2')->setValue('Smith');
-
-                                    $pla_adjunto_nombre = $pla_adjunto_nombre . '.xls';
-                                    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
-                                    $writer->save($pla_adjunto_nombre);
-                                    $xls_generado = true;
-
-                                } else if ($ext == 'doc' || $ext == 'docx' || $ext == 'odt') {
-                                    ////////////
-                                    // Word
-                                    //$doc = \PhpOffice\PhpWord\IOFactory::load($ruta_plantilla);
-                                    $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($ruta_plantilla);
-
-                                    foreach ($campos_valores as $campo => $valor) {
-                                        $templateProcessor->setValue($campo, $valor);
-                                    }
-
-                                    $pla_adjunto_nombre = $pla_adjunto_nombre .'.docx';
-
-                                    // $writer = \PhpOffice\PhpWord\IOFactory::createWriter($doc, 'Word2007');
-                                    // $writer->save($pla_adjunto_nombre);
-                                    $templateProcessor->saveAs($pla_adjunto_nombre);
-                                    $xls_generado = true;
-                                } else {
-                                    //cualquier otro tipo de archivo se pasa como está, sin ninguna modificación
-                                    $pla_adjunto_nombre = $pla_adjunto_nombre . '.' . $ext;
-                                    $result_copy = copy($ruta_plantilla, $pla_adjunto_nombre);
-                                    if ($result_copy) {
-                                        l('no se pudo copiar el archivo ' . $ruta_plantilla);
-                                    }
+                                    $respuesta['plantillas'][$pla_id]['adjuntos_generados'][] = $nombre;
                                 }
                             }
                             $respuesta['plantillas'][$pla_id]['xls_generado'] = $xls_generado;
@@ -374,59 +375,37 @@ EOT;
 
                             //////////////
                             //PDF
-                            if (file_exists('adjunto.html')) {
-                                unlink('adjunto.html');
-                            }
-                            if (file_exists($pla_adjunto_nombre.'.pdf')) {
-                                unlink($pla_adjunto_nombre.'.pdf');
-                            }
-
                             if (!empty($pla_adjunto_texto)) {
+                                //if (file_exists('adjunto.html')) {
+                                //    unlink('adjunto.html');
+                                //}
+                                $nombre = $pla_adjunto_nombre;
+                                $nombre = $nombre . '-' . random_int(100000, 999999);
+                                $nombre = $nombre . '.pdf';
+
+                                if (file_exists($nombre)) {
+                                    unlink($nombre);
+                                }
+
                                 $snappy = new Knp\Snappy\Pdf('../vendor/bin/wkhtmltopdf-amd64');
                                 $msg = ($pla_adjunto_texto);
-                                file_put_contents( 'adjunto.html', $msg);
-                                $msg = file_get_contents('adjunto.html');
+                                //file_put_contents( 'adjunto.html', $msg);
+                                //$msg = file_get_contents('adjunto.html');
                                 //$msg = utf8_decode($msg);
-                                $snappy->generateFromHtml($msg, $pla_adjunto_nombre . '.pdf', array('encoding' => 'utf-8'));
+                                $snappy->generateFromHtml($msg, $nombre, array('encoding' => 'utf-8'));
+                                $respuesta['plantillas'][$pla_id]['adjuntos_generados'][] = $nombre;
                             }
-                            $respuesta['plantillas'][$pla_id]['pdf_generado'] = $pla_adjunto_nombre;
+                            $respuesta['plantillas'][$pla_id]['pdf_generado'] = $nombre;
 
-                            //////////////////////////
-                            //MAIL va en confirmacion
-                            //
                         } catch(Exception $e) {
-                            //echo $e->getMessage();
+                            //echo '<div>ERROR EN LOS ARCHIVOS: ' . $e->getMessage() . '</div>';
                             l($e->getMessage());
                         }
-
-                        /////////////
-                        // va en confirmacion
-                    /*
-                    $result = q("
-                        INSERT INTO sai_paso_atencion (
-                            paa_atencion
-                            ,paa_transicion_estado_atencion
-                            ,paa_codigo
-                            ,paa_asunto
-                            ,paa_cuerpo
-                            ,paa_destinatarios 
-                        ) VALUES (
-                            $ate_id
-                            ,$tea_id
-                            ,''
-                            ,'$pla_asunto'
-                            ,'$pla_cuerpo'
-                            ,'$email_cliente,$email_proveedor'
-                        ) RETURNING *
-                    ");
-                     */
                     }
                 }
             }
-            /////////////
-            // va en la confirmacion
-            //
-            //$result = q("UPDATE sai_atencion SET ate_estado_atencion=$estado WHERE ate_id=$id RETURNING *");
+        //} else {
+        //    $respuesta = array('ERROR' => 'No hay campos');
         }
     }
 }

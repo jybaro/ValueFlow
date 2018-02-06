@@ -17,10 +17,10 @@ if ($extender_campos_anteriores == 1) {
         FROM sai_transicion_estado_atencion
         ,sai_paso_atencion
         WHERE tea_borrado IS NULL
-        AND paa_borrado IS NULL
         AND paa_transicion_estado_atencion = tea_id
         AND paa_atencion = $ate_id
     ";
+    //AND paa_borrado IS NULL
 } else if ($traer_campos_asociados == 1) {
     //trae los campos de las transiciones de los otros destinatarios
     $cae_transicion_estado_atencion = "
@@ -81,6 +81,7 @@ $sql = "
 //echo "[$sql]";
 $campos = q($sql);
 
+//var_dump($campos);
 if ($imprimir_json) {
     echo json_encode($campos);
 }
