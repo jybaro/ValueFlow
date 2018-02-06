@@ -371,8 +371,22 @@ function p_validar(target) {
     console.log('validando', target);
     var resultado = true;
     if (!$(target)[0].checkValidity()) {
-        console.log('no valida...');
-        $('<input type="submit">').hide().appendTo('#formulario').click().remove();
+        console.log('no valida...', $(target)[0].validationMessage);
+        //$('<input type="submit">').hide().appendTo('#formulario').click().remove();
+        //$('#formulario').submit();
+        //$(target)[0].reportValidity();
+        $('#formulario')[0].reportValidity();
+        $(target).popover({
+            placement:'auto top',
+            trigger:'manual',
+            html:true,
+            content:target.validationMessage
+        });
+        $(target).popover('show');
+        setTimeout(function () {
+            $(target).popover('hide');
+        }, 4000);
+
         resultado = false;
     }
     return resultado;
