@@ -549,7 +549,7 @@ function p_ejecutar_transicion(){
             alert (data['ERROR']);
         } else {
             $('#modal_confirmacion').modal('hide');
-            //location.reload();
+            location.reload();
         }
     })
 }
