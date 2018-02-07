@@ -500,6 +500,7 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
         console.log('Respuesta _calcularPreTransicion', data);
         data = JSON.parse(data);
         console.log('data', data);
+        if (data != '' && data != null && typeof(data['ERROR']) === 'undefined') {
         $('#ate_id_accion').val(ate_id);
         $('#estado_siguiente_id_accion').val(estado_siguiente_id);
 
@@ -529,6 +530,10 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
             }
         });
         $('#modal_confirmacion').modal('show');
+        } else {
+            console.log('No se puede procesar respuesta: ', data);
+            alert('Sin respuesta del servidor, intentelo nuevamente en unos minutos.');
+        }
     });
 }
 

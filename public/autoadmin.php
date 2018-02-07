@@ -1,4 +1,21 @@
+<link type="text/css" rel="stylesheet" href="/css/multiple-emails.css" />
+<script src="/js/multiple-emails.js"></script>
+
 <?php
+
+function array2ul($array) {
+  $output = '<ul>';
+  foreach ($array as $key => $value) {
+    $function = (is_array($value) || is_object($value)) ? __FUNCTION__ : 'htmlspecialchars';
+    if (is_int($key)) {
+        $output .= '<li><b>' . ($key+1) . ':</b> ' . $function($value) . '</li>';
+    } else {
+        //$output .= '<li>' . $function($value) . '</li>';
+        $output .= '<li><b>' . $key . ':</b> ' . $function($value) . '</li>';
+    }
+  }
+  return $output . '</ul>';
+}
 
 $tabla = (isset($args[0]) ? $args[0] : null);
 $accion = (isset($args[1]) ? $args[1] : '');
@@ -102,6 +119,9 @@ FROM
                 if (!isset($campo['validacion'])) {
                     $campos[$key]['validacion'] = '';
                 }
+                if (!isset($campo['tipo'])) {
+                    $campos[$key]['tipo'] = 'text';
+                }
             }
             $campo_etiqueta = $campos[0]['nombre'];
            // $campo_borrado = $prefijo . 'borrado';
@@ -132,6 +152,7 @@ FROM
             $campos[$key]['prefijo'] = $prefijo;
 
             $campos[$key]['validacion'] = '';
+            $campos[$key]['tipo'] = $campo['data_type'];
 
         }
     }
@@ -236,6 +257,16 @@ FROM
                         $etiqueta = $valor;
                     }
 
+                    //verifica si es JSON:
+                    if (!empty($etiqueta[0]) && ($etiqueta[0] == '{' || $etiqueta[0] == '[')) {
+                        //muy probable sea JSON si empieza con { o [
+
+                        $listado_etiquetas = json_decode($etiqueta);
+                        if (!empty($listado_etiquetas)) {
+                            $etiqueta = array2ul($listado_etiquetas); 
+                        }
+                    }
+
                     
                     $campo_nombre = $campo['nombre'];
                     if ($campo['nombre'] == $campo_etiqueta ){
@@ -271,6 +302,7 @@ FROM
   <?php foreach ($campos as $campo): ?>
   <?php $c = $campo['nombre']; ?>
   <?php $label = $campo['etiqueta']; ?>
+  <?php $tipo = $campo['tipo']; ?>
   <?php if($campo['validacion']=='hidden'): ?>
   <input type="hidden" id="<?=$c?>" name="<?=$c?>">
   <?php else: ?>
@@ -298,9 +330,13 @@ FROM
     }
 ?>
       </select>
-      <?php elseif($c=='texto'): ?>
+      <?php elseif($tipo == 'multitexto'): ?>
 
       <textarea class="form-control" id="<?=$c?>" name="<?=$c?>" placeholder=""></textarea>
+
+      <?php elseif($tipo == 'multiemail'): ?>
+
+      <input class="form-control multiemail" id="<?=$c?>" name="<?=$c?>" placeholder="" <?=$campo['validacion']?> onblur="p_validar(this)" >
 
       <?php else: ?>
 
@@ -330,9 +366,11 @@ FROM
 <script src="/js/FileSaver.min.js"></script>
 <script src="/js/tableexport.min.js"></script>
 
+
 <script src="/js/jspdf.min.js"></script>
 <script src="/js/html2canvas.min.js"></script>
 <script src="/js/html2pdf.js"></script>
+
 
 <script>
 
@@ -340,6 +378,9 @@ $(document).ready(function() {
     $('.combo-select2').select2({
         language: "es"
     });
+    $('.multiemail').multiple_emails({position: "bottom"});
+    //refresh_emails
+
     $('#tabla').DataTable({ language: {
         "sProcessing":     "Procesando...",
         "sLengthMenu":     "Mostrar _MENU_ registros",
@@ -439,6 +480,9 @@ function p_abrir(id, target){
         for (key in data){
             $('#' + key).val(data[key]).trigger('change');;
         }
+        //reinicializa los multi-email:
+        $('.multiple_emails-container').remove();
+        $('.multiemail').multiple_emails({position: "bottom"});
 
         $("#id").prop('disabled', true);
         
@@ -527,6 +571,26 @@ function p_borrarSuave(){
     }
 }
 
+function txt(t){
+    return t;
+}
+function array2ul($array) {
+  console.log('EN array2ul:', $array);
+  if (!Array.isArray($array)) {
+      return $array;
+  }
+  var $output = '<ul>';
+  Array.from($array).forEach (function( $value, $key ) {
+    $function = (Array.isArray($value)) ? array2ul : txt;
+    if (Number.isInteger($key)) {
+        $output += '<li><b>' + ($key+1) + ':</b> ' + $function($value) + '</li>';
+    } else {
+        //$output .= '<li>' . $function($value) . '</li>';
+        $output += '<li><b>' + $key + ':</b> ' + $function($value) + '</li>';
+    }
+  });
+  return $output + '</ul>';
+}
 function p_guardar() {
     if (p_validar($('#formulario'))) {
         var respuestas_json = $('#formulario').serializeArray();
@@ -570,7 +634,16 @@ function p_guardar() {
                         } else {
                             texto = data[key];
                         }
-                        $(id).text(texto);
+                        var valor = texto;
+                        var isValidJSON = true;
+                        try { JSON.parse(valor); } catch(e) { isValidJSON = false; }
+                        console.log('isValidJSON', isValidJSON);
+                        if (isValidJSON) {
+                            valor = array2ul(JSON.parse(valor));
+                            console.log('array2ul', valor);
+                        }
+                        //$(id).text(texto);
+                        $(id).html(valor);
                         //si es recursivo:
                         campo = key;
                         if ($('#recursivo_' + campo).length > 0) {
@@ -593,6 +666,13 @@ function p_guardar() {
                     var key = '';
                     campos.forEach(function(campo){
                         valor = (data[campo] == null) ? '' : (($('#'+campo + ' option:selected').length > 0) ? $('#'+campo+' option:selected').text() : data[campo]);
+                        var isValidJSON = true;
+                        try { JSON.parse(valor); } catch(e) { isValidJSON = false; }
+                        console.log('isValidJSON', isValidJSON);
+                        if (isValidJSON) {
+                            valor = array2ul(valor);
+                            console.log('array2ul', valor);
+                        }
                         valor = (campo == campo_etiqueta ? '<td><a href="#" onclick="p_abrir('+data['id']+', this);return false;" id="dato_'+data['id']+'_'+campo+'">'+valor+'</a></td>' : '<td id="dato_'+data['id']+'_'+campo+'">'+valor+'</td>');
                         celdas += valor;
                         //si es recursivo:
@@ -654,6 +734,13 @@ function p_nuevo(){
             break;
         }
     });
+    //inicializa los multi-email:
+    $('.multiple_emails-container').remove();
+    $('.multiemail').multiple_emails({position: "bottom"});
+    //$('.multiemail').multiple_emails({position: "bottom"}).refresh_emails();
+    //$('.multiemail').multiple_emails.refresh_emails();
+    //$('.multiemail').refresh_emails();
+    //refresh_emails();
 
     $('#modal').modal('show');
 }
