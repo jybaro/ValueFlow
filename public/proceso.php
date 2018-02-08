@@ -564,7 +564,9 @@ function p_abrir_campos_llenos() {
     if (tea_id != null) {
         console.log('tea_id:', tea_id,'ate_id:', ate_id);
         $('#modal_confirmacion').modal('hide');
-        p_abrir(tea_id, ate_id);
+        $('#modal_confirmacion').on('hidden.bs.modal', function () {
+            p_abrir(tea_id, ate_id);
+        });
     } else {
         console.log('No se puede abrir, no se encuentra el tea_id (NULL):', tea_id);
     }
