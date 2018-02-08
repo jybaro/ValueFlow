@@ -450,7 +450,12 @@ function p_validar_transicion(target, tea_id, ate_id, estado_siguiente_id){
                     console.log('NO ESTA COMPLETO POR:', campo['hijos'].length, campo['valor'], campo);
                 }
             });
+            $('#boton_modificar_datos_recopilados').show();
+        } else {
+            console.log('No hay campos');
+            $('#boton_modificar_datos_recopilados').hide();
         }
+
         if (completo){
             //target.submit();
             p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id);
@@ -903,8 +908,8 @@ function p_crear(){
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-warning" onclick="p_abrir_campos_llenos()" id="formulario_abrir_campos_llenos">Modificar datos recopilados</button>
-        <button type="button" class="btn btn-success" onclick="p_ejecutar_transicion()" id="formulario_nuevo_crear">Ejecutar Transición</button>
+        <button type="button" class="btn btn-warning" onclick="p_abrir_campos_llenos()" id="boton_modificar_datos_recopilados">Modificar datos recopilados</button>
+        <button type="button" class="btn btn-success" onclick="p_ejecutar_transicion()" id="boton_ejecutar_transicion">Ejecutar Transición</button>
       </div>
     </div>
   </div>
