@@ -362,10 +362,12 @@ EOT;
 
       <div>&nbsp;</div>
 
+      <!--
       <div>
         <button class="btn btn-info" onclick="p_abrir({$r[tea_id]}, {$r[ate_id]})"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Recopilar datos</button>
       </div>
       <div>&nbsp;</div>
+      -->
 EOT;
         echo <<<EOT
     </div>
@@ -454,7 +456,10 @@ function p_validar_transicion(target, tea_id, ate_id, estado_siguiente_id){
             p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id);
             //console.log('submit');
         } else {
-            alert('Faltan de completar campos.');
+            //alert('Faltan de completar campos.');
+            console.log('tea_id:',tea_id, 'ate_id:',ate_id);
+
+            p_abrir(tea_id, ate_id);
         }
     });
     return false;
@@ -535,6 +540,29 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
             alert('Sin respuesta del servidor, intentelo nuevamente en unos minutos.');
         }
     });
+}
+
+function p_abrir_campos_llenos() {
+    console.log('En p_abrir_campos_llenos');
+    var ate_id = $('#ate_id_accion').val();
+
+    var tea_id_destinatario = null, tea_id = null;
+    destinatarios.forEach(function(destinatario){
+        tea_id_destinatario = $('#tea_id_accion_' + destinatario).val();
+        console.log('Buscando valor en ', '#tea_id_accion_' + destinatario, $('#tea_id_accion_' + destinatario).val());
+        if (tea_id_destinatario != '' && tea_id_destinatario != null && !isNaN(tea_id_destinatario)) {
+        //if (Number.isInteger(tea_id_destinatario)) {
+            tea_id = tea_id_destinatario;
+            console.log('Encontrado tea_id:', '['+tea_id+']');
+        }
+    });
+    if (tea_id != null) {
+        console.log('tea_id:', tea_id,'ate_id:', ate_id);
+        $('#modal_confirmacion').modal('hide');
+        p_abrir(tea_id, ate_id);
+    } else {
+        console.log('No se puede abrir, no se encuentra el tea_id (NULL):', tea_id);
+    }
 }
 
 function p_ejecutar_transicion(){
@@ -875,6 +903,7 @@ function p_crear(){
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-warning" onclick="p_abrir_campos_llenos()" id="formulario_abrir_campos_llenos">Modificar datos recopilados</button>
         <button type="button" class="btn btn-success" onclick="p_ejecutar_transicion()" id="formulario_nuevo_crear">Ejecutar Transición</button>
       </div>
     </div>
