@@ -182,6 +182,7 @@ if ($result) {
         if (!empty($tmp_name)) {
 
             $nombre = basename($_FILES["archivo_adjunto"]["name"]);
+            $nombre = limpiar_nombre_archivo($nombre);
 
             if ($error == UPLOAD_ERR_OK){
                 $ruta = "uploads/".$nombre;

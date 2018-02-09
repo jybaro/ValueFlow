@@ -70,6 +70,14 @@ if ($accion == 'duplicar') {
     ")[0]['count'];
 
     if ($count_hijos == 0) {
+        $sql = ("
+            UPDATE sai_campo_extra
+            SET cae_borrado = now()
+            WHERE cae_borrado IS NULL
+            AND cae_id = $id
+            RETURNING *
+        ");
+    /*
         $count_valores = q("
             SELECT COUNT(*)
             FROM sai_valor_extra
@@ -85,6 +93,7 @@ if ($accion == 'duplicar') {
         } else {
             $result = array('ERROR' => 'No se puede borrar porque el campo tiene ' . $count_valores . ' valores registrados');
         }
+     */
     } else {
         $result = array('ERROR' => 'No se puede borrar porque el campo tiene ' . $count_hijos . ' hijos');
     }

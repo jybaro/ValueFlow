@@ -1,4 +1,14 @@
 <script src="/js/ckeditor/ckeditor.js"></script>
+<style>
+.table-hoverCell > tbody > tr > td:hover {
+  background-color: #f5f5f5;
+}
+table col[class*="col-"] {
+  position: static;
+  display: table-column;
+  float: none;
+}
+</style>
 <h1>Transiciones</h1>
 <?php
 $result = q("SELECT * FROM sai_destinatario");
@@ -164,7 +174,7 @@ p_cargador($tree);
 //echo "<pre>";
 //var_dump($cols_titulo);
 //echo "</pre>";
-echo '<table class="table table-striped table-condensed table-hover table-bordered">';
+echo '<table class="table table-condensed table-hover table-hoverCell table-bordered">';
 
 echo '<thead>';
 

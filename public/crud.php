@@ -61,7 +61,7 @@ if (empty($tabla)) {
     echo "<h1>Tabla $tabla</h1>";
 
     $prefijo = substr($campos[0]['column_name'], 0, 4);
-    $result = q("SELECT * FROM $tabla ORDER BY {$prefijo}id");
+    $result = q("SELECT * FROM $tabla ORDER BY {$prefijo}borrado DESC, {$prefijo}id DESC");
 
 
     $campo_id = null;

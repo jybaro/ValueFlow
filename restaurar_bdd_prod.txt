@@ -1,0 +1,4 @@
+
+dropdb nedetel
+createdb nedetel -O nedetel_user
+pg_restore -d nedetel ~/Downloads/sait-bdd-20180209-130706.backup

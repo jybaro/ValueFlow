@@ -9,6 +9,17 @@
             $destinatarios[] = $r['des_nombre'];
         }
     }
+    $result_provincias = q("
+        SELECT *
+        FROM sai_provincia
+        ORDER BY prv_nombre
+    ");
+    $provincias = array();
+    if ($result_provincias) {
+        foreach ($result_provincias as $r) {
+            $provincias[] = $r;
+        }
+    }
 ?>
 <html style="height: auto; min-height: 100%;">
 <head>
@@ -82,6 +93,7 @@ desired effect
       </div-->
 
       <!-- search form (Optional) -->
+     <!--
       <form action="#" method="get" class="sidebar-form">
         <div class="input-group">
           <input type="text" name="q" class="form-control" placeholder="Buscar...">
@@ -91,6 +103,7 @@ desired effect
             </span>
         </div>
       </form>
+      -->
       <!-- /.search form -->
 
       <!-- Sidebar Menu -->
@@ -217,6 +230,10 @@ $sql = ("
         ON pro_borrado IS NULL
         AND pep_proveedor = pro_id
 
+    LEFT OUTER JOIN sai_contacto
+        ON con_borrado IS NULL
+        AND ate_contacto = con_id
+
     LEFT OUTER JOIN sai_usuario AS usu_tecnico
         ON usu_tecnico.usu_borrado IS NULL
         AND usu_tecnico.usu_id = ate_usuario_tecnico
@@ -305,8 +322,29 @@ EOT;
         }
         echo '</div>';
 
+        $glue = '';
+        $contacto_empresa = '';
+        if (!empty($r[con_telefono])) {
+            $contacto_empresa .= $glue . $r[con_telefono];
+            $glue = ', ';
+        }
+
+        if (!empty($r[con_celular])) {
+            $contacto_empresa .= $glue . $r[con_celular];
+            $glue = ', ';
+        }
+
+        if (!empty($r[con_correo_electronico])) {
+            $contacto_empresa .= $glue . "<a href='mailto:{$r[con_correo_electronico]}'>{$r[con_correo_electronico]}</a>";
+            $glue = ', ';
+        }
+
         echo <<<EOT
     <div class="panel-body">
+      <strong>Dependencia de empresas:</strong> {$r[cue_codigo]}
+      <br>
+      <strong>Contacto de la empresa:</strong> {$r[con_nombres]} {$r[con_apellidos]} ({$contacto_empresa})
+      <br>
       <strong>Usuario técnico:</strong> {$r[usu_tecnico_nombre]}
       <br>
       <strong>Usuario comercial:</strong> {$r[usu_comercial_nombre]}
@@ -379,11 +417,429 @@ EOT;
 }
 ?>
 
+
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Create the tabs -->
+    <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
+      <li class="active"><a href="#control-sidebar-home-tab" data-toggle="tab"><i class="fa fa-home"></i></a></li>
+      <li><a href="#control-sidebar-settings-tab" data-toggle="tab"><i class="fa fa-gears"></i></a></li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <!-- Home tab content -->
+      <div class="tab-pane active" id="control-sidebar-home-tab">
+        <h3 class="control-sidebar-heading">Recent Activity</h3>
+        <ul class="control-sidebar-menu">
+          <li>
+            <a href="javascript:;">
+              <i class="menu-icon fa fa-birthday-cake bg-red"></i>
+
+              <div class="menu-info">
+                <h4 class="control-sidebar-subheading">Langdon's Birthday</h4>
+
+                <p>Will be 23 on April 24th</p>
+              </div>
+            </a>
+          </li>
+        </ul>
+        <!-- /.control-sidebar-menu -->
+
+        <h3 class="control-sidebar-heading">Tasks Progress</h3>
+        <ul class="control-sidebar-menu">
+          <li>
+            <a href="javascript:;">
+              <h4 class="control-sidebar-subheading">
+                Custom Template Design
+                <span class="pull-right-container">
+                    <span class="label label-danger pull-right">70%</span>
+                  </span>
+              </h4>
+
+              <div class="progress progress-xxs">
+                <div class="progress-bar progress-bar-danger" style="width: 70%"></div>
+              </div>
+            </a>
+          </li>
+        </ul>
+        <!-- /.control-sidebar-menu -->
+
+      </div>
+      <!-- /.tab-pane -->
+      <!-- Stats tab content -->
+      <div class="tab-pane" id="control-sidebar-stats-tab">Stats Tab Content</div>
+      <!-- /.tab-pane -->
+      <!-- Settings tab content -->
+      <div class="tab-pane" id="control-sidebar-settings-tab">
+        <form method="post">
+          <h3 class="control-sidebar-heading">General Settings</h3>
+
+          <div class="form-group">
+            <label class="control-sidebar-subheading">
+              Report panel usage
+              <input type="checkbox" class="pull-right" checked="">
+            </label>
+
+            <p>
+              Some information about this general settings option
+            </p>
+          </div>
+          <!-- /.form-group -->
+        </form>
+      </div>
+      <!-- /.tab-pane -->
+    </div>
+  </aside>
+  <!-- /.control-sidebar -->
+  <!-- Add the sidebar's background. This div must be placed
+  immediately after the control sidebar -->
+  <div class="control-sidebar-bg"></div>
+</div>
+<!-- ./wrapper -->
+
+<?php if (isset($mostrar_nuevo) && $mostrar_nuevo): ?>
+<a href="#" onclick="p_nuevo();return false;" style="position:fixed;bottom:50px;right:10px;"><img src="/img/plus.png" alt="Crear nuevo registro" title="Crear nuevo registro" ></img></a>
+<?php endif; ?>
+<!-- REQUIRED JS SCRIPTS -->
+
+<!-- AdminLTE App -->
+<script src="/js/adminlte.min.js"></script>
+
+<!-- Optionally, you can add Slimscroll and FastClick plugins.
+     Both of these plugins are recommended to enhance the
+     user experience. -->
+
+
+<div id="modal_confirmacion" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-nuevo-title">Confirmar acciones de cambio de estado</h4>
+      </div>
+      <div class="modal-body">
+
+<form id="formulario_accion" class="form-horizontal">
+<input type="hidden" id="ate_id_accion" name="ate_id">
+<input type="hidden" id="estado_siguiente_id_accion" name="estado_siguiente_id">
+      <?php foreach($destinatarios as $destinatario): ?>
+<input type="hidden" id="tea_id_accion_<?=$destinatario?>" name="tea_id_<?=$destinatario?>">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <strong><?=ucfirst($destinatario)?></strong>
+  </div>
+  <div class="panel-body">
+
+
+
+  <div class="form-group">
+    <label for="email_<?=$destinatario?>" class="col-sm-3 control-label">Destinatarios:</label>
+    <div class="col-sm-9">
+      <input class="form-control" id="email_<?=$destinatario?>" name="email_<?=$destinatario?>">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="asunto_<?=$destinatario?>" class="col-sm-3 control-label">Asunto:</label>
+    <div class="col-sm-9">
+      <input class="form-control" id="asunto_<?=$destinatario?>" name="asunto_<?=$destinatario?>">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="mensaje_<?=$destinatario?>" class="col-sm-3 control-label">Mensaje:</label>
+    <div class="col-sm-9">
+      <textarea class="form-control" id="mensaje_<?=$destinatario?>" name="mensaje_<?=$destinatario?>"></textarea>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="adjunto_<?=$destinatario?>" class="col-sm-3 control-label">Adjuntos:</label>
+    <div class="col-sm-9">
+      <!--
+      <input type="file" class="form-control" id="adjunto_<?=$destinatario?>" name="adjunto_<?=$destinatario?>">
+      -->
+      <div id="adjuntos_lista_<?=$destinatario?>"></div>
+    </div>
+  </div>
+
+
+  </div>
+</div>
+
+<?php endforeach; ?>
+
+</form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-warning" onclick="p_abrir_campos_llenos()" id="boton_modificar_datos_recopilados">Modificar datos recopilados</button>
+        <button type="button" class="btn btn-success" onclick="p_ejecutar_transicion()" id="boton_ejecutar_transicion">Ejecutar Transición</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-nuevo" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-nuevo-title">Nueva <?=isset($titulo_proceso_singular)?$titulo_proceso_singular:'atención'?></h4>
+      </div>
+      <div class="modal-body">
+
+<form id="formulario_nuevo" class="form-horizontal">
+  <input type="hidden" id="ate_id_nuevo" name="ate_id" value="">
+
+
+  <div class="form-group">
+    <label for="cliente" class="col-sm-4 control-label">Empresa:</label>
+    <div class="col-sm-8">
+      <select required class="form-control combo-select2" style="width: 50%" id="cliente" name="cliente" tabindex="-1" aria-hidden="true">
+        <option value="">&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_cliente
+    WHERE cli_borrado IS NULL
+");
+if ($result) {
+    foreach($result as $r) {
+        $value = $r['cli_id'];
+        $label = $r['cli_razon_social'];
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="contacto" class="col-sm-4 control-label">Contacto de la empresa:</label>
+    <div class="col-sm-8">
+      <select required class="form-control combo-select2" style="width: 50%" id="contacto" name="contacto" tabindex="-1" aria-hidden="true">
+
+        <option value="">&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_contacto
+    WHERE con_borrado IS NULL
+");
+if ($result) {
+    foreach ($result as $r) {
+        $value = $r['con_id'];
+        $label = $r['con_nombres'] . ' ' . $r['con_apellidos'] . ' ('.$r['con_correo_electronico'].')';
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
+      </select> 
+    </div>
+  </div>
+
+
+  <div class="form-group">
+    <label for="cuenta" class="col-sm-4 control-label">Dependencia de empresas:</label>
+    <div class="col-sm-8">
+      <select required class="form-control combo-select2" style="width: 50%" id="cuenta" name="cuenta" tabindex="-1" aria-hidden="true">
+
+        <option value="">&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_cuenta
+    WHERE cue_borrado IS NULL
+");
+if ($result) {
+    foreach ($result as $r) {
+        $value = $r['cue_id'];
+        $label = $r['cue_codigo'];
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
+      </select> 
+    </div>
+  </div>
+
+
+  <div class="form-group">
+    <label for="servicio" class="col-sm-4 control-label">Servicio</label>
+    <div class="col-sm-8">
+      <select required class="form-control combo-select2" style="width: 50%" id="servicio" name="servicio" tabindex="-1" aria-hidden="true">
+
+        <option value="">&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_servicio
+    WHERE ser_borrado IS NULL
+");
+if ($result) {
+    foreach($result as $r) {
+        $value = $r['ser_id'];
+        $label = $r['ser_nombre'];
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
+      </select> 
+    </div>
+  </div>
+
+
+
+
+  <div class="form-group">
+    <label for="proveedor" class="col-sm-4 control-label">Proveedor</label>
+    <div class="col-sm-8">
+      <select required multiple class="form-control combo-select2" style="width: 50%" id="proveedor" name="proveedor[]" tabindex="-1" aria-hidden="true">
+        <option value="">&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_proveedor
+    WHERE pro_borrado IS NULL
+");
+if ($result) {
+    foreach($result as $r) {
+        $value = $r['pro_id'];
+        $label = $r['pro_razon_social']; 
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
+      </select> 
+    </div>
+  </div>
+
+
+  <div class="form-group">
+    <label for="usuario_tecnico" class="col-sm-4 control-label">Usuario técnico</label>
+    <div class="col-sm-8">
+
+      <!--pre>FOREIGN KEY
+                  </pre-->
+      <select required class="form-control combo-select2" style="width: 50%" id="usuario_tecnico" name="usuario_tecnico" tabindex="-1" aria-hidden="true">
+        <option value="">&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    ,(usu_nombres || ' ' || usu_apellidos) AS nombre
+    FROM sai_usuario
+    ,sai_rol
+    WHERE  usu_borrado IS NULL
+    AND rol_borrado IS NULL
+    AND usu_rol = rol_id
+    AND rol_codigo = 'tecnico'
+");
+if ($result) {
+    $nombres = array();
+    foreach($result as $r) {
+        $value = $r['usu_id'];
+        $label = $r['nombre'];
+        if (!isset($nombres[$label])) {
+            echo "<option value='$value'>$label</option>";
+            $nombres[$label] = $value;
+        }
+    }
+}
+        ?>
+
+      </select> 
+    </div>
+  </div>
+
+
+
+  <div class="form-group">
+    <label for="usuario_comercial" class="col-sm-4 control-label">Usuario comercial</label>
+    <div class="col-sm-8">
+
+      <!--pre>FOREIGN KEY
+                  </pre-->
+      <select required class="form-control combo-select2" style="width: 50%" id="usuario_comercial" name="usuario_comercial" tabindex="-1" aria-hidden="true">
+        <option value="">&nbsp;</option>
+      <?php
+$result = q("
+    SELECT *
+    FROM sai_usuario
+    ,sai_rol
+    WHERE 
+    usu_borrado IS NULL
+    AND rol_id = usu_rol
+    AND rol_codigo = 'comercial'
+");
+if ($result) {
+    foreach($result as $r) {
+        $value = $r['usu_id'];
+        $label = $r['usu_nombres'] . ' ' .$r['usu_apellidos'];
+        echo "<option value='$value'>$label</option>";
+    }
+}
+        ?>
+
+      </select> 
+    </div>
+  </div>
+
+
+</form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-success" onclick="p_crear()" id="formulario_nuevo_crear">Crear <?=isset($titulo_proceso_singular)?$titulo_proceso_singular:'atención'?></button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+
+<div id="modal" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title">Ingrese los siguientes datos <span id="formulario_titulo"></span></h4>
+      </div>
+      <div class="modal-body">
+
+<!--div id="map" style=" height: 400px;width: 100%;"></div-->
+<form id="formulario" class="form-horizontal">
+  <input type="hidden" id="ate_id" name="ate_id" value="">
+
+<div id="campos"></div>
+</form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-success" onclick="p_guardar()" id="formulario_guardar">Guardar</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+</body></html>
+
+
 <script src="/js/ckeditor/ckeditor.js"></script>
 <script>
 $(document).ready(function() {
     $('.combo-select2').select2({
         language: "es"
+        ,width: '100%'
     });
     $('textarea').each(function(){
          CKEDITOR.replace(this);
@@ -414,9 +870,43 @@ $(document).ready(function() {
         console.log('ate_id', ate_id);
         $('#collapse_' + ate_id).collapse('show');
     }
+
+    $("#modal").on("shown.bs.modal", function () {
+        //google.maps.event.trigger(map, "resize");
+    });
 });
 
+var provincias = <?=json_encode($provincias)?>;
+
 var destinatarios = <?=json_encode($destinatarios)?>;
+var marker = null;
+
+function initMap() {
+    latitud = 2.4403747; //-0.7323406; 
+    longitud = -85.1904362; //-82.7581854; 
+    var uluru = {lat: latitud, lng: longitud};
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 6,
+        center: uluru
+    });
+    google.maps.event.addListener(map, 'click', function(e) {
+        console.log(e);
+        if (marker != null) {
+            marker.setMap(null);
+        }
+
+        marker = new google.maps.Marker({
+            position: {lat:e.latLng.lat(), lng:e.latLng.lng()},
+            map: map
+        });
+    });
+   /* 
+    var marker = new google.maps.Marker({
+        position: uluru,
+        map: map
+    });
+    */
+}
 
 function p_validar_transicion(target, tea_id, ate_id, estado_siguiente_id){
     console.log('En p_validar_transicion', tea_id, ate_id);
@@ -628,12 +1118,27 @@ function p_abrir(tea_id, ate_id) {
             locale: 'es',
                 format: 'YYYY-MM-DD'
             });
+            $('.combo-select2').select2({
+                language: "es"
+                ,width: '100%'
+            });
+            $('textarea').each(function(){
+                try {
+                    CKEDITOR.replace(this);
+                } catch(e) {
+                    console.log('ERROR en CKEDITOR:', e);
+                }
+            });
 
             $('#modal').modal('show');
         } else {
             alert('No hay campos asociados');
         }
     });
+}
+
+function p_cargar_canton(cae_id) {
+    console.log('En p_cargar_canton', cae_id);
 }
 
 function p_desplegar_campos(campos, padre_id) {
@@ -681,6 +1186,96 @@ function p_desplegar_campos(campos, padre_id) {
                         '</div>'+
                         '';
 
+                } else if (campo['tipo_dato'] == 'provincia_canton_parroquia_ciudad') {
+
+                    contenido += '<div class="panel panel-default"><div class="panel-heading"><strong>' + campo['cae_texto'] + '</strong></div><div class="panel-body">';
+
+                    contenido += '<input type="hidden" class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" value="' + valor + '">';
+
+                    var opciones = '<option value="">&nbsp;</option>';
+                    provincias.forEach(function(provincia){
+                        var codigo = provincia['prv_codigo'];
+                        var nombre = provincia['prv_nombre'];
+                        opciones += '<option value="' + codigo + '">' + nombre + '</option>';
+                    });
+                    contenido += ''+
+                        '<div class="form-group">' +
+                        '<label for="provincia_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">' + 'Provincia' + ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<select '+campo['cae_validacion']+' class="form-control combo-select2" id="provincia_'+campo['cae_id']+'" name="provincia_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)" onchange="p_cargar_canton('+campo['cae_id']+')">' +
+                        opciones +
+                        '</select>' +
+                        '</div>' +
+                        '</div>' +
+                        '';
+                    contenido += ''+
+                        '<div class="form-group">' +
+                        '<label for="canton_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">' + 'Cantón' + ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<select disabled '+campo['cae_validacion']+' class="form-control combo-select2" id="canton_'+campo['cae_id']+'" name="canton_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)" onchange="p_cargar_parroquia('+campo['cae_id']+')">' +
+                        '<option>Escoja primero la provincia</option>' +
+                        '</select>' +
+                        '</div>' +
+                        '</div>' +
+                        '';
+                    contenido += ''+
+                        '<div class="form-group">' +
+                        '<label for="parroquia_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">' + 'Parroquia' + ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<select disabled '+campo['cae_validacion']+' class="form-control combo-select2" id="parroquia_'+campo['cae_id']+'" name="parroquia_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)" >' +
+                        '<option>Escoja primero la provincia</option>' +
+                        '</select>' +
+                        '</div>' +
+                        '</div>' +
+                        '';
+                    contenido += ''+
+                        '<div class="form-group">' +
+                        '<label for="ciudad_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">' + 'Ciudad' + ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<select disabled '+campo['cae_validacion']+' class="form-control combo-select2" id="ciudad_'+campo['cae_id']+'" name="ciudad_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)" >' +
+                        '<option>Escoja primero la provincia</option>' +
+                        '</select>' +
+                        '</div>' +
+                        '</div>' +
+                        '';
+                    contenido += '<div class="form-group">' +
+                        '<label for="sector_' + campo['cae_id'] + '" class="col-sm-' + col1 + ' control-label">' + 'Sector' + ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<input '+campo['cae_validacion']+' class="form-control" id="sector_'+campo['cae_id']+'" name="sector_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
+                        '</div>' +
+                        '</div>';
+
+                    contenido += '<div class="form-group">' +
+                        '<label for="direccion_' + campo['cae_id'] + '" class="col-sm-' + col1 + ' control-label">' + 'Dirección' + ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<input '+campo['cae_validacion']+' class="form-control" id="direccion_'+campo['cae_id']+'" name="direccion_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
+                        '</div>' +
+                        '</div>';
+
+                    /////////////////
+                    //INI Coordenadas:
+                    contenido += '<div class="panel panel-default"><div class="panel-heading"><strong>' + 'Coordenadas' + '</strong></div><div class="panel-body">';
+                    contenido += '<div class="form-group">' +
+                        '<label for="longitud_' + campo['cae_id'] + '" class="col-sm-' + col1 + ' control-label">' + 'Longitud' + ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<input '+campo['cae_validacion']+' class="form-control" id="longitud_'+campo['cae_id']+'" name="longitud_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
+                        '</div>' +
+                        '</div>';
+                    contenido += '<div class="form-group">' +
+                        '<label for="latitud_' + campo['cae_id'] + '" class="col-sm-' + col1 + ' control-label">' + 'Latitud' + ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<input '+campo['cae_validacion']+' class="form-control" id="latitud_'+campo['cae_id']+'" name="latitud_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
+                        '</div>' +
+                        '</div>';
+
+
+                        //'<div id="provincia_canton_parroquia_ciudad_' + campo['cae_id'] + '"></div>' +
+
+                    contenido += '</div></div>';
+                    // FIN Coordenadas
+                    /////////////////////
+
+                    contenido += '</div></div>';
                 } else {
                     contenido += '<div class="form-group">' +
                         '<label for="campo_extra_' + campo['cae_id'] + '" class="col-sm-' + col1 + ' control-label">' + campo['cae_texto'] + ':</label>' +
@@ -746,395 +1341,6 @@ function p_crear(){
     }
 }
 </script>
-
-
-    </section>
-    <!-- /.content -->
-  </div>
-  <!-- /.content-wrapper -->
-
-
-  <!-- Control Sidebar -->
-  <aside class="control-sidebar control-sidebar-dark">
-    <!-- Create the tabs -->
-    <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
-      <li class="active"><a href="#control-sidebar-home-tab" data-toggle="tab"><i class="fa fa-home"></i></a></li>
-      <li><a href="#control-sidebar-settings-tab" data-toggle="tab"><i class="fa fa-gears"></i></a></li>
-    </ul>
-    <!-- Tab panes -->
-    <div class="tab-content">
-      <!-- Home tab content -->
-      <div class="tab-pane active" id="control-sidebar-home-tab">
-        <h3 class="control-sidebar-heading">Recent Activity</h3>
-        <ul class="control-sidebar-menu">
-          <li>
-            <a href="javascript:;">
-              <i class="menu-icon fa fa-birthday-cake bg-red"></i>
-
-              <div class="menu-info">
-                <h4 class="control-sidebar-subheading">Langdon's Birthday</h4>
-
-                <p>Will be 23 on April 24th</p>
-              </div>
-            </a>
-          </li>
-        </ul>
-        <!-- /.control-sidebar-menu -->
-
-        <h3 class="control-sidebar-heading">Tasks Progress</h3>
-        <ul class="control-sidebar-menu">
-          <li>
-            <a href="javascript:;">
-              <h4 class="control-sidebar-subheading">
-                Custom Template Design
-                <span class="pull-right-container">
-                    <span class="label label-danger pull-right">70%</span>
-                  </span>
-              </h4>
-
-              <div class="progress progress-xxs">
-                <div class="progress-bar progress-bar-danger" style="width: 70%"></div>
-              </div>
-            </a>
-          </li>
-        </ul>
-        <!-- /.control-sidebar-menu -->
-
-      </div>
-      <!-- /.tab-pane -->
-      <!-- Stats tab content -->
-      <div class="tab-pane" id="control-sidebar-stats-tab">Stats Tab Content</div>
-      <!-- /.tab-pane -->
-      <!-- Settings tab content -->
-      <div class="tab-pane" id="control-sidebar-settings-tab">
-        <form method="post">
-          <h3 class="control-sidebar-heading">General Settings</h3>
-
-          <div class="form-group">
-            <label class="control-sidebar-subheading">
-              Report panel usage
-              <input type="checkbox" class="pull-right" checked="">
-            </label>
-
-            <p>
-              Some information about this general settings option
-            </p>
-          </div>
-          <!-- /.form-group -->
-        </form>
-      </div>
-      <!-- /.tab-pane -->
-    </div>
-  </aside>
-  <!-- /.control-sidebar -->
-  <!-- Add the sidebar's background. This div must be placed
-  immediately after the control sidebar -->
-  <div class="control-sidebar-bg"></div>
-</div>
-<!-- ./wrapper -->
-
-<?php if (isset($mostrar_nuevo) && $mostrar_nuevo): ?>
-<a href="#" onclick="p_nuevo();return false;" style="position:fixed;bottom:50px;right:10px;"><img src="/img/plus.png" alt="Crear nuevo registro" title="Crear nuevo registro" ></img></a>
-<?php endif; ?>
-<!-- REQUIRED JS SCRIPTS -->
-
-<!-- AdminLTE App -->
-<script src="/js/adminlte.min.js"></script>
-
-<!-- Optionally, you can add Slimscroll and FastClick plugins.
-     Both of these plugins are recommended to enhance the
-     user experience. -->
-
-
-<div id="modal_confirmacion" class="modal fade" tabindex="-1" role="dialog">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-nuevo-title">Confirmar acciones de cambio de estado</h4>
-      </div>
-      <div class="modal-body">
-
-<form id="formulario_accion" class="form-horizontal">
-<input type="hidden" id="ate_id_accion" name="ate_id">
-<input type="hidden" id="estado_siguiente_id_accion" name="estado_siguiente_id">
-      <?php foreach($destinatarios as $destinatario): ?>
-<input type="hidden" id="tea_id_accion_<?=$destinatario?>" name="tea_id_<?=$destinatario?>">
-<div class="panel panel-default">
-  <div class="panel-heading">
-    <strong><?=ucfirst($destinatario)?></strong>
-  </div>
-  <div class="panel-body">
-
-
-
-  <div class="form-group">
-    <label for="email_<?=$destinatario?>" class="col-sm-3 control-label">Destinatarios:</label>
-    <div class="col-sm-9">
-      <input class="form-control" id="email_<?=$destinatario?>" name="email_<?=$destinatario?>">
-    </div>
-  </div>
-
-  <div class="form-group">
-    <label for="asunto_<?=$destinatario?>" class="col-sm-3 control-label">Asunto:</label>
-    <div class="col-sm-9">
-      <input class="form-control" id="asunto_<?=$destinatario?>" name="asunto_<?=$destinatario?>">
-    </div>
-  </div>
-
-  <div class="form-group">
-    <label for="mensaje_<?=$destinatario?>" class="col-sm-3 control-label">Mensaje:</label>
-    <div class="col-sm-9">
-      <textarea class="form-control" id="mensaje_<?=$destinatario?>" name="mensaje_<?=$destinatario?>"></textarea>
-    </div>
-  </div>
-
-  <div class="form-group">
-    <label for="adjunto_<?=$destinatario?>" class="col-sm-3 control-label">Adjuntos:</label>
-    <div class="col-sm-9">
-      <!--
-      <input type="file" class="form-control" id="adjunto_<?=$destinatario?>" name="adjunto_<?=$destinatario?>">
-      -->
-      <div id="adjuntos_lista_<?=$destinatario?>"></div>
-    </div>
-  </div>
-
-
-  </div>
-</div>
-
-<?php endforeach; ?>
-
-</form>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-warning" onclick="p_abrir_campos_llenos()" id="boton_modificar_datos_recopilados">Modificar datos recopilados</button>
-        <button type="button" class="btn btn-success" onclick="p_ejecutar_transicion()" id="boton_ejecutar_transicion">Ejecutar Transición</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="modal-nuevo" class="modal fade" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-nuevo-title">Nueva <?=isset($titulo_proceso_singular)?$titulo_proceso_singular:'atención'?></h4>
-      </div>
-      <div class="modal-body">
-
-<form id="formulario_nuevo" class="form-horizontal">
-  <input type="hidden" id="ate_id_nuevo" name="ate_id" value="">
-
-
-  <div class="form-group">
-    <label for="cliente" class="col-sm-4 control-label">Cliente</label>
-    <div class="col-sm-8">
-      <select required class="form-control combo-select2" style="width: 50%" id="cliente" name="cliente" tabindex="-1" aria-hidden="true">
-        <option value="">&nbsp;</option>
-      <?php
-$result = q("
-    SELECT *
-    FROM sai_cliente
-    WHERE cli_borrado IS NULL
-");
-if ($result) {
-    foreach($result as $r) {
-        $value = $r['cli_id'];
-        $label = $r['cli_razon_social'];
-        echo "<option value='$value'>$label</option>";
-    }
-}
-        ?>
-      </select>
-    </div>
-  </div>
-
-
-  <div class="form-group">
-    <label for="cuenta" class="col-sm-4 control-label">Dependencia de empresas:</label>
-    <div class="col-sm-8">
-      <select required class="form-control combo-select2" style="width: 50%" id="cuenta" name="cuenta" tabindex="-1" aria-hidden="true">
-
-        <option value="">&nbsp;</option>
-      <?php
-$result = q("
-    SELECT *
-    FROM sai_cuenta
-    WHERE cue_borrado IS NULL
-");
-if ($result) {
-    foreach ($result as $r) {
-        $value = $r['cue_id'];
-        $label = $r['cue_codigo'];
-        echo "<option value='$value'>$label</option>";
-    }
-}
-        ?>
-      </select> 
-    </div>
-  </div>
-
-
-  <div class="form-group">
-    <label for="servicio" class="col-sm-4 control-label">Servicio</label>
-    <div class="col-sm-8">
-      <select required class="form-control combo-select2" style="width: 50%" id="servicio" name="servicio" tabindex="-1" aria-hidden="true">
-
-        <option value="">&nbsp;</option>
-      <?php
-$result = q("
-    SELECT *
-    FROM sai_servicio
-    WHERE ser_borrado IS NULL
-");
-if ($result) {
-    foreach($result as $r) {
-        $value = $r['ser_id'];
-        $label = $r['ser_nombre'];
-        echo "<option value='$value'>$label</option>";
-    }
-}
-        ?>
-      </select> 
-    </div>
-  </div>
-
-
-
-
-  <div class="form-group">
-    <label for="proveedor" class="col-sm-4 control-label">Proveedor</label>
-    <div class="col-sm-8">
-      <select required multiple class="form-control combo-select2" style="width: 50%" id="proveedor" name="proveedor[]" tabindex="-1" aria-hidden="true">
-        <option value="">&nbsp;</option>
-      <?php
-$result = q("
-    SELECT *
-    FROM sai_proveedor
-    WHERE pro_borrado IS NULL
-");
-if ($result) {
-    foreach($result as $r) {
-        $value = $r['pro_id'];
-        $label = $r['pro_razon_social']; 
-        echo "<option value='$value'>$label</option>";
-    }
-}
-        ?>
-      </select> 
-    </div>
-  </div>
-
-
-  <div class="form-group">
-    <label for="usuario_tecnico" class="col-sm-4 control-label">Usuario técnico</label>
-    <div class="col-sm-8">
-
-      <!--pre>FOREIGN KEY
-                  </pre-->
-      <select required class="form-control combo-select2" style="width: 50%" id="usuario_tecnico" name="usuario_tecnico" tabindex="-1" aria-hidden="true">
-        <option value="">&nbsp;</option>
-      <?php
-$result = q("
-    SELECT *
-    ,(usu_nombres || ' ' || usu_apellidos) AS nombre
-    FROM sai_usuario
-    ,sai_rol
-    WHERE  usu_borrado IS NULL
-    AND rol_borrado IS NULL
-    AND usu_rol = rol_id
-    AND rol_codigo = 'tecnico'
-");
-if ($result) {
-    $nombres = array();
-    foreach($result as $r) {
-        $value = $r['usu_id'];
-        $label = $r['nombre'];
-        if (!isset($nombres[$label])) {
-            echo "<option value='$value'>$label</option>";
-            $nombres[$label] = $value;
-        }
-    }
-}
-        ?>
-
-      </select> 
-    </div>
-  </div>
-
-
-
-  <div class="form-group">
-    <label for="usuario_comercial" class="col-sm-4 control-label">Usuario comercial</label>
-    <div class="col-sm-8">
-
-      <!--pre>FOREIGN KEY
-                  </pre-->
-      <select required class="form-control combo-select2" style="width: 50%" id="usuario_comercial" name="usuario_comercial" tabindex="-1" aria-hidden="true">
-        <option value="">&nbsp;</option>
-      <?php
-$result = q("
-    SELECT *
-    FROM sai_usuario
-    ,sai_rol
-    WHERE 
-    usu_borrado IS NULL
-    AND rol_id = usu_rol
-    AND rol_codigo = 'comercial'
-");
-if ($result) {
-    foreach($result as $r) {
-        $value = $r['usu_id'];
-        $label = $r['usu_nombres'] . ' ' .$r['usu_apellidos'];
-        echo "<option value='$value'>$label</option>";
-    }
-}
-        ?>
-
-      </select> 
-    </div>
-  </div>
-
-
-</form>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-success" onclick="p_crear()" id="formulario_nuevo_crear">Crear <?=isset($titulo_proceso_singular)?$titulo_proceso_singular:'atención'?></button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
-
-
-<div id="modal" class="modal fade" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title">Ingrese los siguientes datos <span id="formulario_titulo"></span></h4>
-      </div>
-      <div class="modal-body">
-
-<form id="formulario" class="form-horizontal">
-  <input type="hidden" id="ate_id" name="ate_id" value="">
-<div id="campos"></div>
-</form>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-success" onclick="p_guardar()" id="formulario_guardar">Guardar</button>
-      </div>
-    </div><!-- /.modal-content -->
-  </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-</body></html>
-
-
+<!--
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8FSFiwwDeuKMWXOZpPuL1v6s9PnWNsFQ&callback=initMap"></script>
+-->

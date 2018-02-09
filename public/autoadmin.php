@@ -213,7 +213,7 @@ FROM
     echo "<h1>$nombre_tabla</h1>";
 
 
-    $result = q("SELECT * FROM $tabla ORDER BY {$prefijo}id");
+    $result = q("SELECT * FROM $tabla ORDER BY {$prefijo}borrado DESC, {$prefijo}id DESC");
 
 
     //echo '<a href="#" download><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Descargar XML </a>';
@@ -319,7 +319,7 @@ FROM
         <?php if($fkeys[$campo['nombre']]['foreign_table_name'] == $tabla): ?>
         <span id="recursivo_<?=$c?>"></span>
         <?php endif; ?>
-      <select class="form-control combo-select2" style="width: 50%" id="<?=$c?>" name="<?=$c?>" >
+      <select <?=$campo['validacion']?> class="form-control combo-select2" style="width: 50%" id="<?=$c?>" name="<?=$c?>" >
         <option value="">&nbsp;</option>
 <?php
     $opciones = $fkeys[$campo['nombre']]['__opciones'];
@@ -332,7 +332,7 @@ FROM
       </select>
       <?php elseif($tipo == 'multitexto'): ?>
 
-      <textarea class="form-control" id="<?=$c?>" name="<?=$c?>" placeholder=""></textarea>
+      <textarea class="form-control" id="<?=$c?>" name="<?=$c?>" placeholder="" <?=$campo['validacion']?> onblur="p_validar(this)" ></textarea>
 
       <?php elseif($tipo == 'multiemail'): ?>
 
