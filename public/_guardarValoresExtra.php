@@ -4,7 +4,13 @@
 
 $ate_id = $_POST['ate_id'];
 
-$paa_id = "(SELECT paa_id FROM sai_paso_atencion WHERE paa_borrado IS NULL AND paa_atencion=$ate_id)";
+$paa_id = "(
+    SELECT paa_id 
+    FROM sai_paso_atencion 
+    WHERE paa_borrado IS NULL 
+    AND paa_paso_anterior IS NULL
+    AND paa_atencion=$ate_id
+    )";
 $result = q($paa_id);
 if (!$result) {
     //Trata de obtener una transicion para asociarla al paso que se va a crear:
@@ -54,9 +60,21 @@ if (!$result) {
     ")[0][paa_id];
 
 } else if (count($result) > 1) {
+    /*
     q("
         UPDATE sai_paso_atencion 
         SET paa_borrado = now() 
+        WHERE paa_atencion = $ate_id 
+        AND paa_id <> (
+            SELECT MAX(paa_id) 
+            FROM sai_paso_atencion 
+            WHERE paa_atencion=$ate_id
+        )
+    ");
+     */
+    q("
+        UPDATE sai_paso_atencion 
+        SET paa_paso_anterior = now() 
         WHERE paa_atencion = $ate_id 
         AND paa_id <> (
             SELECT MAX(paa_id) 
@@ -68,6 +86,7 @@ if (!$result) {
         SELECT paa_id 
         FROM sai_paso_atencion 
         WHERE paa_borrado IS NULL 
+        AND paa_paso_anterior IS NULL
         AND paa_atencion = $ate_id
     )";
 }
