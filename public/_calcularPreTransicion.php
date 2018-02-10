@@ -273,16 +273,16 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     $search = array();
                     $replace = array();
                     foreach ($campos as $campo) {
-                        $search[] = '%'.$campo['cae_codigo'].'%';
+                        $search[] = '${'.$campo['cae_codigo'].'}';
                         $replace[] = $campo['valor'];
-                        $campos_valores['%'.$campo['cae_codigo'].'%'] = $campo['valor'];
+                        $campos_valores[$campo['cae_codigo']] = $campo['valor'];
                     }
                     //Agregando campos desde metadata de atencion:
                     //echo "[[RESULT METADATA ATENCION]]";
                     //var_dump($result_metadata_atencion);
                     //$result_metadata_atencion = $result_metadata_atencion[0];
                     foreach ($result_metadata_atencion as $k => $v) {
-                        $campos_valores['%' . strtoupper($k) . '%'] = $v;
+                        $campos_valores[strtoupper($k)] = $v;
                     }
                     if ($result_metadata_atencion[cli_es_persona_juridica] == 1) {
                         $razon_social = $result_metadata_atencion[cli_razon_social];
@@ -292,17 +292,17 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                         $domiciliado = $result_metadata_atencion[cli_representante_legal_domiciliado];
                         $canton = $result_metadata_atencion[cli_representante_legal_canton];
                         $provincia = $result_metadata_atencion[cli_representante_legal_provincia];
-                        $campos_valores['%'.'CLIENTE_CONTRATO'.'%'] = <<<EOT
+                        $campos_valores['CLIENTE_CONTRATO'] = <<<EOT
 $razon_social, representada por $nombre, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
 EOT;
                     } else {
                         $razon_social = $result_metadata_atencion[cli_razon_social];
                         $ruc = $result_metadata_atencion[cli_ruc];
-                        $campos_valores['%'.'CLIENTE_CONTRATO'.'%'] = "$razon_social, con número de cédula/RUC $ruc";
+                        $campos_valores['CLIENTE_CONTRATO'] = "$razon_social, con número de cédula/RUC $ruc";
                     }
                     //Agregando campos automaticos:
-                    $campos_valores['%'.'FECHA'.'%'] = p_formatear_fecha(date("Y-m-d H:i:s"));
-                    $campos_valores['%'.'NOW'.'%'] = p_formatear_fecha(date("Y-m-d H:i:s"));
+                    $campos_valores['FECHA'] = p_formatear_fecha(date("Y-m-d H:i:s"));
+                    $campos_valores['NOW'] = p_formatear_fecha(date("Y-m-d H:i:s"));
 
                     $pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
                     $pla_asunto = str_replace($search, $replace, $pla_asunto);
@@ -322,9 +322,9 @@ EOT;
 
                     $respuesta['plantillas'][$pla_id]['adjuntos_generados'] = array(); 
                     $xls_generado = false;
-                    try {
-                        if ($adjuntos_plantilla) {
-                            foreach ($adjuntos_plantilla as $adjunto_plantilla) {
+                    if ($adjuntos_plantilla) {
+                        foreach ($adjuntos_plantilla as $adjunto_plantilla) {
+                            try {
                                 //$adjunto_plantilla = $adjunto_plantilla[0];
                                 $nombre = $pla_adjunto_nombre;
                                 $nombre = $nombre . '-' . random_int(100000, 999999);
@@ -347,8 +347,17 @@ EOT;
                                         foreach($fila as $y => $celda){
                                             if (!empty($celda)) {
                                                 //echo "[$x, $y: $celda]";
-                                                if (preg_match('/\%.+\%/', $celda)){
-                                                    $nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
+                                                if (preg_match_all('/\$\{([a-zA-Z0-9_]+)\}/', $celda, $matches)){
+                                                    //var_dump($matches);
+                                                    $nuevo_valor = $celda;
+                                                    foreach ($matches[0] as $k => $match) {
+                                                        $campo_codigo = $matches[1][$k];
+                                                        $valor = $campos_valores[$campo_codigo];
+                                                        $nuevo_valor = str_replace($match, $valor, $nuevo_valor);
+                                                    }
+                                                    //echo " --[[$nuevo_valor]]--";
+
+                                                    //$nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
                                                     $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
                                                 }
                                             }
@@ -358,24 +367,28 @@ EOT;
                                     //$worksheet->getCell('A1')->setValue('John');
                                     //$worksheet->getCell('A2')->setValue('Smith');
 
-                                    $nombre = $nombre . '.xls';
-                                    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xls');
+                                    $nombre = $nombre . '.xlsx';
+                                    //echo " [[NOMBRE: $nombre]]";
+                                    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
                                     $writer->save($nombre);
                                     $xls_generado = true;
 
-                                //} else if ($ext == 'doc' || $ext == 'docx' || $ext == 'odt') { //no funciona con .doc, sale este error:  
-                                //                        ZipArchive::getFromName(): Invalid or uninitialized Zip object
+                                    //} else if ($ext == 'doc' || $ext == 'docx' || $ext == 'odt') { //no funciona con .doc, sale este error:  
+                                    //                        ZipArchive::getFromName(): Invalid or uninitialized Zip object
                                 } else if ($ext == 'docx' || $ext == 'odt') {
+                                    //echo "[EXT:$ext]";
                                     ////////////
                                     // Word
                                     //$doc = \PhpOffice\PhpWord\IOFactory::load($ruta_plantilla);
                                     $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($ruta_plantilla);
 
                                     foreach ($campos_valores as $campo => $valor) {
+                                        //echo "[$campo: $valor]";
                                         $templateProcessor->setValue($campo, $valor);
                                     }
 
                                     $nombre = $nombre .'.docx';
+                                    //echo " -[$nombre]- ";
 
                                     // $writer = \PhpOffice\PhpWord\IOFactory::createWriter($doc, 'Word2007');
                                     // $writer->save($pla_adjunto_nombre);
@@ -390,10 +403,15 @@ EOT;
                                     }
                                 }
                                 $respuesta['plantillas'][$pla_id]['adjuntos_generados'][] = $nombre;
+                            } catch(Exception $e) {
+                                //echo '<div>ERROR EN LOS ARCHIVOS: ' . $e->getMessage() . '</div>';
+                                l($e->getMessage());
                             }
                         }
-                        $respuesta['plantillas'][$pla_id]['xls_generado'] = $xls_generado;
+                    }
+                    $respuesta['plantillas'][$pla_id]['xls_generado'] = $xls_generado;
 
+                    try {
 
                         //////////////
                         //PDF

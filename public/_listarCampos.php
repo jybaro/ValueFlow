@@ -24,7 +24,7 @@ if (strlen($query) >= $extension_minima) {
 
     if ($result) {
         foreach($result as $r){
-            $respuesta = array('id' => $r['cae_id'], 'name' => ($r['cae_texto'] . ' (' . $r['cae_codigo'] . ')'));
+            $respuesta = array('id' => $r['cae_id'], 'name' => ($r['cae_codigo'] . ' (' . $r['cae_texto'] . ')'));
             $respuestas[] = $respuesta; 
         }
     } else {

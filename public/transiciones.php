@@ -764,7 +764,7 @@ function p_actualizar_campos(tea_id, id) {
             data.forEach(function(campo){
                 var numero = tbody.children().length + 1;
                 //var nombre = $('#campo_typeahead_'+id).val();
-                var nombre = campo['cae_texto'] + ' ('+campo['cae_codigo']+')';
+                var nombre = '<strong>${' + campo['cae_codigo'] + '}</strong> '+campo['cae_texto']+'';
                 tbody.append('<tr class="alert alert-info" id="cae_'+campo['cae_id']+'"><th>'+numero+'.</th><td><span id="nombre_cae_'+campo['cae_id']+'">'+nombre+'</span></td><td><button class="btn btn-danger" onclick="p_borrar_campo('+campo['cae_id']+', \''+id+'\')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button></td></tr>');
             });
         }

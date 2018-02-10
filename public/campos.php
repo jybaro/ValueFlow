@@ -51,7 +51,7 @@ $plantilla_cabecera = <<<EOT
           <a class="btn btn-success pull-right" href="#" onclick="p_abrir(%CAE_ID%);return false;">Acciones</a>
           <strong>Texto:</strong> <span id="cae_texto_%CAE_ID%">%CAE_TEXTO%</span>
           <br>
-          <strong>Código:</strong> %<span id="cae_codigo_%CAE_ID%">%CAE_CODIGO%</span>%
+          <strong>Código:</strong> ${<span id="cae_codigo_%CAE_ID%">%CAE_CODIGO%</span>}
           <br>
           <strong>Tipo de dato:</strong> <span id="tid_nombre_%CAE_ID%">%TID_NOMBRE%</span>
           <br>
@@ -295,7 +295,7 @@ function p_abrir(id){
 
         var badge = '';
         var disabled = false;
-        $('#formulario_titulo').html('"'+campo['texto'] + '" (%' + campo['codigo'] + '%) ' + badge);
+        $('#formulario_titulo').html('"'+campo['texto'] + '": ${' + campo['codigo'] + '} ' + badge);
         for (key in campo){
             $('#' + key).val(campo[key]);
             $('#' + key).prop('disabled', disabled);
