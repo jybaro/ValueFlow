@@ -94,7 +94,7 @@ ob_end_clean();
 if($nedetel_objeto[0] == '_') {
     $template = 'ws_rest';
     $template_temporal_no_persistente = true;
-} else if (isset($_SESSION['template']) && !empty($_SESSION['template'])) {
+} else if (isset($_SESSION['template']) && !empty($_SESSION['template']) && $_SESSION['template'] != 'login') {
     $template = $_SESSION['template']; 
 }
 
@@ -115,6 +115,8 @@ if (!$template_temporal_no_persistente) {
 }
 
 //echo '<pre>';
+//echo $template;
+//echo '<hr>';
 //var_dump($_SESSION);
 //echo '</pre>';
     require_once("../private/templates/$template.template.php");
