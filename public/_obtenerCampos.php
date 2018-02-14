@@ -48,7 +48,7 @@ if ($extender_campos_anteriores == 1) {
 $sql = "
     SELECT *
     ,(
-        SELECT vae_texto 
+        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -58,6 +58,23 @@ $sql = "
         AND paa_paso_anterior IS NULL
         AND paa_atencion = $ate_id
     ) AS valor
+    , (
+        SELECT concat(nod_codigo, ': ',  nod_descripcion, ' (', ubi_direccion, ')')
+        FROM sai_valor_extra
+        , sai_paso_atencion 
+        , sai_nodo
+        , sai_ubicacion
+        WHERE vae_borrado IS NULL 
+        AND paa_borrado IS NULL 
+        AND nod_borrado IS NULL
+        AND ubi_borrado IS NULL
+        AND vae_campo_extra = cae_id 
+        AND paa_id=vae_paso_atencion
+        AND nod_id = vae_nodo
+        AND ubi_id = nod_ubicacion
+        AND paa_paso_anterior IS NULL
+        AND paa_atencion = $ate_id
+    ) AS nodo
     , (
         SELECT des_nombre
         FROM sai_destinatario

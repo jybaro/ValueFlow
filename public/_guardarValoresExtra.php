@@ -104,33 +104,45 @@ foreach ($_POST as $k => $v){
             AND vae_paso_atencion = $paa_id
         ");
 
-        $result_cae = q("
-            SELECT *
-            FROM sai_campo_extra
-            WHERE cae_borrado IS NULL
-            AND cae_id = $cae_id
-        ");
-
         $vae_texto = 'null';
         $vae_numero = 'null';
         $vae_fecha = 'null';
         $vae_nodo = 'null';
+        $vae_conexion = 'null';
 
-        if ($result_cae) {
-            $cae = $result_cae[0];
-            switch ($cae[cae_codigo]) {
-            case 'texto': default:
-                $vae_texto = "'$v'";
-                break;
-            case 'numero':
-                $vae_numero = "$v";
-                break;
-            case 'fecha':
-                $vae_fecha = "to_timestamp('$v', 'YYYY-MM-DD hh24:mi:ss')";
-                break;
-            case 'nodo':
-                $vae_numero = "$v";
-                break;
+        if (!empty($v) && $v != 'null') {
+            $result_cae = q("
+                SELECT *
+                FROM sai_campo_extra
+                ,sai_tipo_dato
+                WHERE cae_borrado IS NULL
+                AND tid_borrado IS NULL
+                AND cae_tipo_dato = tid_id
+                AND cae_id = $cae_id
+            ");
+
+            if ($result_cae) {
+                $cae = $result_cae[0];
+                switch ($cae[tid_codigo]) {
+                case 'texto': default:
+                    $vae_texto = "'$v'";
+                    break;
+                case 'numero':
+                    $vae_numero = "$v";
+                    break;
+                case 'fecha':
+                    $vae_fecha = "to_timestamp('$v', 'YYYY-MM-DD hh24:mi:ss')";
+                    break;
+                case 'nodo':
+                    $vae_nodo = "$v";
+                    break;
+                case 'conexion':
+                    $vae_conexion = "$v";
+                    break;
+                case 'conexion_completar':
+                    $vae_conexion = "$v";
+                    break;
+                }
             }
         }
         
@@ -142,6 +154,7 @@ foreach ($_POST as $k => $v){
                 , vae_numero
                 , vae_fecha
                 , vae_nodo
+                , vae_conexion
             ) VALUES (
                 $cae_id
                 , $paa_id
@@ -149,6 +162,7 @@ foreach ($_POST as $k => $v){
                 , $vae_numero
                 , $vae_fecha
                 , $vae_nodo
+                , $vae_conexion
             ) RETURNING *
         ");
         $respuesta[] = $return;

@@ -515,6 +515,225 @@ EOT;
      Both of these plugins are recommended to enhance the
      user experience. -->
 
+<div id="modal_nodo" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog xxx-modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-nuevo-title">Nuevo nodo</h4>
+      </div>
+      <div class="modal-body">
+
+<form id="formulario_nodo" class="form-horizontal">
+<input type="hidden" id="nod_cae_id" name="nod_cae_id" value="">
+<?php
+
+$cae_texto = 'Ubicación';
+$cae_id = '0';
+$cae_validacion = ' required ';
+$col1 = 3;
+$col2 = 8;
+
+$result_provincias = q("
+    SELECT *
+    FROM sai_provincia
+    ORDER BY prv_nombre
+");
+$provincias = array();
+if ($result_provincias) {
+    foreach ($result_provincias as $r) {
+        $provincias[] = $r;
+    }
+}
+$opciones = '<option value="">&nbsp;</option>';
+
+foreach($provincias as $provincia) {
+    $codigo = $provincia['prv_id'];
+    $nombre = $provincia['prv_nombre'];
+    $opciones .= '<option value="'. $codigo . '">'.$nombre.' </option>';
+}
+
+?>
+    <div class="form-group">
+      <label for="nod_codigo" class="col-sm-<?=$col1?> control-label">Código:</label>
+      <div class="col-sm-<?=$col2?>">
+        <input <?=$cae_validacion?> class="form-control" id="nod_codigo" name="nod_codigo" placeholder="" value="" onblur="p_validar(this)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="nod_descripcion" class="col-sm-<?=$col1?> control-label">Descripción:</label>
+      <div class="col-sm-<?=$col2?>">
+        <input <?=$cae_validacion?> class="form-control" id="nod_descripcion" name="nod_descripcion" placeholder="" value="" onblur="p_validar(this)">
+      </div>
+    </div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <strong><?=$cae_texto?></strong>
+  </div>
+  <div class="panel-body">
+    <input type="hidden" class="form-control" id=" $cae_validacionextra_<?=$cae_id?>" name=" $cae_validacionextra_<?=$cae_id?>" value="">
+
+    <div class="form-group">
+    <label for="nod_provincia" class="col-sm-<?=$col1?>  control-label">Provincia:</label>
+      <div class="col-sm-<?=$col2?>">
+        <select <?=$cae_validacion?> class="form-control combo-select2" id="nod_provincia" name="nod_provincia" placeholder="" value="" onblur="p_validar(this)" onchange="p_cargar_cantones_ciudades(this, <?=$cae_id?>)">
+    <?=$opciones?> 
+        </select>
+      </div>
+    </div>
+   
+    <div class="form-group">
+    <label for="nod_canton" class="col-sm-<?=$col1?>  control-label">Cantón:</label>
+      <div class="col-sm-<?=$col2?>">
+        <select disabled <?=$cae_validacion?> class="form-control combo-select2" id="nod_canton" name="nod_canton" placeholder="" value="" onblur="p_validar(this)" onchange="p_cargar_parroquias(this, <?=$cae_id?>)">
+          <option>Escoja primero la provincia</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="nod_parroquia" class="col-sm-<?=$col1?> control-label">Parroquia:</label>
+      <div class="col-sm-<?=$col2?>">
+        <select disabled <?=$cae_validacion?> class="form-control combo-select2" id="nod_parroquia" name="nod_parroquia" placeholder="" value="" onblur="p_validar(this)" >
+          <option>Escoja primero la provincia y el cantón</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="nod_ciudad" class="col-sm-<?=$col1?> control-label">Ciudad:</label>
+      <div class="col-sm-<?=$col2?>">
+        <select disabled <?=$cae_validacion?> class="form-control combo-select2" id="nod_ciudad" name="nod_ciudad" placeholder="" value="" onblur="p_validar(this)" >
+          <option>Escoja primero la provincia</option>
+        </select>
+      </div>
+    </div>
+       
+    <div class="form-group">
+      <label for="nod_sector" class="col-sm-<?=$col1?> control-label">Sector:</label>
+      <div class="col-sm-<?=$col2?>">
+        <input <?=$cae_validacion?> class="form-control" id="nod_sector" name="nod_sector" placeholder="" value="" onblur="p_validar(this)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="nod_direccion" class="col-sm-<?=$col1?> control-label">Dirección:</label>
+      <div class="col-sm-<?=$col2?>">
+        <input <?=$cae_validacion?> class="form-control" id="nod_direccion" name="nod_direccion" placeholder="" value="" onblur="p_validar(this)">
+      </div>
+    </div>
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <strong>Coordenadas</strong>
+      </div>
+      <div class="panel-body">
+        <div class="form-group">
+          <label for="nod_longitud" class="col-sm-<?=$col1?> control-label">Longitud:</label>
+          <div class="col-sm-<?=$col2?>">
+            <input <?=$cae_validacion?> class="form-control" id="nod_longitud" name="nod_longitud" placeholder="" value="" onblur="p_validar(this)">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="nod_latitud" class="col-sm-<?=$col1?> control-label">Latitud:</label>
+          <div class="col-sm-<?=$col2?>">
+            <input <?=$cae_validacion?> class="form-control" id="nod_latitud" name="nod_latitud" placeholder="" value="" onblur="p_validar(this)">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    $('.combo-select2').select2({
+        language: "es"
+        ,width: '100%'
+    });
+    function p_cargar_cantones_ciudades(target, cae_id){
+        console.log('En p_cargar_cantones_ciudades', $(target).val(), cae_id);
+        var prv_id = $(target).val();
+        $('#nod_canton').prop('disabled', true);
+        $('#nod_canton').html('<option value="">Escoja primero la provincia</option>');
+        $('#nod_ciudad').prop('disabled', true);
+        $('#nod_ciudad').html('<option value="">Escoja primero la provincia</option>');
+        $('#nod_parroquia').prop('disabled', true);
+        $('#nod_parroquia').html('<option value="">Escoja primero el cantón</option>');
+
+        if (prv_id != '') {
+            $.ajax({
+                'url':'/_listar/canton/provincia/' + prv_id
+            }).done(function(data){
+                console.log('Respuesta /_listar/canton/provincia/' + prv_id, data);
+                data = JSON.parse(data);
+                console.log('data',data);
+                var opciones = '';
+                Array.from(data).forEach(function(canton){
+                    opciones += '<option value="'+canton['id']+'">'+canton['nombre']+'</option>';
+                });
+
+                $('#nod_canton').prop('disabled', false);
+                $('#nod_canton').html('<option value="">&nbsp;</option>' + opciones);
+
+            });
+
+            $.ajax({
+                'url':'/_listar/ciudad/provincia/' + prv_id
+            }).done(function(ciudades){
+                console.log('Respuesta /_listar/ciudad/provincia/' + prv_id, ciudades);
+                ciudades = JSON.parse(ciudades);
+                console.log('ciudades',ciudades);
+                var opciones = '';
+                Array.from(ciudades).forEach(function(ciudad){
+                    opciones += '<option value="'+ciudad['id']+'">'+ciudad['nombre']+'</option>';
+                });
+
+                $('#nod_ciudad').prop('disabled', false);
+                $('#nod_ciudad').html('<option value="">&nbsp;</option>' + opciones);
+            });
+        }
+    }
+
+    function p_cargar_parroquias(target, cae_id){
+        console.log('En p_cargar_parroquias', $(target).val(), cae_id);
+        var can_id = $(target).val();
+        $('#nod_parroquia').prop('disabled', true);
+        $('#nod_parroquia').html('<option value="">Escoja primero el cantón</option>');
+        if (can_id != '') {
+            $.ajax({
+                'url':'/_listar/parroquia/canton/' + can_id
+            }).done(function(data){
+                console.log('Respuesta /_listar/parroquia/canton/' + can_id, data);
+                data = JSON.parse(data);
+                console.log('data',data);
+                var opciones = '';
+                Array.from(data).forEach(function(canton){
+                    opciones += '<option value="'+canton['id']+'">'+canton['nombre']+'</option>';
+                });
+
+                $('#nod_parroquia').prop('disabled', false);
+                $('#nod_parroquia').html('<option value="">&nbsp;</option>' + opciones);
+            });
+        }
+    }
+
+    function p_validar() {
+        console.log('En p_validar');
+    }
+</script>
+</form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success" onclick="p_crear_nodo()" id="boton_crear_nodo">Crear nodo y regresar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <div id="modal_confirmacion" class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog modal-lg" role="document">
@@ -835,6 +1054,7 @@ if ($result) {
 
 
 <script src="/js/ckeditor/ckeditor.js"></script>
+<script src="/js/bootstrap3-typeahead.min.js"></script>
 <script>
 $(document).ready(function() {
     $('.combo-select2').select2({
@@ -873,8 +1093,117 @@ $(document).ready(function() {
 
     $("#modal").on("shown.bs.modal", function () {
         //google.maps.event.trigger(map, "resize");
+        $("#modal").off("shown.bs.modal");
     });
 });
+
+function p_inicializar_autocompletar(id){
+    //$('#campo_extra_typeahead_'+id).typeahead({
+    $('.typeahead-nodo').typeahead({
+        source:function(query, process){
+            $.get('/_listarNodos/' + query, function(data){
+                console.log(data);
+                data = JSON.parse(data);
+                process(data.lista);
+            });
+        },
+        displayField:'name',
+        valueField:'id',
+        highlighter:function(name){
+            var ficha = '';
+            ficha +='<div>';
+            ficha +='<h4>'+name+'</h4>';
+            ficha +='</div>';
+            return ficha;
+        },
+        updater:function(item){
+            var id = $(this.$element[0]).prop('id').split('_').pop();
+
+            console.log('typeahead ID:' , id);
+
+            $('#campo_extra_'+id).val(item.id);
+            $('#campo_extra_detalle_valor_'+id).text(item.name);
+            $('#campo_extra_grupo_'+id).hide();
+            $('#campo_extra_detalle_'+id).show();
+            return item.name;
+        }
+    });
+}
+
+
+function p_crear_nodo() {
+    var id = $('#nod_cae_id').val();
+    console.log('en p_crear_nodo', id);
+
+    if (p_validar($('#formulario_nodo'))) {
+        var dataset = $('#formulario_nodo').serialize();
+
+        $.post('/_crearNodo', dataset, function(data){
+            console.log('Respuesta /_crearNodo:', data);
+            data = JSON.parse(data);
+            console.log('data:', data);
+
+            $('#modal_nodo').modal('hide');
+            $('#modal_nodo').on('hidden.bs.modal', function () {
+                data = data[0];
+                direccion = $('#nod_direccion').val();
+                var item = {id:data['nod_id'], name:data['nod_codigo'] + ': ' + data['nod_descripcion'] + ' ('+direccion+')'};
+                $('#campo_extra_'+id).val(item.id);
+                $('#campo_extra_detalle_valor_'+id).text(item.name);
+                $('#campo_extra_grupo_'+id).hide();
+                $('#campo_extra_detalle_'+id).show();
+
+                $('#modal').modal('show');
+                $('#modal_nodo').off('hidden.bs.modal');
+            });
+        });
+    }
+}
+
+function p_abrir_nuevo_nodo(id){
+    console.log('en p_abrir_nuevo_nodo', id);
+    $('#modal').modal('hide');
+    $('#modal').on('hidden.bs.modal', function () {
+        $('#modal_nodo').find(':input').each(function() {
+            switch(this.type) {
+            case 'password':
+            case 'text':
+            case 'textarea':
+            case 'file':
+            case 'select-one':
+            case 'select-multiple':
+            case 'date':
+            case 'number':
+            case 'tel':
+            case 'email':
+            case 'hidden':
+                $(this).val('');
+                break;
+            case 'checkbox':
+            case 'radio':
+                this.checked = false;
+                break;
+            }
+        });
+        $('#modal_nodo').find('.panel-collapse.in').each(function() {
+            $(this).collapse('hide');
+        });
+        $('#nod_cae_id').val(id);
+        $('#modal_nodo').modal('show');
+        $('#modal').off('hidden.bs.modal');
+    });
+}
+
+function p_quitar_nodo(id){
+    console.log('en p_quitar_nodo', id);
+            $('#campo_extra_'+id).val('');
+            $('#campo_extra_typeahead_'+id).typeahead('val', '');
+            $('#campo_extra_typeahead_'+id).val('');
+            $('#campo_extra_detalle_valor_'+id).text('');
+            $('#campo_extra_grupo_'+id).show();
+            $('#campo_extra_detalle_'+id).hide();
+}
+
 
 var provincias = <?=json_encode($provincias)?>;
 
@@ -1056,6 +1385,7 @@ function p_abrir_campos_llenos() {
         $('#modal_confirmacion').modal('hide');
         $('#modal_confirmacion').on('hidden.bs.modal', function () {
             p_abrir(tea_id, ate_id);
+            $('#modal_confirmacion').off('hidden.bs.modal');
         });
     } else {
         console.log('No se puede abrir, no se encuentra el tea_id (NULL):', tea_id);
@@ -1122,6 +1452,7 @@ function p_abrir(tea_id, ate_id) {
                 language: "es"
                 ,width: '100%'
             });
+            p_inicializar_autocompletar();
             $('textarea').each(function(){
                 try {
                     CKEDITOR.replace(this);
@@ -1186,96 +1517,39 @@ function p_desplegar_campos(campos, padre_id) {
                         '</div>'+
                         '';
 
-                } else if (campo['tipo_dato'] == 'provincia_canton_parroquia_ciudad') {
+                } else if (campo['tipo_dato'] == 'nodo') {
+                    var descripcion = '';
+                    var grupo_style = '';
+                    var detalle_style = 'style="display:none;"';
 
-                    contenido += '<div class="panel panel-default"><div class="panel-heading"><strong>' + campo['cae_texto'] + '</strong></div><div class="panel-body">';
+                    if (campo['nodo']) {
+                        descripcion = campo['nodo'];
+                        grupo_style = 'style="display:none;"';
+                        detalle_style = '';
+                    }
 
-                    contenido += '<input type="hidden" class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" value="' + valor + '">';
-
-                    var opciones = '<option value="">&nbsp;</option>';
-                    provincias.forEach(function(provincia){
-                        var codigo = provincia['prv_codigo'];
-                        var nombre = provincia['prv_nombre'];
-                        opciones += '<option value="' + codigo + '">' + nombre + '</option>';
-                    });
                     contenido += ''+
-                        '<div class="form-group">' +
-                        '<label for="provincia_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">' + 'Provincia' + ':</label>' +
-                        '<div class="col-sm-' + col2 + '">' +
-                        '<select '+campo['cae_validacion']+' class="form-control combo-select2" id="provincia_'+campo['cae_id']+'" name="provincia_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)" onchange="p_cargar_canton('+campo['cae_id']+')">' +
-                        opciones +
-                        '</select>' +
+                        '<div class="form-group" '+grupo_style+' id="campo_extra_grupo_'+campo['cae_id']+'">' +
+                        '<label for="campo_extra_typeahead_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                        '<div class="col-sm-' + (col2 - 2) + '">' +
+                        '<input type="hidden" id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="' + valor + '">' +
+                        '<input type="text" '+campo['cae_validacion']+' class="form-control typeahead-nodo" id="campo_extra_typeahead_'+campo['cae_id']+'" name="campo_extra_typeahead_'+campo['cae_id']+'" data-provide="typeahead" autocomplete="off" placeholder="Ingrese al menos 2 caracteres" value="' + valor + '" onblur="p_validar(this)">' +
                         '</div>' +
+    '<div class="col-sm-1">' +
+    '<button type="button" class="btn btn-success boton-nuevo" id="campo_extra_nuevo_'+campo['cae_id']+'" onclick="p_abrir_nuevo_nodo('+campo['cae_id']+')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>' +
+    '</div>' +
+                        '</div>'+
+
+                        '<div class="form-group" '+detalle_style+' id="campo_extra_detalle_'+campo['cae_id']+'">' +
+                        '<label class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                        '<div class="col-sm-' + (col2 - 2) + '">' +
+                        '<span id="campo_extra_detalle_valor_' + campo['cae_id'] + '">' + descripcion + '</span>' +
                         '</div>' +
+    '<div class="col-sm-1">' +
+    '<button type="button" class="btn btn-danger boton-quitar" id="campo_extra_quitar_'+campo['cae_id']+'" onclick="p_quitar_nodo('+campo['cae_id']+')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>' +
+    '</div>' +
+                        '</div>'+
                         '';
-                    contenido += ''+
-                        '<div class="form-group">' +
-                        '<label for="canton_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">' + 'Cantón' + ':</label>' +
-                        '<div class="col-sm-' + col2 + '">' +
-                        '<select disabled '+campo['cae_validacion']+' class="form-control combo-select2" id="canton_'+campo['cae_id']+'" name="canton_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)" onchange="p_cargar_parroquia('+campo['cae_id']+')">' +
-                        '<option>Escoja primero la provincia</option>' +
-                        '</select>' +
-                        '</div>' +
-                        '</div>' +
-                        '';
-                    contenido += ''+
-                        '<div class="form-group">' +
-                        '<label for="parroquia_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">' + 'Parroquia' + ':</label>' +
-                        '<div class="col-sm-' + col2 + '">' +
-                        '<select disabled '+campo['cae_validacion']+' class="form-control combo-select2" id="parroquia_'+campo['cae_id']+'" name="parroquia_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)" >' +
-                        '<option>Escoja primero la provincia</option>' +
-                        '</select>' +
-                        '</div>' +
-                        '</div>' +
-                        '';
-                    contenido += ''+
-                        '<div class="form-group">' +
-                        '<label for="ciudad_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">' + 'Ciudad' + ':</label>' +
-                        '<div class="col-sm-' + col2 + '">' +
-                        '<select disabled '+campo['cae_validacion']+' class="form-control combo-select2" id="ciudad_'+campo['cae_id']+'" name="ciudad_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)" >' +
-                        '<option>Escoja primero la provincia</option>' +
-                        '</select>' +
-                        '</div>' +
-                        '</div>' +
-                        '';
-                    contenido += '<div class="form-group">' +
-                        '<label for="sector_' + campo['cae_id'] + '" class="col-sm-' + col1 + ' control-label">' + 'Sector' + ':</label>' +
-                        '<div class="col-sm-' + col2 + '">' +
-                        '<input '+campo['cae_validacion']+' class="form-control" id="sector_'+campo['cae_id']+'" name="sector_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
-                        '</div>' +
-                        '</div>';
-
-                    contenido += '<div class="form-group">' +
-                        '<label for="direccion_' + campo['cae_id'] + '" class="col-sm-' + col1 + ' control-label">' + 'Dirección' + ':</label>' +
-                        '<div class="col-sm-' + col2 + '">' +
-                        '<input '+campo['cae_validacion']+' class="form-control" id="direccion_'+campo['cae_id']+'" name="direccion_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
-                        '</div>' +
-                        '</div>';
-
-                    /////////////////
-                    //INI Coordenadas:
-                    contenido += '<div class="panel panel-default"><div class="panel-heading"><strong>' + 'Coordenadas' + '</strong></div><div class="panel-body">';
-                    contenido += '<div class="form-group">' +
-                        '<label for="longitud_' + campo['cae_id'] + '" class="col-sm-' + col1 + ' control-label">' + 'Longitud' + ':</label>' +
-                        '<div class="col-sm-' + col2 + '">' +
-                        '<input '+campo['cae_validacion']+' class="form-control" id="longitud_'+campo['cae_id']+'" name="longitud_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
-                        '</div>' +
-                        '</div>';
-                    contenido += '<div class="form-group">' +
-                        '<label for="latitud_' + campo['cae_id'] + '" class="col-sm-' + col1 + ' control-label">' + 'Latitud' + ':</label>' +
-                        '<div class="col-sm-' + col2 + '">' +
-                        '<input '+campo['cae_validacion']+' class="form-control" id="latitud_'+campo['cae_id']+'" name="latitud_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
-                        '</div>' +
-                        '</div>';
-
-
-                        //'<div id="provincia_canton_parroquia_ciudad_' + campo['cae_id'] + '"></div>' +
-
-                    contenido += '</div></div>';
-                    // FIN Coordenadas
-                    /////////////////////
-
-                    contenido += '</div></div>';
                 } else {
                     contenido += '<div class="form-group">' +
                         '<label for="campo_extra_' + campo['cae_id'] + '" class="col-sm-' + col1 + ' control-label">' + campo['cae_texto'] + ':</label>' +
@@ -1314,7 +1588,10 @@ function p_validar(target){
 
 function p_guardar(){
     if (p_validar($('#formulario'))) {
+        $('#formulario').find('.typeahead-nodo').each(function(){$(this).prop('disabled', true)});
         var dataset = $('#formulario').serialize();
+        $('#formulario').find('.typeahead-nodo').each(function(){$(this).prop('disabled', false)});
+
         console.log('dataset: ', dataset   );
         $.post('/_guardarValoresExtra', dataset, function(data){
 

@@ -330,79 +330,83 @@ EOT;
                                 $nombre = $nombre . '-' . random_int(100000, 999999);
                                 $ext = strtolower(pathinfo($adjunto_plantilla['arc_nombre'], PATHINFO_EXTENSION));
                                 $ruta_plantilla = 'uploads/' . $adjunto_plantilla['arc_nombre'];
-                                if ($ext == 'xls' || $ext == 'xlsx' || $ext == 'ods') {
-                                    //////////////
-                                    //Excel
+                                if (file_exists($ruta_plantilla)) {
+                                    if ($ext == 'xls' || $ext == 'xlsx' || $ext == 'ods') {
+                                        //////////////
+                                        //Excel
 
-                                    //echo "sacando Excel";
+                                        //echo "sacando Excel";
 
-                                    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($ruta_plantilla);
+                                        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($ruta_plantilla);
 
-                                    $worksheet = $spreadsheet->getActiveSheet();
+                                        $worksheet = $spreadsheet->getActiveSheet();
 
-                                    $filas = $worksheet->toArray();
+                                        $filas = $worksheet->toArray();
 
-                                    //var_dump($filas);
-                                    foreach($filas as $x => $fila){
-                                        foreach($fila as $y => $celda){
-                                            if (!empty($celda)) {
-                                                //echo "[$x, $y: $celda]";
-                                                if (preg_match_all('/\$\{([a-zA-Z0-9_]+)\}/', $celda, $matches)){
-                                                    //var_dump($matches);
-                                                    $nuevo_valor = $celda;
-                                                    foreach ($matches[0] as $k => $match) {
-                                                        $campo_codigo = $matches[1][$k];
-                                                        $valor = $campos_valores[$campo_codigo];
-                                                        $nuevo_valor = str_replace($match, $valor, $nuevo_valor);
+                                        //var_dump($filas);
+                                        foreach($filas as $x => $fila){
+                                            foreach($fila as $y => $celda){
+                                                if (!empty($celda)) {
+                                                    //echo "[$x, $y: $celda]";
+                                                    if (preg_match_all('/\$\{([a-zA-Z0-9_]+)\}/', $celda, $matches)){
+                                                        //var_dump($matches);
+                                                        $nuevo_valor = $celda;
+                                                        foreach ($matches[0] as $k => $match) {
+                                                            $campo_codigo = $matches[1][$k];
+                                                            $valor = $campos_valores[$campo_codigo];
+                                                            $nuevo_valor = str_replace($match, $valor, $nuevo_valor);
+                                                        }
+                                                        //echo " --[[$nuevo_valor]]--";
+
+                                                        //$nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
+                                                        $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
                                                     }
-                                                    //echo " --[[$nuevo_valor]]--";
-
-                                                    //$nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
-                                                    $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
                                                 }
                                             }
                                         }
+
+                                        //$worksheet->getCell('A1')->setValue('John');
+                                        //$worksheet->getCell('A2')->setValue('Smith');
+
+                                        $nombre = $nombre . '.xlsx';
+                                        //echo " [[NOMBRE: $nombre]]";
+                                        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+                                        $writer->save($nombre);
+                                        $xls_generado = true;
+
+                                        //} else if ($ext == 'doc' || $ext == 'docx' || $ext == 'odt') { //no funciona con .doc, sale este error:  
+                                        //                        ZipArchive::getFromName(): Invalid or uninitialized Zip object
+                                    } else if ($ext == 'docx' || $ext == 'odt') {
+                                        //echo "[EXT:$ext]";
+                                        ////////////
+                                        // Word
+                                        //$doc = \PhpOffice\PhpWord\IOFactory::load($ruta_plantilla);
+                                        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($ruta_plantilla);
+
+                                        foreach ($campos_valores as $campo => $valor) {
+                                            //echo "[$campo: $valor]";
+                                            $templateProcessor->setValue($campo, $valor);
+                                        }
+
+                                        $nombre = $nombre .'.docx';
+                                        //echo " -[$nombre]- ";
+
+                                        // $writer = \PhpOffice\PhpWord\IOFactory::createWriter($doc, 'Word2007');
+                                        // $writer->save($pla_adjunto_nombre);
+                                        $templateProcessor->saveAs($nombre);
+                                        $xls_generado = true;
+                                    } else {
+                                        //cualquier otro tipo de archivo se pasa como está, sin ninguna modificación
+                                        $nombre = $nombre . '.' . $ext;
+                                        $result_copy = copy($ruta_plantilla, $nombre);
+                                        if ($result_copy) {
+                                            l('no se pudo copiar el archivo ' . $ruta_plantilla);
+                                        }
                                     }
-
-                                    //$worksheet->getCell('A1')->setValue('John');
-                                    //$worksheet->getCell('A2')->setValue('Smith');
-
-                                    $nombre = $nombre . '.xlsx';
-                                    //echo " [[NOMBRE: $nombre]]";
-                                    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
-                                    $writer->save($nombre);
-                                    $xls_generado = true;
-
-                                    //} else if ($ext == 'doc' || $ext == 'docx' || $ext == 'odt') { //no funciona con .doc, sale este error:  
-                                    //                        ZipArchive::getFromName(): Invalid or uninitialized Zip object
-                                } else if ($ext == 'docx' || $ext == 'odt') {
-                                    //echo "[EXT:$ext]";
-                                    ////////////
-                                    // Word
-                                    //$doc = \PhpOffice\PhpWord\IOFactory::load($ruta_plantilla);
-                                    $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($ruta_plantilla);
-
-                                    foreach ($campos_valores as $campo => $valor) {
-                                        //echo "[$campo: $valor]";
-                                        $templateProcessor->setValue($campo, $valor);
-                                    }
-
-                                    $nombre = $nombre .'.docx';
-                                    //echo " -[$nombre]- ";
-
-                                    // $writer = \PhpOffice\PhpWord\IOFactory::createWriter($doc, 'Word2007');
-                                    // $writer->save($pla_adjunto_nombre);
-                                    $templateProcessor->saveAs($nombre);
-                                    $xls_generado = true;
+                                    $respuesta['plantillas'][$pla_id]['adjuntos_generados'][] = $nombre;
                                 } else {
-                                    //cualquier otro tipo de archivo se pasa como está, sin ninguna modificación
-                                    $nombre = $nombre . '.' . $ext;
-                                    $result_copy = copy($ruta_plantilla, $nombre);
-                                    if ($result_copy) {
-                                        l('no se pudo copiar el archivo ' . $ruta_plantilla);
-                                    }
+                                    l('No existe el archivo plantilla: ' . $ruta_plantilla);
                                 }
-                                $respuesta['plantillas'][$pla_id]['adjuntos_generados'][] = $nombre;
                             } catch(Exception $e) {
                                 //echo '<div>ERROR EN LOS ARCHIVOS: ' . $e->getMessage() . '</div>';
                                 l($e->getMessage());
