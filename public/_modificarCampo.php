@@ -1,11 +1,13 @@
 <?php
 
 $txt = array('texto', 'codigo', 'validacion');
+$no_nulo = array('cantidad');
 
 foreach($_POST as $k => $v) {
-    $v = empty($v) ? 'NULL' : (in_array($k, $txt) ? "'$v'" : $v);
+    $v = empty($v) ? (in_array($k, $no_nulo) ? (in_array($k, $txt) ? "''" : '0') : 'NULL') : (in_array($k, $txt) ? "'$v'" : $v);
     $$k = $v;
 }
+
 
 $sql = null;
 $result = array();
@@ -41,6 +43,7 @@ if ($accion == 'duplicar') {
                     ,cae_tipo_dato
                     ,cae_validacion
                     ,cae_orden
+                    ,cae_cantidad
                     ,cae_padre
                 ) SELECT 
                     cae_texto
@@ -48,6 +51,7 @@ if ($accion == 'duplicar') {
                     ,cae_tipo_dato
                     ,cae_validacion
                     ,cae_orden
+                    ,cae_cantidad
                     ,$cae_padre
                 FROM sai_campo_extra
                 WHERE cae_id = {$campo[cae_id]} 
@@ -105,6 +109,7 @@ if ($accion == 'duplicar') {
         ,cae_tipo_dato = $tipo_dato
         ,cae_validacion = $validacion
         ,cae_orden = $orden
+        ,cae_cantidad = $cantidad
         ,cae_padre = $padre
         WHERE cae_id = $id
         RETURNING *
@@ -117,6 +122,7 @@ if ($accion == 'duplicar') {
             ,cae_tipo_dato
             ,cae_validacion
             ,cae_orden
+            ,cae_cantidad
             ,cae_padre
         ) VALUES (
             $texto
@@ -124,6 +130,7 @@ if ($accion == 'duplicar') {
             ,$tipo_dato
             ,$validacion
             ,$orden
+            ,$cantidad
             ,$padre
         ) RETURNING *
     ");

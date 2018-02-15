@@ -58,6 +58,8 @@ $plantilla_cabecera = <<<EOT
           <strong>Validación:</strong> <span id="cae_validacion_%CAE_ID%">%CAE_VALIDACION%</span>
           <br>
           <strong>Orden:</strong> <span id="cae_orden_%CAE_ID%">%CAE_ORDEN%</span>
+          <br>
+          <strong>Cantidad:</strong> <span id="cae_cantidad_%CAE_ID%">%CAE_CANTIDAD%</span>
         </div>
       </div>
       <div class="panel panel-default">
@@ -90,6 +92,7 @@ function p_tree($arbol) {
             ,'%TID_NOMBRE%' => $c[tid_nombre]
             ,'%CAE_VALIDACION%' => $c[cae_validacion]
             ,'%CAE_ORDEN%' => $c[cae_orden]
+            ,'%CAE_CANTIDAD%' => $c[cae_cantidad]
             ,'%COUNT_HIJOS%' => count($c[hijos])
         );
 
@@ -144,6 +147,12 @@ p_tree($campos[null][hijos]);
     <label for="orden" class="col-sm-2 control-label">Orden:</label>
     <div class="col-sm-10">
       <input type="text" class="form-control" id="orden" name="orden" placeholder="">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="cantidad" class="col-sm-2 control-label">Cantidad de elementos:</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="cantidad" name="cantidad" placeholder="">
     </div>
   </div>
   <div class="form-group">
@@ -394,6 +403,7 @@ function p_guardar(){
                     cabecera = cabecera.split('%CAE_CODIGO%').join(data['cae_codigo']);
                     cabecera = cabecera.split('%CAE_VALIDACION%').join(data['cae_validacion']);
                     cabecera = cabecera.split('%CAE_ORDEN%').join(data['cae_orden']);
+                    cabecera = cabecera.split('%CAE_CANTIDAD%').join(data['cae_cantidad']);
                     cabecera = cabecera.split('%COUNT_HIJOS%').join('0');
                     console.log('caberera-pie:', cabecera, pie);
 
@@ -409,6 +419,7 @@ function p_guardar(){
                     $('#cae_codigo_' + data['cae_id']).text(data['cae_codigo']);
                     $('#cae_validacion_' + data['cae_id']).text(data['cae_validacion']);
                     $('#cae_orden_' + data['cae_id']).text(data['cae_orden']);
+                    $('#cae_cantidad_' + data['cae_id']).text(data['cae_cantidad']);
                 }
                 $('#modal').modal('hide');
             }

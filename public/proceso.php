@@ -647,10 +647,6 @@ foreach($provincias as $provincia) {
   </div>
 </div>
 <script>
-    $('.combo-select2').select2({
-        language: "es"
-        ,width: '100%'
-    });
     function p_cargar_cantones_ciudades(target, cae_id){
         console.log('En p_cargar_cantones_ciudades', $(target).val(), cae_id);
         var prv_id = $(target).val();
@@ -718,9 +714,6 @@ foreach($provincias as $provincia) {
         }
     }
 
-    function p_validar() {
-        console.log('En p_validar');
-    }
 </script>
 </form>
 
@@ -728,6 +721,106 @@ foreach($provincias as $provincia) {
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-success" onclick="p_crear_nodo()" id="boton_crear_nodo">Crear nodo y regresar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div id="modal_nodo_completo" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog xxx-modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-nuevo-title">Completar datos del nodo</h4>
+      </div>
+      <div class="modal-body">
+
+<form id="formulario_nodo_completo" class="form-horizontal">
+<input type="hidden" id="nod_completo_cae_id" name="cae_id" value="">
+<input type="hidden" id="nod_completo_id" name="nod_id" value="">
+    <div class="form-group">
+      <label class="col-sm-<?=$col1?> control-label">Código:</label>
+      <div class="col-sm-<?=$col2?>">
+        <span id="nod_completo_codigo"></span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-sm-<?=$col1?> control-label">Descripción:</label>
+      <div class="col-sm-<?=$col2?>">
+        <span id="nod_completo_descripcion"></span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="nod_costo_instalacion_proveedor" class="col-sm-<?=$col1?> control-label">Costo de instalación del proveedor:</label>
+      <div class="col-sm-<?=$col2?>">
+        <input <?=$cae_validacion?> class="form-control" id="nod_costo_instalacion_proveedor" name="nod_costo_instalacion_proveedor" placeholder="" value="" onblur="p_validar(this)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="nod_costo_instalacion_cliente" class="col-sm-<?=$col1?> control-label">Costo de instalación del cliente:</label>
+      <div class="col-sm-<?=$col2?>">
+        <input <?=$cae_validacion?> class="form-control" id="nod_costo_instalacion_cliente" name="nod_costo_instalacion_cliente" placeholder="" value="" onblur="p_validar(this)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="nod_tipo_ultima_milla" class="col-sm-<?=$col1?> control-label">Tipo de última milla:</label>
+      <div class="col-sm-<?=$col2?>">
+        <select <?=$cae_validacion?> class="form-control combo-select2" id="nod_tipo_ultima_milla" name="nod_tipo_ultima_milla" onblur="p_validar(this)">
+          <option value="">&nbsp;</option>
+<?php
+$result_tum = q("
+    SELECT * 
+    FROM sai_tipo_ultima_milla
+    WHERE tum_borrado IS NULL
+");
+if ($result_tum) {
+    foreach ($result_tum as $r) {
+        echo "<option value='{$r[tum_id]}'>{$r[tum_nombre]}</option>";
+    }
+}
+?>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="nod_responsable_ultima_milla" class="col-sm-<?=$col1?> control-label">Responsable de última milla:</label>
+      <div class="col-sm-<?=$col2?>">
+        <input <?=$cae_validacion?> class="form-control" id="nod_responsable_ultima_milla" name="nod_responsable_ultima_milla" placeholder="" value="" onblur="p_validar(this)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="nod_distancia" class="col-sm-<?=$col1?> control-label">Distancia:</label>
+      <div class="col-sm-<?=$col2?>">
+        <input <?=$cae_validacion?> class="form-control" id="nod_distancia" name="nod_distancia" placeholder="" value="" onblur="p_validar(this)">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="nod_fecha_termino" class="col-sm-<?=$col1?> control-label">Fecha de término:</label>
+      <div class="col-sm-<?=$col2?>">
+                <div class="input-group date">
+                    <input <?=$cae_validacion?> class="form-control datetimepicker" id="nod_fecha_termino" name="nod_fecha_termino" placeholder="" value="" onblur="p_validar(this)">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+      </div>
+    </div>
+
+</form>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success" onclick="p_completar_nodo()" id="boton_crear_nodo">Guardar datos del nodo y regresar</button>
       </div>
     </div>
   </div>
@@ -1131,6 +1224,36 @@ function p_inicializar_autocompletar(id){
 }
 
 
+function p_completar_nodo() {
+    var cae_id = $('#nod_completo_cae_id').val();
+    var nod_id = $('#nod_completo_id').val();
+    console.log('en p_completar_nodo', nod_id);
+
+    if (p_validar($('#formulario_nodo_completo'))) {
+        var dataset = $('#formulario_nodo_completo').serialize();
+        console.log('dataset: ', dataset);
+
+        $.post('/_completarNodo', dataset, function(data){
+            console.log('Respuesta /_completarNodo:', data);
+            data = JSON.parse(data);
+            console.log('data:', data);
+
+            $('#modal_nodo_completo').modal('hide');
+            $('#modal_nodo_completo').on('hidden.bs.modal', function () {
+                data = data[0];
+                //direccion = $('#nod_direccion').val();
+                //var item = {id:data['nod_id'], name:data['nod_codigo'] + ': ' + data['nod_descripcion'] + ' ('+direccion+')'};
+                //$('#campo_extra_'+id).val(item.id);
+                //$('#campo_extra_detalle_valor_'+id).text(item.name);
+                //$('#campo_extra_grupo_'+id).hide();
+                //$('#campo_extra_detalle_'+id).show();
+
+                $('#modal').modal('show');
+                $('#modal_nodo_completo').off('hidden.bs.modal');
+            });
+        });
+    }
+}
 function p_crear_nodo() {
     var id = $('#nod_cae_id').val();
     console.log('en p_crear_nodo', id);
@@ -1158,6 +1281,65 @@ function p_crear_nodo() {
             });
         });
     }
+}
+
+function p_abrir_nodo_completo(id) {
+
+    console.log('en p_abrir_nodo_completo', id);
+    var ate_id = $('#ate_id').val();
+
+    $.get('/_obtenerNodoDeAtencion/' + ate_id, function(data){
+        console.log('Obteniendo detalle de atencion ' + ate_id, data);
+        data = JSON.parse(data);
+        console.log('data:', data);
+        if (data) {
+            data = data[0];
+            $('#nod_completo_codigo').text(data['nod_codigo']);
+            $('#nod_completo_descripcion').text(data['nod_descripcion']);
+            $('#modal').modal('hide');
+            $('#modal').on('hidden.bs.modal', function () {
+                $('#modal_nodo_completo').find(':input').each(function() {
+                    switch(this.type) {
+                    case 'password':
+                    case 'text':
+                    case 'textarea':
+                    case 'file':
+                    case 'select-one':
+                    case 'select-multiple':
+                    case 'date':
+                    case 'number':
+                    case 'tel':
+                    case 'email':
+                    case 'hidden':
+                        $(this).val('');
+                        break;
+                    case 'checkbox':
+                    case 'radio':
+                        this.checked = false;
+                        break;
+                    }
+                });
+                $('#modal_nodo_completo').find('.panel-collapse.in').each(function() {
+                    $(this).collapse('hide');
+                });
+                $('#nod_completo_cae_id').val(id);
+                $('#nod_completo_id').val(data['nod_id']);
+                console.log('CAMPO #nod_completo_id:', $('#nod_completo_id').val());
+
+                $('#nod_costo_instalacion_proveedor').val(data['nod_costo_instalacion_proveedor']);
+                $('#nod_costo_instalacion_cliente').val(data['nod_costo_instalacion_cliente']);
+                $('#nod_tipo_ultima_milla').val(data['nod_tipo_ultima_milla']);
+                $('#nod_responsable_ultima_milla').val(data['nod_responsable_ultima_milla']);
+                $('#nod_distancia').val(data['nod_distancia']);
+                $('#nod_fecha_termino').val(data['nod_fecha_termino']);
+
+                $('#modal_nodo_completo').modal('show');
+                $('#modal').off('hidden.bs.modal');
+            });
+        } else {
+            alert('No hay nodo relacionado');
+        }
+    });
 }
 
 function p_abrir_nuevo_nodo(id){
@@ -1548,6 +1730,16 @@ function p_desplegar_campos(campos, padre_id) {
     '<div class="col-sm-1">' +
     '<button type="button" class="btn btn-danger boton-quitar" id="campo_extra_quitar_'+campo['cae_id']+'" onclick="p_quitar_nodo('+campo['cae_id']+')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>' +
     '</div>' +
+                        '</div>'+
+                        '';
+                } else if (campo['tipo_dato'] == 'nodo_completo') {
+
+                    contenido += ''+
+                        '<div class="form-group" id="nodo_completo_grupo_'+campo['cae_id']+'">' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<input type="hidden" id="nodo_completo_' + campo['cae_id'] + '" name="nodo_completo_' + campo['cae_id'] + '" value="' + valor + '">' +
+                        '<button class="btn btn-warning" id="boton_nodo_completo_'+campo['cae_id']+'" onclick="p_abrir_nodo_completo(' + campo['cae_id'] + ');return false;" >Completar datos de nodo</button>' +
+                        '</div>' +
                         '</div>'+
                         '';
                 } else {

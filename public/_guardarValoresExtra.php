@@ -135,9 +135,23 @@ foreach ($_POST as $k => $v){
                     break;
                 case 'nodo':
                     $vae_nodo = "$v";
+                    $sql = ("
+                        UPDATE sai_atencion
+                        SET ate_nodo = $vae_nodo
+                        WHERE ate_borrado IS NULL
+                        AND ate_id = $ate_id
+                    ");
+                    //echo $sql;
+                    q($sql);
                     break;
                 case 'conexion':
                     $vae_conexion = "$v";
+                    q("
+                        UPDATE sai_atencion
+                        SET ate_conexion = $vae_conexion
+                        WHERE ate_borrado IS NULL
+                        AND ate_id = $ate_id
+                    ");
                     break;
                 case 'conexion_completar':
                     $vae_conexion = "$v";

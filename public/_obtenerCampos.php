@@ -48,7 +48,7 @@ if ($extender_campos_anteriores == 1) {
 $sql = "
     SELECT *
     ,(
-        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion) 
+        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, to_json(vae_nodos)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
