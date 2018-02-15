@@ -322,14 +322,26 @@ function p_abrir(id){
 
 function p_duplicar(){
 
-    if (confirm('Seguro desea duplicar el campo "' + $('#texto').val() + '" (' + $('#codigo').val() + ')')) {
+    var respuesta = prompt('Cantidad de duplicados del campo "' + $('#texto').val() + '" (' + $('#codigo').val() + '):', 1);
+
+    console.log((parseInt(respuesta) != respuesta ? 'no' : 'SI: ' + respuesta));
+    //if (confirm('Seguro desea duplicar el campo "' + $('#texto').val() + '" (' + $('#codigo').val() + ')')) {
+    if (parseInt(respuesta) == respuesta) {
+        if (respuesta > 100) {
+            alert('Se realizarán solo 100 duplicados.');
+            respuesta = 100;
+        }
         $('#accion').val('duplicar');
         var dataset = $('#formulario').serialize();
+        var count = 0;
+
+        for (var i=0; i < respuesta; i++) {
         $.post('/_modificarCampo', dataset, function(data){
-            console.log('_modificarCampo', data);
+            count ++;
+            console.log('Respuesta '+count+' de '+respuesta+' de _modificarCampo', data);
             data = JSON.parse(data);
             if (data['ERROR']) {
-                alert (data['ERROR']);
+                console.error('ERROR:', data['ERROR']);
             } else {
                 data = data[0];
                 console.log(data);
@@ -338,11 +350,13 @@ function p_duplicar(){
                 //$('#hijos_' + data['cae_padre']).append($('#campo_' + data['cae_id']).clone());
                 //var count = parseInt($('#count_hijos_' + data['cae_padre']).text());
                 //$('#count_hijos_' + data['cae_padre']).text(count - 1);
+            }
+            if (count >= respuesta) {
                 location.reload();
-                
                 $('#modal').modal('hide');
             }
         });
+        }
     }
 }
 
