@@ -108,6 +108,7 @@ foreach ($_POST as $k => $v){
         $vae_numero = 'null';
         $vae_fecha = 'null';
         $vae_nodo = 'null';
+        $vae_ciudad = 'null';
         $vae_conexion = 'null';
 
         if (!empty($v) && $v != 'null') {
@@ -132,6 +133,9 @@ foreach ($_POST as $k => $v){
                     break;
                 case 'fecha':
                     $vae_fecha = "to_timestamp('$v', 'YYYY-MM-DD hh24:mi:ss')";
+                    break;
+                case 'ciudad':
+                    $vae_ciudad = "$v";
                     break;
                 case 'nodo': case 'nodo_completo':
                     $vae_nodo = "$v";
@@ -175,6 +179,7 @@ foreach ($_POST as $k => $v){
                 , vae_fecha
                 , vae_nodo
                 , vae_conexion
+                , vae_ciudad
             ) VALUES (
                 $cae_id
                 , $paa_id
@@ -183,6 +188,7 @@ foreach ($_POST as $k => $v){
                 , $vae_fecha
                 , $vae_nodo
                 , $vae_conexion
+                , $vae_ciudad
             ) RETURNING *
         ");
         $respuesta[] = $return;

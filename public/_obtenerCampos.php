@@ -48,7 +48,7 @@ if ($extender_campos_anteriores == 1) {
 $sql = "
     SELECT *
     ,(
-        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, to_json(vae_nodos)) 
+        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -75,6 +75,21 @@ $sql = "
         AND paa_paso_anterior IS NULL
         AND paa_atencion = $ate_id
     ) AS nodo
+    , (
+        SELECT ciu_nombre 
+        FROM sai_valor_extra
+        , sai_paso_atencion 
+        , sai_ciudad
+        WHERE vae_borrado IS NULL 
+        AND paa_borrado IS NULL 
+        AND ciu_borrado IS NULL
+        AND vae_campo_extra = cae_id 
+        AND paa_id=vae_paso_atencion
+        AND ciu_id = vae_ciudad
+        AND paa_paso_anterior IS NULL
+        AND paa_atencion = $ate_id
+    ) AS ciudad
+
     , (
         SELECT des_nombre
         FROM sai_destinatario

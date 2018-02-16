@@ -368,6 +368,14 @@ EOT;
                 AND nod_id = vae_nodo
                 AND ubi_id = nod_ubicacion
             ) AS nodo
+            , (
+                SELECT ciu_nombre 
+                FROM 
+                 sai_ciudad
+                WHERE 
+                ciu_borrado IS NULL
+                AND ciu_id = vae_ciudad
+            ) AS ciudad
             FROM sai_campo_extra
             ,sai_paso_atencion
             ,sai_valor_extra
@@ -384,7 +392,7 @@ EOT;
         if ($result_campos) {
             foreach($result_campos as $rdato){
                 $label = ucfirst($rdato['cae_texto']);
-                $dato = $rdato['vae_texto'] . $rdato['vae_numero'] . $rdato['vae_fecha'] . $rdato['nodo'];
+                $dato = $rdato['vae_texto'] . $rdato['vae_numero'] . $rdato['vae_fecha'] . $rdato['nodo'] .$rdato['ciudad'];
                 echo <<<EOT
             <tr>
               <th style="width:30%;">$label:</th>
@@ -1203,6 +1211,35 @@ $(document).ready(function() {
 
 function p_inicializar_autocompletar(id){
     //$('#campo_extra_typeahead_'+id).typeahead({
+    $('.typeahead-ciudad').typeahead({
+        source:function(query, process){
+            $.get('/_listarCiudades/' + query, function(data){
+                console.log(data);
+                data = JSON.parse(data);
+                process(data.lista);
+            });
+        },
+        displayField:'name',
+        valueField:'id',
+        highlighter:function(name){
+            var ficha = '';
+            ficha +='<div>';
+            ficha +='<h4>'+name+'</h4>';
+            ficha +='</div>';
+            return ficha;
+        },
+        updater:function(item){
+            var id = $(this.$element[0]).prop('id').split('_').pop();
+
+            console.log('typeahead ID:' , id);
+
+            $('#campo_extra_'+id).val(item.id);
+            $('#campo_extra_detalle_valor_'+id).text(item.name);
+            $('#campo_extra_grupo_'+id).hide();
+            $('#campo_extra_detalle_'+id).show();
+            return item.name;
+        }
+    });
     $('.typeahead-nodo').typeahead({
         source:function(query, process){
             $.get('/_listarNodos/' + query, function(data){
@@ -1390,8 +1427,8 @@ function p_abrir_nuevo_nodo(id){
     });
 }
 
-function p_quitar_nodo(id){
-    console.log('en p_quitar_nodo', id);
+function p_quitar_opcion_typeahead(id){
+    console.log('en p_quitar_opcion_typeahead', id);
             $('#campo_extra_'+id).val('');
             $('#campo_extra_typeahead_'+id).typeahead('val', '');
             $('#campo_extra_typeahead_'+id).val('');
@@ -1713,6 +1750,36 @@ function p_desplegar_campos(campos, padre_id) {
                         '</div>'+
                         '';
 
+                } else if (campo['tipo_dato'] == 'ciudad') {
+                    var descripcion = '';
+                    var grupo_style = '';
+                    var detalle_style = 'style="display:none;"';
+
+                    if (campo['ciudad']) {
+                        descripcion = campo['ciudad'];
+                        grupo_style = 'style="display:none;"';
+                        detalle_style = '';
+                    }
+
+                    contenido += ''+
+                        '<div class="form-group" '+grupo_style+' id="campo_extra_grupo_'+campo['cae_id']+'">' +
+                        '<label for="campo_extra_typeahead_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<input type="hidden" id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="' + valor + '">' +
+                        '<input type="text" '+campo['cae_validacion']+' class="form-control typeahead-ciudad" id="campo_extra_typeahead_'+campo['cae_id']+'" name="campo_extra_typeahead_'+campo['cae_id']+'" data-provide="typeahead" autocomplete="off" placeholder="Ingrese al menos 2 caracteres" value="' + valor + '" onblur="p_validar(this)">' +
+                        '</div>' +
+                        '</div>'+
+
+                        '<div class="form-group" '+detalle_style+' id="campo_extra_detalle_'+campo['cae_id']+'">' +
+                        '<label class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                        '<div class="col-sm-' + (col2 - 2) + '">' +
+                        '<span id="campo_extra_detalle_valor_' + campo['cae_id'] + '">' + descripcion + '</span>' +
+                        '</div>' +
+    '<div class="col-sm-1">' +
+    '<button type="button" class="btn btn-danger boton-quitar" id="campo_extra_quitar_'+campo['cae_id']+'" onclick="p_quitar_opcion_typeahead('+campo['cae_id']+')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>' +
+    '</div>' +
+                        '</div>'+
+                        '';
                 } else if (campo['tipo_dato'] == 'nodo') {
                     var descripcion = '';
                     var grupo_style = '';
@@ -1742,7 +1809,7 @@ function p_desplegar_campos(campos, padre_id) {
                         '<span id="campo_extra_detalle_valor_' + campo['cae_id'] + '">' + descripcion + '</span>' +
                         '</div>' +
     '<div class="col-sm-1">' +
-    '<button type="button" class="btn btn-danger boton-quitar" id="campo_extra_quitar_'+campo['cae_id']+'" onclick="p_quitar_nodo('+campo['cae_id']+')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>' +
+    '<button type="button" class="btn btn-danger boton-quitar" id="campo_extra_quitar_'+campo['cae_id']+'" onclick="p_quitar_opcion_typeahead('+campo['cae_id']+')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>' +
     '</div>' +
                         '</div>'+
                         '';
@@ -1795,9 +1862,9 @@ function p_validar(target){
 
 function p_guardar(){
     if (p_validar($('#formulario'))) {
-        $('#formulario').find('.typeahead-nodo').each(function(){$(this).prop('disabled', true)});
+        $('#formulario').find('.typeahead').each(function(){$(this).prop('disabled', true)});
         var dataset = $('#formulario').serialize();
-        $('#formulario').find('.typeahead-nodo').each(function(){$(this).prop('disabled', false)});
+        $('#formulario').find('.typeahead').each(function(){$(this).prop('disabled', false)});
 
         console.log('dataset: ', dataset   );
         $.post('/_guardarValoresExtra', dataset, function(data){
