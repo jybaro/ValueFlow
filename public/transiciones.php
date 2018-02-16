@@ -983,7 +983,8 @@ function p_guardar(target) {
                 $('#badge_servicio_' + ser_id).text(count + 1);
 
                 $('#badge_transicion_' + desde + '_'+ hacia).show();
-                count  = parseInt($('#badge_transicion_' + desde + '_'+ hacia).text());
+                count  = $('#badge_transicion_' + desde + '_'+ hacia).text();
+                count  = (count == '') ? 0 : parseInt($('#badge_transicion_' + desde + '_'+ hacia).text());
                 console.log('transicion count', desde + '_'+ hacia, count + 1);
                 $('#badge_transicion_' + desde + '_'+ hacia).text(count + 1);
             }

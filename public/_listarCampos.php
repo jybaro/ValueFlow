@@ -15,16 +15,24 @@ if (strlen($query) >= $extension_minima) {
 
     $result = q("
         SELECT *
-        FROM sai_campo_extra
-        WHERE cae_borrado IS NULL
-        AND cae_transicion_estado_atencion IS NULL
-        AND (cae_texto ILIKE '%$query%' OR cae_codigo ILIKE '%$query%')
-        ORDER BY cae_texto
+        ,(
+            SELECT cae_texto
+            FROM sai_campo_extra AS padre
+            WHERE padre.cae_id = cae.cae_padre
+        ) AS padre_texto
+        FROM sai_campo_extra AS cae
+        WHERE cae.cae_borrado IS NULL
+        AND cae.cae_transicion_estado_atencion IS NULL
+        AND (cae.cae_texto ILIKE '%$query%' OR cae.cae_codigo ILIKE '%$query%')
+        ORDER BY cae.cae_texto
     ");
 
     if ($result) {
         foreach($result as $r){
             $respuesta = array('id' => $r['cae_id'], 'name' => ($r['cae_codigo'] . ' (' . $r['cae_texto'] . ')'));
+            if (!empty($r['padre_texto'])) {
+                $respuesta['name'] = $r['padre_texto'] . ' >> '. $respuesta['name'];
+            }
             $respuestas[] = $respuesta; 
         }
     } else {
