@@ -112,7 +112,9 @@ desired effect
 <?php
 $result = q("
     SELECT * 
-    FROM sai_estado_atencion ORDER BY esa_padre, esa_orden, esa_id
+    FROM sai_estado_atencion 
+    WHERE esa_borrado IS NULL
+    ORDER BY esa_padre, esa_orden, esa_id
 ");
     $tree = array();
     $estados = array();
