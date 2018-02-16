@@ -357,6 +357,17 @@ EOT;
 
         $sql = ("
             SELECT *
+            , (
+                SELECT concat(nod_codigo, ': ',  nod_descripcion, ' (', ubi_direccion, ')')
+                FROM 
+                 sai_nodo
+                , sai_ubicacion
+                WHERE 
+                nod_borrado IS NULL
+                AND ubi_borrado IS NULL
+                AND nod_id = vae_nodo
+                AND ubi_id = nod_ubicacion
+            ) AS nodo
             FROM sai_campo_extra
             ,sai_paso_atencion
             ,sai_valor_extra
@@ -373,7 +384,7 @@ EOT;
         if ($result_campos) {
             foreach($result_campos as $rdato){
                 $label = ucfirst($rdato['cae_texto']);
-                $dato = $rdato['vae_texto'];
+                $dato = $rdato['vae_texto'] . $rdato['vae_numero'] . $rdato['vae_fecha'] . $rdato['nodo'];
                 echo <<<EOT
             <tr>
               <th style="width:30%;">$label:</th>
@@ -757,14 +768,14 @@ foreach($provincias as $provincia) {
     <div class="form-group">
       <label for="nod_costo_instalacion_proveedor" class="col-sm-<?=$col1?> control-label">Costo de instalación del proveedor:</label>
       <div class="col-sm-<?=$col2?>">
-        <input <?=$cae_validacion?> class="form-control" id="nod_costo_instalacion_proveedor" name="nod_costo_instalacion_proveedor" placeholder="" value="" onblur="p_validar(this)">
+        <input type='number' <?=$cae_validacion?> class="form-control" id="nod_costo_instalacion_proveedor" name="nod_costo_instalacion_proveedor" placeholder="" value="" onblur="p_validar(this)">
       </div>
     </div>
 
     <div class="form-group">
       <label for="nod_costo_instalacion_cliente" class="col-sm-<?=$col1?> control-label">Costo de instalación del cliente:</label>
       <div class="col-sm-<?=$col2?>">
-        <input <?=$cae_validacion?> class="form-control" id="nod_costo_instalacion_cliente" name="nod_costo_instalacion_cliente" placeholder="" value="" onblur="p_validar(this)">
+        <input type='number' <?=$cae_validacion?> class="form-control" id="nod_costo_instalacion_cliente" name="nod_costo_instalacion_cliente" placeholder="" value="" onblur="p_validar(this)">
       </div>
     </div>
 
@@ -799,7 +810,7 @@ if ($result_tum) {
     <div class="form-group">
       <label for="nod_distancia" class="col-sm-<?=$col1?> control-label">Distancia:</label>
       <div class="col-sm-<?=$col2?>">
-        <input <?=$cae_validacion?> class="form-control" id="nod_distancia" name="nod_distancia" placeholder="" value="" onblur="p_validar(this)">
+        <input type='number' <?=$cae_validacion?> class="form-control" id="nod_distancia" name="nod_distancia" placeholder="" value="" onblur="p_validar(this)">
       </div>
     </div>
 
@@ -1288,8 +1299,8 @@ function p_abrir_nodo_completo(id) {
     console.log('en p_abrir_nodo_completo', id);
     var ate_id = $('#ate_id').val();
 
-    $.get('/_obtenerNodoDeAtencion/' + ate_id, function(data){
-        console.log('Obteniendo detalle de atencion ' + ate_id, data);
+    $.get('/_obtenerNodoDeAtencion/' + id + '/' + ate_id, function(data){
+        console.log('Obteniendo detalle de atencion ate_id:' + ate_id + ', campo cae_id:'+ id, data);
         data = JSON.parse(data);
         console.log('data:', data);
         if (data) {
@@ -1324,6 +1335,9 @@ function p_abrir_nodo_completo(id) {
                 });
                 $('#nod_completo_cae_id').val(id);
                 $('#nod_completo_id').val(data['nod_id']);
+                $('#campo_extra_' + id).val(data['nod_id']);
+                $('#boton_nodo_completo_' + id).removeClass('btn-warning');
+                $('#boton_nodo_completo_' + id).addClass('btn-success');
                 console.log('CAMPO #nod_completo_id:', $('#nod_completo_id').val());
 
                 $('#nod_costo_instalacion_proveedor').val(data['nod_costo_instalacion_proveedor']);
@@ -1734,11 +1748,12 @@ function p_desplegar_campos(campos, padre_id) {
                         '';
                 } else if (campo['tipo_dato'] == 'nodo_completo') {
 
+                    var btn_class = (valor == parseInt(valor)) ? 'success' : 'warning';
                     contenido += ''+
                         '<div class="form-group" id="nodo_completo_grupo_'+campo['cae_id']+'">' +
                         '<div class="col-sm-' + col2 + '">' +
-                        '<input type="hidden" id="nodo_completo_' + campo['cae_id'] + '" name="nodo_completo_' + campo['cae_id'] + '" value="' + valor + '">' +
-                        '<button class="btn btn-warning" id="boton_nodo_completo_'+campo['cae_id']+'" onclick="p_abrir_nodo_completo(' + campo['cae_id'] + ');return false;" >Completar datos de nodo</button>' +
+                        '<input type="hidden" id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="' + valor + '">' +
+                        '<button class="btn btn-' + btn_class + '" id="boton_nodo_completo_'+campo['cae_id']+'" onclick="p_abrir_nodo_completo(' + campo['cae_id'] + ');return false;" >Completar datos de nodo</button>' +
                         '</div>' +
                         '</div>'+
                         '';

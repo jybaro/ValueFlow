@@ -133,11 +133,17 @@ foreach ($_POST as $k => $v){
                 case 'fecha':
                     $vae_fecha = "to_timestamp('$v', 'YYYY-MM-DD hh24:mi:ss')";
                     break;
-                case 'nodo':
+                case 'nodo': case 'nodo_completo':
                     $vae_nodo = "$v";
+                    $campo_nodo = 'nodo';
+                    if ($cae[cae_validacion] == 'concentrador' || $cae[cae_validacion] == 'extremo') {
+                        $campo_nodo = $cae[cae_validacion];
+                    }
+
                     $sql = ("
                         UPDATE sai_atencion
-                        SET ate_nodo = $vae_nodo
+                        SET 
+                        ate_$campo_nodo = $vae_nodo
                         WHERE ate_borrado IS NULL
                         AND ate_id = $ate_id
                     ");

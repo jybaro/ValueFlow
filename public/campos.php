@@ -11,6 +11,27 @@ $result = q("
         FROM sai_tipo_dato
         WHERE cae_tipo_dato = tid_id
     )
+    ,(
+        SELECT concat(esa_actual.esa_nombre , ' >> ' , esa_siguiente.esa_nombre , ', ', ser_nombre , ' (' , pro_razon_social , ')')
+        FROM sai_transicion_estado_atencion
+        ,sai_estado_atencion AS esa_actual
+        ,sai_estado_atencion AS esa_siguiente
+        ,sai_pertinencia_proveedor
+        ,sai_servicio
+        ,sai_proveedor
+        WHERE tea_borrado IS NULL
+        AND esa_actual.esa_borrado IS NULL
+        AND esa_siguiente.esa_borrado IS NULL
+        AND pep_borrado IS NULL
+        AND ser_borrado IS NULL
+        AND pro_borrado IS NULL
+        AND tea_estado_atencion_actual = esa_actual.esa_id
+        AND tea_estado_atencion_siguiente = esa_siguiente.esa_id
+        AND tea_pertinencia_proveedor = pep_id
+        AND pep_proveedor = pro_id
+        AND pep_servicio = ser_id
+        AND tea_id = cae_transicion_estado_atencion
+    ) AS tea
     FROM sai_campo_extra
     ,sai_tipo_dato
     WHERE cae_borrado IS NULL
@@ -36,7 +57,7 @@ $plantilla_cabecera = <<<EOT
       <div class="radio">
         <label>
           <input type="radio" name="optionsRadios" id="optionsRadios_%CAE_ID%"" value="%CAE_ID%">
-          <h3 id="titulo_%CAE_ID%" class="panel-title">%CAE_TEXTO%</h3>
+          <h3 id="titulo_%CAE_ID%" class="panel-title">%CAE_TEXTO% <span id="badge_titulo_%CAE_ID%" class="badge"></span></h3>
         </label>
       </div>
     </div>
@@ -85,8 +106,13 @@ function p_tree($arbol) {
     global $plantilla_cabecera, $plantilla_pie;
     foreach ($arbol as $cae_id => $c) {
         $cabecera = $plantilla_cabecera;
+        $badge_titulo = '<span id="badge_titulo_%CAE_ID%" class="badge"></span>'; 
+        if (!empty($c[cae_transicion_estado_atencion])) {
+            $badge_titulo = '<span id="badge_titulo_%CAE_ID%" class="badge">'.$c[tea].'</span>'; 
+        }
         $kv = array(
-            '%CAE_ID%' => $c[cae_id]
+            '<span id="badge_titulo_%CAE_ID%" class="badge"></span>' => $badge_titulo
+            ,'%CAE_ID%' => $c[cae_id]
             ,'%CAE_TEXTO%' => $c[cae_texto]
             ,'%CAE_CODIGO%' => $c[cae_codigo]
             ,'%TID_NOMBRE%' => $c[tid_nombre]

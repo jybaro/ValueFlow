@@ -147,10 +147,9 @@ body {
             <li><a href="/autoadmin/sai_pertinencia_proveedor">Pertinencia de proveedores</a></li>
             <li><a href="/usuarios">Usuarios</a></li>
             <li><a href="/campos">Campos</a></li>
-            <li><a href="/autoadmin/sai_archivo">Archivos</a></li>
-            <li><a href="/autoadmin/sai_geografia">Geografías</a></li>
-            <li><a href="/autoadmin/sai_conexion_nodo">Conexiones</a></li>
+            <li><a href="/autoadmin/sai_ubicacion">Ubicaciones</a></li>
             <li><a href="/autoadmin/sai_nodo">Nodos</a></li>
+            <li><a href="/autoadmin/sai_tipo_ultima_milla">Tipos de última milla</a></li>
             <?php if ($_nivel <= 1): ?>
             <li role="separator" class="divider"></li>
             <li><a href="/autoadmin/sai_estado_atencion">Estados</a></li>
