@@ -81,7 +81,18 @@ if (file_exists($nedetel_objeto . '.php')) {
         require_once($nedetel_objeto . '.php');
         l("Acceso a módulo -$nedetel_objeto-, parámetros: " . implode(',', $args));
     } else {
-        echo "ERROR: No tiene permisos para acceder al módulo <strong>$nedetel_objeto</strong>.";
+        //echo "ERROR: No tiene permisos para acceder al módulo <strong>$nedetel_objeto</strong>.";
+        echo <<<EOT
+<div class="jumbotron">
+  <h1><span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span> Sin acceso</h1>
+  <p>No tiene permisos para acceder al módulo <strong>$nedetel_objeto</strong>.</p>
+  <p>
+    <a class="btn btn-primary btn-lg" href="/" role="button">
+    <span class="glyphicon glyphicon-home" aria-hidden="true"></span> Regresar al inicio
+    </a>
+    </p>
+</div>
+EOT;
         l("ERROR: intento de acceso no autorizado al módulo $nedetel_objeto");
     }
 } else {
