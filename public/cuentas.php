@@ -128,7 +128,7 @@ $result = q("
     WHERE 
     usu_borrado IS NULL
     AND rol_id = usu_rol
-    AND rol_codigo = 'comercial'
+    AND rol_codigo = 'cobranzas'
 ");
 if ($result) {
     foreach($result as $r) {
