@@ -92,11 +92,14 @@ if ($accion == 'duplicar') {
         ,cae_orden = $orden
         ,cae_cantidad = $cantidad
         ,cae_padre = $padre
+        FROM sai_tipo_dato  
         WHERE cae_id = $id
+        AND tid_id = $tipo_dato
         RETURNING *
     ");
 } else {
     $sql = ("
+        WITH cae AS (
         INSERT INTO sai_campo_extra (
             cae_texto
             ,cae_codigo
@@ -114,6 +117,11 @@ if ($accion == 'duplicar') {
             ,$cantidad
             ,$padre
         ) RETURNING *
+        )
+        SELECT *
+        FROM cae
+        ,sai_tipo_dato
+        WHERE cae.cae_tipo_dato = tid_id
     ");
 }
 //echo $sql;

@@ -1,7 +1,7 @@
 <div class="page-header">
 <h1>Campos</h1>
 </div>
-<div class="container">
+<div class="container" id="hijos_null">
 <?php
 
 $result = q("
@@ -418,10 +418,12 @@ function p_guardar(){
                     cabecera = cabecera.split('%CAE_VALIDACION%').join(data['cae_validacion']);
                     cabecera = cabecera.split('%CAE_ORDEN%').join(data['cae_orden']);
                     cabecera = cabecera.split('%CAE_CANTIDAD%').join(data['cae_cantidad']);
+                    cabecera = cabecera.split('%TID_NOMBRE%').join(data['tid_nombre']);
                     cabecera = cabecera.split('%COUNT_HIJOS%').join('0');
                     console.log('caberera-pie:', cabecera, pie);
 
                     $('#hijos_' + data['cae_padre']).append(cabecera + pie);
+                    console.log('#hijos_' + data['cae_padre']);
                     var count = parseInt($('#count_hijos_' + data['cae_padre']).text());
                     $('#count_hijos_' + data['cae_padre']).text(count + 1);
 
@@ -434,6 +436,8 @@ function p_guardar(){
                     $('#cae_validacion_' + data['cae_id']).text(data['cae_validacion']);
                     $('#cae_orden_' + data['cae_id']).text(data['cae_orden']);
                     $('#cae_cantidad_' + data['cae_id']).text(data['cae_cantidad']);
+                    $('#tid_nombre_' + data['cae_id']).text(data['tid_nombre']);
+                    console.log('#tid_nombre_' + data['cae_id'], data['tid_nombre'], $('#tid_nombre_' + data['cae_id']).text());
                 }
                 $('#modal').modal('hide');
             }
