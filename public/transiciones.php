@@ -705,10 +705,10 @@ function p_cargar_detalle_transicion(ser_id, pro_id){
             $('#usuario_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['tea_usuario']);
             $('#automatico_'+ser_id+'_'+pro_id+'_'+des_id).prop('checked', transicion['tea_automatico'] == '1');
             $('#tiempo_alerta_horas_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['tea_tiempo_alerta_horas']);
-            $('#asunto_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['pla_asunto']);
-            $('#adjunto_nombre_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['pla_adjunto_nombre']);
-            CKEDITOR.instances['cuerpo_'+ser_id+'_'+pro_id+'_'+des_id].setData(transicion['pla_cuerpo']);
-            CKEDITOR.instances['adjunto_texto_'+ser_id+'_'+pro_id+'_'+des_id].setData(transicion['pla_adjunto_texto']);
+            $('#asunto_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['pla_asunto'] == 'null' ? '' : transicion['pla_asunto']);
+            $('#adjunto_nombre_'+ser_id+'_'+pro_id+'_'+des_id).val(transicion['pla_adjunto_nombre'] == 'null' ? '' : transicion['pla_adjunto_nombre']);
+            CKEDITOR.instances['cuerpo_'+ser_id+'_'+pro_id+'_'+des_id].setData(transicion['pla_cuerpo'] == 'null' ? '' : transicion['pla_cuerpo']);
+            CKEDITOR.instances['adjunto_texto_'+ser_id+'_'+pro_id+'_'+des_id].setData(transicion['pla_adjunto_texto'] == 'null' ? '' : transicion['pla_adjunto_texto']);
             console.log('#usuario_'+ser_id+'_'+pro_id+'_'+des_id);
 
             //p_actualizar_archivos(transicion['archivos'], ser_id+'_'+pro_id+'_'+des_id);
