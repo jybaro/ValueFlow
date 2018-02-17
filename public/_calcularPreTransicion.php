@@ -388,7 +388,6 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
 
                     $campos_valores = array();
 
-
                     foreach ($campos_aun_no_confirmados as $campo) {
                         $campos_valores[$campo['cae_codigo']] = $campo['valor'];
                     }
