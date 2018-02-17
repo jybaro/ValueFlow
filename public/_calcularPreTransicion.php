@@ -414,6 +414,18 @@ EOT;
                     $campos_valores['FECHA'] = p_formatear_fecha(date("Y-m-d H:i:s"));
                     $campos_valores['NOW'] = p_formatear_fecha(date("Y-m-d H:i:s"));
                     $campos_valores['IDENTIFICADOR'] = isset($campos_valores['IDENTIFICADOR']) ? $campos_valores['IDENTIFICADOR'] : $campos_valores['ATE_SECUENCIAL']; 
+                    
+                    $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
+                    
+                    $iniciales = '';
+                    $nombre = $campos_valores['CON_NOMBRES'] . ' ' . $campos_valores['CON_APELLIDOS'];
+                    $nombre = explode(' ', $nombre);
+                    foreach ($nombre as $parte) {
+                        $iniciales .= $parte[0];
+                    }
+                    $iniciales = strtoupper($iniciales);
+
+                    $campos_valores['INICIALES_CLIENTE'] = $iniciales;
 
                     //var_dump($campos_valores);
                     $search = array();
