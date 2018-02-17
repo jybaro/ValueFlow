@@ -85,7 +85,7 @@ if (file_exists($nedetel_objeto . '.php')) {
         echo <<<EOT
 <div class="jumbotron">
   <h1><span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span> Sin acceso</h1>
-  <p>No tiene permisos para acceder al módulo <strong>$nedetel_objeto</strong>.</p>
+  <p>No tiene permisos para acceder a <strong>$nedetel_objeto</strong>.</p>
   <p>
     <a class="btn btn-primary btn-lg" href="/" role="button">
     <span class="glyphicon glyphicon-home" aria-hidden="true"></span> Regresar al inicio

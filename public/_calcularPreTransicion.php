@@ -253,8 +253,14 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             ");
             $result_metadata_atencion = q($sql);
             //datos del nodo:
-            $result_nodo = q("
+            $sql_nodo = ("
                 SELECT *
+                ,(
+                    SELECT tum_nombre
+                    FROM sai_tipo_ultima_milla
+                    WHERE tum_borrado IS NULL
+                    AND nod_tipo_ultima_milla = tum_id
+                )
                 FROM sai_atencion
                 ,sai_nodo
                 ,sai_ubicacion
@@ -262,7 +268,6 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 ,sai_canton
                 ,sai_parroquia
                 ,sai_ciudad
-                ,sai_tipo_ultima_milla
                 WHERE ate_borrado IS NULL
                 AND nod_borrado IS NULL
                 AND ubi_borrado IS NULL
@@ -270,19 +275,26 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 AND can_borrado IS NULL
                 AND par_borrado IS NULL
                 AND ciu_borrado IS NULL
-                AND tum_borrado IS NULL
                 AND ate_nodo = nod_id
                 AND nod_ubicacion = ubi_id
                 AND ubi_provincia = prv_id
                 AND ubi_canton = can_id
                 AND ubi_parroquia = par_id
                 AND ubi_ciudad = ciu_id
-                AND nod_tipo_ultima_milla = tum_id
                 AND ate_id=$ate_id
             ");
+            //echo "SQL NODO: $sql_nodo";
+            $result_nodo = q($sql_nodo);
+            //var_dump($result_nodo);
             //datos del concentrador:
             $result_concentrador = q("
                 SELECT *
+                ,(
+                    SELECT tum_nombre
+                    FROM sai_tipo_ultima_milla
+                    WHERE tum_borrado IS NULL
+                    AND nod_tipo_ultima_milla = tum_id
+                )
                 FROM sai_atencion
                 ,sai_nodo
                 ,sai_ubicacion
@@ -290,7 +302,6 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 ,sai_canton
                 ,sai_parroquia
                 ,sai_ciudad
-                ,sai_tipo_ultima_milla
                 WHERE ate_borrado IS NULL
                 AND nod_borrado IS NULL
                 AND ubi_borrado IS NULL
@@ -298,19 +309,23 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 AND can_borrado IS NULL
                 AND par_borrado IS NULL
                 AND ciu_borrado IS NULL
-                AND tum_borrado IS NULL
                 AND ate_concentrador = nod_id
                 AND nod_ubicacion = ubi_id
                 AND ubi_provincia = prv_id
                 AND ubi_canton = can_id
                 AND ubi_parroquia = par_id
                 AND ubi_ciudad = ciu_id
-                AND nod_tipo_ultima_milla = tum_id
                 AND ate_id=$ate_id
             ");
             //datos del extremo:
             $result_extremo = q("
                 SELECT *
+                ,(
+                    SELECT tum_nombre
+                    FROM sai_tipo_ultima_milla
+                    WHERE tum_borrado IS NULL
+                    AND nod_tipo_ultima_milla = tum_id
+                )
                 FROM sai_atencion
                 ,sai_nodo
                 ,sai_ubicacion
@@ -318,7 +333,6 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 ,sai_canton
                 ,sai_parroquia
                 ,sai_ciudad
-                ,sai_tipo_ultima_milla
                 WHERE ate_borrado IS NULL
                 AND nod_borrado IS NULL
                 AND ubi_borrado IS NULL
@@ -326,14 +340,12 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 AND can_borrado IS NULL
                 AND par_borrado IS NULL
                 AND ciu_borrado IS NULL
-                AND tum_borrado IS NULL
                 AND ate_extremo = nod_id
                 AND nod_ubicacion = ubi_id
                 AND ubi_provincia = prv_id
                 AND ubi_canton = can_id
                 AND ubi_parroquia = par_id
                 AND ubi_ciudad = ciu_id
-                AND nod_tipo_ultima_milla = tum_id
                 AND ate_id=$ate_id
             ");
 
@@ -416,6 +428,9 @@ EOT;
                     $campos_valores['IDENTIFICADOR'] = isset($campos_valores['IDENTIFICADOR']) ? $campos_valores['IDENTIFICADOR'] : $campos_valores['ATE_SECUENCIAL']; 
                     
                     $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
+                    if (isset($campos_valores['CAPACIDAD_ACTUAL']) && isset($campos_valores['NUEVA_CAPACIDAD'])) {
+                        $campos_valores['CAPACIDAD_DELTA'] = abs($campos_valores['NUEVA_CAPACIDAD'] - $campos_valores['CAPACIDAD_ACTUAL']);
+                    }
                     
                     $iniciales = '';
                     $nombre = $campos_valores['CON_NOMBRES'] . ' ' . $campos_valores['CON_APELLIDOS'];

@@ -421,12 +421,12 @@ $num_formulario = 0;
   <div class="form-group">
     <label for="asunto" class="col-sm-2 control-label">Responsable:</label>
     <div class="col-sm-10">
-      <select class="form-control" id="usuario_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="usuario">
+      <select class="form-control select2" id="usuario_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="usuario">
       <option></option>
 <?php
     foreach($usuarios as $usu_id => $usuario) {
         $valor = $usu_id;
-        $etiqueta = $usuario['usu_nombres'] . ' ' . $usuario['usu_apellidos'];
+        $etiqueta = $usuario['usu_nombres'] . ' ' . $usuario['usu_apellidos'] . " ({$usuario[rol_nombre]})";
         echo "<option value='$valor'>$etiqueta</option>";
     }
 
