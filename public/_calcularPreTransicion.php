@@ -228,7 +228,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     AND ate_cuenta = cue_id
                 LEFT OUTER JOIN sai_contacto
                     ON con_borrado IS NULL
-                    AND cue_contacto = con_id
+                    AND cli_contacto = con_id
                 LEFT OUTER JOIN sai_pertinencia_proveedor
                     ON pep_borrado IS NULL
                     AND ate_pertinencia_proveedor = pep_id
