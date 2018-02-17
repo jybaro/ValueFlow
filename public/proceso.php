@@ -1472,7 +1472,14 @@ function initMap() {
     */
 }
 
-function p_validar_transicion(target, tea_id, ate_id, estado_siguiente_id){
+var formulario_de_transicion = [];
+function p_validar_transicion(target, tea_id, ate_id, estado_siguiente_id, abrir_ventana_campos){
+    formulario_de_transicion['target'] = target;
+    formulario_de_transicion['tea_id'] = tea_id;
+    formulario_de_transicion['ate_id'] = ate_id;
+    formulario_de_transicion['estado_siguiente_id'] = estado_siguiente_id;
+
+    abrir_ventana_campos = typeof(abrir_ventana_campos) === 'undefined' ? true : false;
     console.log('En p_validar_transicion', tea_id, ate_id);
 
     var traer_campos_extra = 1;
@@ -1518,7 +1525,9 @@ function p_validar_transicion(target, tea_id, ate_id, estado_siguiente_id){
             //alert('Faltan de completar campos.');
             console.log('tea_id:',tea_id, 'ate_id:',ate_id);
 
-            p_abrir(tea_id, ate_id);
+            if (abrir_ventana_campos) {
+                p_abrir(tea_id, ate_id);
+            }
         }
     });
     return false;
@@ -1873,6 +1882,13 @@ function p_guardar(){
 
             console.log('OK guardado', data);
             $('#modal').modal('hide');
+
+            $("#modal").on("hidden.bs.modal", function () {
+
+                p_validar_transicion(formulario_de_transicion['target'], formulario_de_transicion['tea_id'], formulario_de_transicion['ate_id'], formulario_de_transicion['estado_siguiente_id'], false);
+
+                $("#modal").off("hidden.bs.modal");
+            });
         })
     }
 }

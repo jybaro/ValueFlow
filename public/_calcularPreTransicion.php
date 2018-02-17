@@ -73,8 +73,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             )
         ");
 
-
-        $email_cliente = q("
+        $email_cuenta = q("
             SELECT 
             con_correo_electronico
             FROM sai_contacto
@@ -87,6 +86,20 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             AND cue_contacto = con_id
             AND ate_id = $ate_id
         ")[0]['con_correo_electronico'];
+
+
+        $email_cliente = q("
+            SELECT 
+            con_correo_electronico
+            FROM sai_contacto
+            ,sai_atencion
+            WHERE ate_borrado IS NULL
+            AND con_borrado IS NULL 
+            AND ate_contacto = con_id
+            AND ate_id = $ate_id
+        ")[0]['con_correo_electronico'];
+
+        $email_cliente = empty($email_cliente) ? $email_cuenta : (empty($email_cuenta) ? $email_cliente : "$email_cliente,$email_cuenta");
 
         $email_proveedor = q("
             SELECT
@@ -239,6 +252,46 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
 
             ");
             $result_metadata_atencion = q($sql);
+            //datos del nodo:
+            $result_nodo = q("
+                SELECT *
+                FROM sai_atencion
+                ,sai_nodo
+                ,sai_ubicacion
+                WHERE ate_borrado IS NULL
+                AND nod_borrado IS NULL
+                AND ubi_borrado IS NULL
+                AND ate_nodo = nod_id
+                AND nod_ubicacion = ubi_id
+                AND ate_id=$ate_id
+            ");
+            //datos del concentrador:
+            $result_concentrador = q("
+                SELECT *
+                FROM sai_atencion
+                ,sai_nodo
+                ,sai_ubicacion
+                WHERE ate_borrado IS NULL
+                AND nod_borrado IS NULL
+                AND ubi_borrado IS NULL
+                AND ate_concentrador = nod_id
+                AND nod_ubicacion = ubi_id
+                AND ate_id=$ate_id
+            ");
+            //datos del extremo:
+            $result_extremo = q("
+                SELECT *
+                FROM sai_atencion
+                ,sai_nodo
+                ,sai_ubicacion
+                WHERE ate_borrado IS NULL
+                AND nod_borrado IS NULL
+                AND ubi_borrado IS NULL
+                AND ate_extremo = nod_id
+                AND nod_ubicacion = ubi_id
+                AND ate_id=$ate_id
+            ");
+
             if ($result_metadata_atencion) {
 
                 foreach ($result_contenido as $rc) {
@@ -270,18 +323,14 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
 
                     $campos_valores = array();
 
-                    $search = array();
-                    $replace = array();
                     foreach ($campos as $campo) {
-                        $search[] = '${'.$campo['cae_codigo'].'}';
-                        $replace[] = $campo['valor'];
                         $campos_valores[$campo['cae_codigo']] = $campo['valor'];
                     }
                     //Agregando campos desde metadata de atencion:
                     //echo "[[RESULT METADATA ATENCION]]";
                     //var_dump($result_metadata_atencion);
                     //$result_metadata_atencion = $result_metadata_atencion[0];
-                    foreach ($result_metadata_atencion as $k => $v) {
+                    foreach ($result_metadata_atencion[0] as $k => $v) {
                         $campos_valores[strtoupper($k)] = $v;
                     }
                     if ($result_metadata_atencion[cli_es_persona_juridica] == 1) {
@@ -300,9 +349,33 @@ EOT;
                         $ruc = $result_metadata_atencion[cli_ruc];
                         $campos_valores['CLIENTE_CONTRATO'] = "$razon_social, con número de cédula/RUC $ruc";
                     }
+
+                    if ($result_nodo) {
+                        foreach($result_nodo[0] as $k => $v) {
+                            $campos_valores['NODO_'.strtoupper($k)] = $v;
+                        }
+                    }
+                    if ($result_concentrador) {
+                        foreach($result_concentrador[0] as $k => $v) {
+                            $campos_valores['CONCENTRADOR_' . strtoupper($k)] = $v;
+                        }
+                    }
+                    if ($result_extremo) {
+                        foreach($result_extremo[0] as $k => $v) {
+                            $campos_valores['EXTREMO_' . strtoupper($k)] = $v;
+                        }
+                    }
                     //Agregando campos automaticos:
                     $campos_valores['FECHA'] = p_formatear_fecha(date("Y-m-d H:i:s"));
                     $campos_valores['NOW'] = p_formatear_fecha(date("Y-m-d H:i:s"));
+
+                    //var_dump($campos_valores);
+                    $search = array();
+                    $replace = array();
+                    foreach($campos_valores as $c => $v) {
+                        $search[] = '${' . $c . '}';
+                        $replace[] = $v;
+                    }
 
                     $pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
                     $pla_asunto = str_replace($search, $replace, $pla_asunto);
