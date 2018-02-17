@@ -444,7 +444,7 @@ EOT;
 
                     $campos_valores['INICIALES_CLIENTE'] = $iniciales;
 
-                    var_dump($campos_valores);
+                    //var_dump($campos_valores);
                     $search = array();
                     $replace = array();
                     foreach($campos_valores as $c => $v) {
