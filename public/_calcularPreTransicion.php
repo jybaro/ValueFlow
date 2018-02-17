@@ -258,11 +258,23 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 FROM sai_atencion
                 ,sai_nodo
                 ,sai_ubicacion
+                ,sai_provincia
+                ,sai_canton
+                ,sai_parroquia
+                ,sai_ciudad
                 WHERE ate_borrado IS NULL
                 AND nod_borrado IS NULL
                 AND ubi_borrado IS NULL
+                AND prv_borrado IS NULL
+                AND can_borrado IS NULL
+                AND par_borrado IS NULL
+                AND ciu_borrado IS NULL
                 AND ate_nodo = nod_id
                 AND nod_ubicacion = ubi_id
+                AND ubi_provincia = prv_id
+                AND ubi_canton = can_id
+                AND ubi_parroquia = par_id
+                AND ubi_ciudad = ciu_id
                 AND ate_id=$ate_id
             ");
             //datos del concentrador:
@@ -271,11 +283,23 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 FROM sai_atencion
                 ,sai_nodo
                 ,sai_ubicacion
+                ,sai_provincia
+                ,sai_canton
+                ,sai_parroquia
+                ,sai_ciudad
                 WHERE ate_borrado IS NULL
                 AND nod_borrado IS NULL
                 AND ubi_borrado IS NULL
+                AND prv_borrado IS NULL
+                AND can_borrado IS NULL
+                AND par_borrado IS NULL
+                AND ciu_borrado IS NULL
                 AND ate_concentrador = nod_id
                 AND nod_ubicacion = ubi_id
+                AND ubi_provincia = prv_id
+                AND ubi_canton = can_id
+                AND ubi_parroquia = par_id
+                AND ubi_ciudad = ciu_id
                 AND ate_id=$ate_id
             ");
             //datos del extremo:
@@ -284,11 +308,23 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 FROM sai_atencion
                 ,sai_nodo
                 ,sai_ubicacion
+                ,sai_provincia
+                ,sai_canton
+                ,sai_parroquia
+                ,sai_ciudad
                 WHERE ate_borrado IS NULL
                 AND nod_borrado IS NULL
                 AND ubi_borrado IS NULL
+                AND prv_borrado IS NULL
+                AND can_borrado IS NULL
+                AND par_borrado IS NULL
+                AND ciu_borrado IS NULL
                 AND ate_extremo = nod_id
                 AND nod_ubicacion = ubi_id
+                AND ubi_provincia = prv_id
+                AND ubi_canton = can_id
+                AND ubi_parroquia = par_id
+                AND ubi_ciudad = ciu_id
                 AND ate_id=$ate_id
             ");
 
@@ -368,6 +404,7 @@ EOT;
                     //Agregando campos automaticos:
                     $campos_valores['FECHA'] = p_formatear_fecha(date("Y-m-d H:i:s"));
                     $campos_valores['NOW'] = p_formatear_fecha(date("Y-m-d H:i:s"));
+                    $campos_valores['IDENTIFICADOR'] = isset($campos_valores['IDENTIFICADOR']) ? $campos_valores['IDENTIFICADOR'] : $campos_valores['ATE_SECUENCIAL']; 
 
                     //var_dump($campos_valores);
                     $search = array();
