@@ -354,9 +354,11 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 foreach ($result_contenido as $rc) {
                     //$tea_id = $rc['tea_id'];
                     $pla_asunto = $rc['pla_asunto'];
+                    $pla_asunto = ($pla_asunto == 'null') ? 'Notificación' : $pla_asunto;
                     $pla_adjunto_nombre = $rc['pla_adjunto_nombre'];
 
                     $pla_cuerpo = $rc['pla_cuerpo'];
+                    $pla_cuerpo = ($pla_cuerpo == 'null') ? 'Favor revisar.' : $pla_cuerpo;
                     $pla_adjunto_texto = $rc['pla_adjunto_texto'];
                     $pla_id = $rc['pla_id'];
 
@@ -442,7 +444,7 @@ EOT;
 
                     $campos_valores['INICIALES_CLIENTE'] = $iniciales;
 
-                    //var_dump($campos_valores);
+                    var_dump($campos_valores);
                     $search = array();
                     $replace = array();
                     foreach($campos_valores as $c => $v) {
