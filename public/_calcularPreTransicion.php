@@ -567,7 +567,7 @@ EOT;
 
                         //////////////
                         //PDF
-                        if (!empty($pla_adjunto_texto)) {
+                        if (!empty($pla_adjunto_texto) && $pla_adjunto_texto != 'null') {
                             //if (file_exists('adjunto.html')) {
                             //    unlink('adjunto.html');
                             //}
