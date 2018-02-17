@@ -422,12 +422,14 @@ EOT;
                     if ($result_extremo) {
                         foreach($result_extremo[0] as $k => $v) {
                             $campos_valores['EXTREMO_' . strtoupper($k)] = $v;
+                            $campos_valores['NODO_' . strtoupper($k)] = $v;
                         }
                     }
                     //Agregando campos automaticos:
-                    $campos_valores['FECHA'] = p_formatear_fecha(date("Y-m-d H:i:s"));
-                    $campos_valores['NOW'] = p_formatear_fecha(date("Y-m-d H:i:s"));
+                    $campos_valores['FECHA'] = p_formatear_fecha(null, true);
+                    $campos_valores['NOW'] = p_formatear_fecha();
                     $campos_valores['IDENTIFICADOR'] = isset($campos_valores['IDENTIFICADOR']) ? $campos_valores['IDENTIFICADOR'] : $campos_valores['ATE_SECUENCIAL']; 
+                    $campos_valores['SERVICIO'] = strtoupper($campos_valores['SER_NOMBRE']);
                     
                     $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
                     if (isset($campos_valores['CAPACIDAD_ACTUAL']) && isset($campos_valores['NUEVA_CAPACIDAD'])) {

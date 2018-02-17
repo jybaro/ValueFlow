@@ -72,10 +72,15 @@ function array_to_xml( $data, &$xml_data = null) {
     }
 }
 
-function p_formatear_fecha($timestamp){
+function p_formatear_fecha($timestamp = null, $sin_hora = false){
+    $timestamp = empty($timestamp) ? date("Y-m-d H:i:s") : $timestamp;
     date_default_timezone_set('America/Guayaquil');
     setlocale(LC_ALL,"es_ES@euro","es_ES","esp");
-    $fecha = strftime("%A %d de %B de %Y a las %Hh%S", strtotime($timestamp));
+    if ($sin_hora) {
+        $fecha = strftime("%A %d de %B de %Y", strtotime($timestamp));
+    } else {
+        $fecha = strftime("%A %d de %B de %Y a las %Hh%S", strtotime($timestamp));
+    }
     //$fecha = htmlentities($fecha);
     $fecha = utf8_encode($fecha);
     $fecha = empty($fecha) ? $timestamp : $fecha;
