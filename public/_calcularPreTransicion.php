@@ -13,8 +13,13 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         $ate_id = $id;
         //$tea_id = $_POST['tea_id'];
         $tea_id = $_POST['tea_id'];
+
+
         $traer_campos_asociados = 1;
-        $extender_campos_anteriores = 1;
+        require('_obtenerCampos.php');
+        $campos = (!isset($campos) || !is_array($campos)) ? array() : $campos;
+        $campos_aun_no_confirmados = $campos;
+
 
         //Se obtienen todos los campos que pertenecen a la transición de estado
         // definida por $tea_id, al igual que sus transiciones hermanas que 
@@ -22,6 +27,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         // es decir también trae los campos de las transiciones de todos los otros 
         // destinatarios (cliente, usuario, proveedor)
 
+        $extender_campos_anteriores = 1;
         require('_obtenerCampos.php');
         $campos = (!isset($campos) || !is_array($campos)) ? array() : $campos;
 
@@ -382,6 +388,9 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
 
                     $campos_valores = array();
 
+                    foreach ($campos_aun_no_confirmados as $campo) {
+                        $campos_valores[$campo['cae_codigo']] = $campo['valor'];
+                    }
                     foreach ($campos as $campo) {
                         $campos_valores[$campo['cae_codigo']] = $campo['valor'];
                     }
@@ -505,6 +514,7 @@ EOT;
                                                             $campo_codigo = $matches[1][$k];
                                                             $valor = $campos_valores[$campo_codigo];
                                                             $nuevo_valor = str_replace($match, $valor, $nuevo_valor);
+                                                            //echo "[$campo_codigo]";
                                                         }
                                                         //echo " --[[$nuevo_valor]]--";
 

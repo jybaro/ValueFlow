@@ -398,7 +398,7 @@ EOT;
                 echo <<<EOT
             <tr>
               <th style="width:30%;">$label:</th>
-              <td>$dato</td>
+              <td id="campo_historico_{$r[ate_id]}_{$rdato[cae_id]}">$dato</td>
             </tr>
 EOT;
             }

@@ -9,6 +9,7 @@ $traer_campos_asociados = (isset($traer_campos_asociados)) ? $traer_campos_asoci
 $extender_campos_anteriores = (isset($extender_campos_anteriores)) ? $extender_campos_anteriores : (isset($args[3])?$args[3]:0);
 
 $cae_transicion_estado_atencion = $tea_id;
+$filtro_valor_actual = "AND paa_paso_anterior IS NULL";
 
 if ($extender_campos_anteriores == 1) {
     //traer todos los campos y valores de la atencion, incluidos pasos anteriores, sin considerar la transicion:
@@ -21,6 +22,7 @@ if ($extender_campos_anteriores == 1) {
         AND paa_transicion_estado_atencion = tea_id
         AND paa_atencion = $ate_id
     ";
+    $filtro_valor_actual = "";
 } else if ($traer_campos_asociados == 1) {
     //trae los campos de las transiciones de los otros destinatarios
     $cae_transicion_estado_atencion = "
@@ -55,7 +57,7 @@ $sql = "
         AND paa_borrado IS NULL 
         AND vae_campo_extra = cae_id 
         AND paa_id=vae_paso_atencion
-        AND paa_paso_anterior IS NULL
+        $filtro_valor_actual
         AND paa_atencion = $ate_id
     ) AS valor
     , (
@@ -72,7 +74,7 @@ $sql = "
         AND paa_id=vae_paso_atencion
         AND nod_id = vae_nodo
         AND ubi_id = nod_ubicacion
-        AND paa_paso_anterior IS NULL
+        $filtro_valor_actual
         AND paa_atencion = $ate_id
     ) AS nodo
     , (
@@ -86,7 +88,7 @@ $sql = "
         AND vae_campo_extra = cae_id 
         AND paa_id=vae_paso_atencion
         AND ciu_id = vae_ciudad
-        AND paa_paso_anterior IS NULL
+        $filtro_valor_actual
         AND paa_atencion = $ate_id
     ) AS ciudad
 
