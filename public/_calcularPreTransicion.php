@@ -392,20 +392,20 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     foreach ($result_metadata_atencion[0] as $k => $v) {
                         $campos_valores[strtoupper($k)] = $v;
                     }
-                    if ($result_metadata_atencion[cli_es_persona_juridica] == 1) {
-                        $razon_social = $result_metadata_atencion[cli_razon_social];
-                        $nombre = $result_metadata_atencion[cli_representante_legal_nombre];
-                        $cedula = $result_metadata_atencion[cli_representante_legal_cedula];
-                        $email = $result_metadata_atencion[cli_representante_legal_email];
-                        $domiciliado = $result_metadata_atencion[cli_representante_legal_domiciliado];
-                        $canton = $result_metadata_atencion[cli_representante_legal_canton];
-                        $provincia = $result_metadata_atencion[cli_representante_legal_provincia];
+                    if ($campos_valores['CLI_ES_PERSONA_JURIDICA'] == 1) {
+                        $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
+                        $nombre = $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'];
+                        $cedula = $campos_valores['CLI_REPRESENTANTE_LEGAL_CEDULA']; 
+                        $email = $campos_valores['CLI_REPRESENTANTE_LEGAL_EMAIL'];
+                        $domiciliado = $campos_valores['CLI_REPRESENTANTE_LEGAL_DOMICILIADO'];
+                        $canton = $campos_valores['CLI_REPRESENTANTE_LEGAL_CANTON'];
+                        $provincia = $campos_valores['CLI_REPRESENTANTE_LEGAL_PROVINCIA'];
                         $campos_valores['CLIENTE_CONTRATO'] = <<<EOT
 $razon_social, representada por $nombre, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
 EOT;
                     } else {
-                        $razon_social = $result_metadata_atencion[cli_razon_social];
-                        $ruc = $result_metadata_atencion[cli_ruc];
+                        $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
+                        $ruc = $campos_valores['CLI_RUC'];
                         $campos_valores['CLIENTE_CONTRATO'] = "$razon_social, con número de cédula/RUC $ruc";
                     }
 
