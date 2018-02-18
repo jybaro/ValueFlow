@@ -3,6 +3,21 @@
 
 //var_dump($_POST);
 
+
+function p_reemplazar_campos_valores($celda) {
+    global $campos_valores;
+
+    $nuevo_valor = $celda;
+    if (preg_match_all('/\$\{([a-zA-Z0-9_]+)\}/', $celda, $matches)){
+        foreach ($matches[0] as $k => $match) {
+            $campo_codigo = $matches[1][$k];
+            $valor = $campos_valores[$campo_codigo];
+            $nuevo_valor = str_replace($match, $valor, $nuevo_valor);
+        }
+    }
+    return $nuevo_valor;
+}
+
 $respuesta = array();
 if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
     $ate_id = $args[0];
@@ -14,12 +29,13 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         //$tea_id = $_POST['tea_id'];
         $tea_id = $_POST['tea_id'];
 
-
+//echo "[[1]]";
         $traer_campos_asociados = 1;
         require('_obtenerCampos.php');
         $campos = (!isset($campos) || !is_array($campos)) ? array() : $campos;
         $campos_aun_no_confirmados = $campos;
 
+//echo "[[2]]";
 
         //Se obtienen todos los campos que pertenecen a la transición de estado
         // definida por $tea_id, al igual que sus transiciones hermanas que 
@@ -30,6 +46,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         $extender_campos_anteriores = 1;
         require('_obtenerCampos.php');
         $campos = (!isset($campos) || !is_array($campos)) ? array() : $campos;
+//echo "[[3]]";
 
 //echo "[$sql]";
 //var_dump($campos);
@@ -463,10 +480,19 @@ EOT;
                         $replace[] = $v;
                     }
 
-                    $pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
-                    $pla_asunto = str_replace($search, $replace, $pla_asunto);
-                    $pla_adjunto_nombre = str_replace($search, $replace, $pla_adjunto_nombre);
-                    $pla_adjunto_texto = str_replace($search, $replace, $pla_adjunto_texto);
+                    //pla_cuerpo
+                    //$pla_cuerpo = str_replace($search, $replace, $pla_cuerpo);
+                    $pla_cuerpo = p_reemplazar_campos_valores($pla_cuerpo);
+
+                    //$pla_asunto = str_replace($search, $replace, $pla_asunto);
+                    $pla_asunto = p_reemplazar_campos_valores($pla_asunto);
+
+                    //$pla_adjunto_nombre = str_replace($search, $replace, $pla_adjunto_nombre);
+                    $pla_adjunto_nombre = p_reemplazar_campos_valores($pla_adjunto_nombre);
+
+                    //$pla_adjunto_texto = str_replace($search, $replace, $pla_adjunto_texto);
+                    $pla_adjunto_texto = p_reemplazar_campos_valores($pla_adjunto_texto);
+
                     $respuesta['plantillas'][$pla_id]['campos'] = $campos;
 
                     $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
@@ -507,9 +533,11 @@ EOT;
                                             foreach($fila as $y => $celda){
                                                 if (!empty($celda)) {
                                                     //echo "[$x, $y: $celda]";
+                                                    $nuevo_valor = p_reemplazar_campos_valores($celda);
+
+                                                    /*
                                                     if (preg_match_all('/\$\{([a-zA-Z0-9_]+)\}/', $celda, $matches)){
                                                         //var_dump($matches);
-                                                        $nuevo_valor = $celda;
                                                         foreach ($matches[0] as $k => $match) {
                                                             $campo_codigo = $matches[1][$k];
                                                             $valor = $campos_valores[$campo_codigo];
@@ -519,8 +547,9 @@ EOT;
                                                         //echo " --[[$nuevo_valor]]--";
 
                                                         //$nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
-                                                        $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
                                                     }
+                                                     */
+                                                    $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
                                                 }
                                             }
                                         }
@@ -531,6 +560,7 @@ EOT;
                                         $nombre = $nombre . '.xlsx';
                                         //echo " [[NOMBRE: $nombre]]";
                                         $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+                                        $writer->setPreCalculateFormulas(true); 
                                         $writer->save($nombre);
                                         $xls_generado = true;
 

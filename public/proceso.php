@@ -863,7 +863,7 @@ if ($result_tum) {
 <input type="hidden" id="estado_siguiente_id_accion" name="estado_siguiente_id">
       <?php foreach($destinatarios as $destinatario): ?>
 <input type="hidden" id="tea_id_accion_<?=$destinatario?>" name="tea_id_<?=$destinatario?>">
-<div class="panel panel-default">
+<div id="panel_accion_<?=$destinatario?>" class="panel panel-default">
   <div class="panel-heading">
     <strong><?=ucfirst($destinatario)?></strong>
   </div>
@@ -895,9 +895,7 @@ if ($result_tum) {
   <div class="form-group">
     <label for="adjunto_<?=$destinatario?>" class="col-sm-3 control-label">Adjuntos:</label>
     <div class="col-sm-9">
-      <!--
-      <input type="file" class="form-control" id="adjunto_<?=$destinatario?>" name="adjunto_<?=$destinatario?>">
-      -->
+      <input type="file" class="form-control" id="adjunto_<?=$destinatario?>" name="adjunto_<?=$destinatario?>" onchange="p_cargar_adjunto(this, '<?=$destinatario?>')">
       <div id="adjuntos_lista_<?=$destinatario?>"></div>
     </div>
   </div>
@@ -1287,20 +1285,28 @@ function p_completar_nodo() {
             console.log('Respuesta /_completarNodo:', data);
             data = JSON.parse(data);
             console.log('data:', data);
+            if (data) {
+                var nod_id = $('#nod_completo_id').val();
+                $('#campo_extra_' + cae_id).val(nod_id);
+                $('#boton_nodo_completo_' + cae_id).removeClass('btn-warning');
+                $('#boton_nodo_completo_' + cae_id).addClass('btn-success');
 
-            $('#modal_nodo_completo').modal('hide');
-            $('#modal_nodo_completo').on('hidden.bs.modal', function () {
-                data = data[0];
-                //direccion = $('#nod_direccion').val();
-                //var item = {id:data['nod_id'], name:data['nod_codigo'] + ': ' + data['nod_descripcion'] + ' ('+direccion+')'};
-                //$('#campo_extra_'+id).val(item.id);
-                //$('#campo_extra_detalle_valor_'+id).text(item.name);
-                //$('#campo_extra_grupo_'+id).hide();
-                //$('#campo_extra_detalle_'+id).show();
+                $('#modal_nodo_completo').modal('hide');
+                $('#modal_nodo_completo').on('hidden.bs.modal', function () {
+                    data = data[0];
+                    //direccion = $('#nod_direccion').val();
+                    //var item = {id:data['nod_id'], name:data['nod_codigo'] + ': ' + data['nod_descripcion'] + ' ('+direccion+')'};
+                    //$('#campo_extra_'+id).val(item.id);
+                    //$('#campo_extra_detalle_valor_'+id).text(item.name);
+                    //$('#campo_extra_grupo_'+id).hide();
+                    //$('#campo_extra_detalle_'+id).show();
 
-                $('#modal').modal('show');
-                $('#modal_nodo_completo').off('hidden.bs.modal');
-            });
+                    $('#modal').modal('show');
+                    $('#modal_nodo_completo').off('hidden.bs.modal');
+                });
+            } else {
+                alert('No se ha podido completar la información del nodo, inténtelo más tarde.');
+            }
         });
     }
 }
@@ -1374,14 +1380,12 @@ function p_abrir_nodo_completo(id) {
                 });
                 $('#nod_completo_cae_id').val(id);
                 $('#nod_completo_id').val(data['nod_id']);
-                $('#campo_extra_' + id).val(data['nod_id']);
-                $('#boton_nodo_completo_' + id).removeClass('btn-warning');
-                $('#boton_nodo_completo_' + id).addClass('btn-success');
                 console.log('CAMPO #nod_completo_id:', $('#nod_completo_id').val());
 
                 $('#nod_costo_instalacion_proveedor').val(data['nod_costo_instalacion_proveedor']);
                 $('#nod_costo_instalacion_cliente').val(data['nod_costo_instalacion_cliente']);
                 $('#nod_tipo_ultima_milla').val(data['nod_tipo_ultima_milla']);
+                $('#nod_tipo_ultima_milla').trigger('change');
                 $('#nod_responsable_ultima_milla').val(data['nod_responsable_ultima_milla']);
                 $('#nod_distancia').val(data['nod_distancia']);
                 $('#nod_fecha_termino').val(data['nod_fecha_termino']);
@@ -1566,6 +1570,7 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
     }
     destinatarios.forEach(function(destinatario){
         $('#adjuntos_lista_'+destinatario).html('');
+        $('#panel_accion_'+destinatario).hide();
     });
 
     var dataset = $(target).serialize();
@@ -1586,6 +1591,8 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
             var plantilla = plantillas[pla_id];
             var tea_id = contenido.tea_id;
 
+            $('#panel_accion_'+destinatario).show();
+
             $('#tea_id_accion_'+destinatario).val(tea_id);
             $('#email_'+destinatario).val(emails[destinatario]);
             CKEDITOR.instances['mensaje_'+destinatario].setData(plantilla.textos[0]);
@@ -1597,8 +1604,9 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
                     console.log('ARCHIVO:', archivo);
 
                     var hidden = '<input type="hidden" name="adjunto_' + destinatario + '[]" value="' + archivo + '">';
+                    var boton_borrar = '<button class="btn btn-danger" onclick="p_quitar_adjunto(this)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
                     //$('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + plantilla.textos[2] + '">' + icono + plantilla.textos[2] + '</a></div>');
-                    $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + archivo + '">' + icono + archivo + '</a></div>');
+                    $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + archivo + '">' + icono + archivo + '</a> '+boton_borrar+'</div>');
                 });
             }
         });
@@ -1609,6 +1617,41 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
         }
     });
 }
+
+function p_quitar_adjunto (target) {
+    $(target).parent().remove();
+}
+
+function p_cargar_adjunto(target, destinatario) {
+    console.log('En p_cargar_adjunto', target.files[0]);
+    var formData = new FormData();
+    formData.append('adjunto', target.files[0]);
+
+    $.ajax({
+           url : '/_cargarAdjunto',
+           type : 'POST',
+           data : formData,
+           processData: false,  // tell jQuery not to process the data
+           contentType: false,  // tell jQuery not to set contentType
+           success : function(data) {
+               console.log('/_cargarAdjunto', data);
+               data = JSON.parse(data);
+               if (data && data['message'] == 'OK') {
+                   console.log('OK');
+                   var archivo = data['nombre'];
+
+                   var icono = '<span class="glyphicon glyphicon-download" aria-hidden="true"></span> ';
+                    var hidden = '<input type="hidden" name="adjunto_' + destinatario + '[]" value="' + archivo + '">';
+                    var boton_borrar = '<button class="btn btn-danger" onclick="p_quitar_adjunto(this)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
+                    //$('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + plantilla.textos[2] + '">' + icono + plantilla.textos[2] + '</a></div>');
+                    $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + archivo + '">' + icono + archivo + '</a> '+boton_borrar+'</div>');
+                    $(target).val('');
+                   
+               }
+           }
+    });
+}
+
 
 function p_abrir_campos_llenos() {
     console.log('En p_abrir_campos_llenos');
