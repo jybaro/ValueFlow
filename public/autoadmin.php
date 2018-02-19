@@ -445,6 +445,8 @@ function p_validar(target) {
         resultado = false;
     } else if (jQuery.inArray(id, campos_unicos) > -1){
         console.log('Validando que campo '+id+' sea unico...');
+        var candidato_a_valor_unico = $(target).val();
+        $(target).val('');
         $.get('/_listar/'+tabla+'/'+id+'/'+value, function(data){
             console.log('/_listar/'+tabla+'/'+id+'/'+value, data);
             data = JSON.parse(data);
@@ -467,9 +469,9 @@ function p_validar(target) {
                 }, 4000);
                 $(target).parent().parent().removeClass('has-success');
                 $(target).parent().parent().addClass('has-error');
-                $(target).val('');
 
             } else {
+                $(target).val(candidato_a_valor_unico);
                 $(target).parent().parent().removeClass('has-error');
                 $(target).parent().parent().addClass('has-success');
             }
