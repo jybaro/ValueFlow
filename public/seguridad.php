@@ -5,9 +5,9 @@
 <?php
 
 
-$roles = q("SELECT * FROM sai_rol ORDER BY rol_id");
-$modulos = q("SELECT * FROM sai_objeto ORDER BY obj_id");
-$permisoes = q("SELECT * from sai_permiso ORDER BY per_id");
+$roles = q("SELECT * FROM sai_rol WHERE rol_borrado IS NULL ORDER BY rol_id");
+$modulos = q("SELECT * FROM sai_objeto WHERE obj_borrado IS NULL ORDER BY obj_id");
+$permisoes = q("SELECT * from sai_permiso WHERE per_borrado IS NULL ORDER BY per_id");
 $permisos = array();
 if ($permisoes){
     foreach($permisoes as $permiso) {

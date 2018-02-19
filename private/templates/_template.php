@@ -60,9 +60,9 @@ body {
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Empresas<span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="/autoadmin/sai_cliente">Empresas</a></li>
-            <li><a href="/autoadmin/sai_contacto">Directorio</a></li>
-            <li><a href="/cuentas">Dependencias</a></li>
+            <li><a href="/empresas">Empresas</a></li>
+            <li><a href="/directorio">Directorio</a></li>
+            <li><a href="/dependencias">Dependencias</a></li>
             <li role="separator" class="divider"></li>
             <!--li><a href="/autoadmin/sai_atencion">Atenciones</a></li>
             <li><a href="/atenciones">Flujo de las atenciones</a></li-->
@@ -72,7 +72,7 @@ body {
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Proveedores<span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="/autoadmin/sai_proveedor">Proveedores</a></li>
+            <li><a href="/proveedores">Proveedores</a></li>
             <li role="separator" class="divider"></li>
           </ul>
         </li>
