@@ -1,7 +1,7 @@
 <?php
 
-$txt = array('texto', 'codigo', 'validacion');
-$no_nulo = array('cantidad');
+$txt = array('texto', 'codigo', 'validacion', 'plantilla');
+$no_nulo = array('valor_por_defecto');
 
 foreach($_POST as $k => $v) {
     $v = empty($v) ? (in_array($k, $no_nulo) ? (in_array($k, $txt) ? "''" : '0') : 'NULL') : (in_array($k, $txt) ? "'$v'" : $v);
@@ -43,16 +43,18 @@ if ($accion == 'duplicar') {
                     ,cae_codigo
                     ,cae_tipo_dato
                     ,cae_validacion
+                    ,cae_plantilla
                     ,cae_orden
-                    ,cae_cantidad
+                    ,cae_valor_por_defecto
                     ,cae_padre
                 ) SELECT 
                     cae_texto
                     ,cae_codigo
                     ,cae_tipo_dato
                     ,cae_validacion
+                    ,cae_plantilla
                     ,cae_orden
-                    ,cae_cantidad
+                    ,cae_valor_por_defecto
                     ,$cae_padre
                 FROM sai_campo_extra
                 WHERE cae_id = {$campo[cae_id]} 
@@ -89,8 +91,9 @@ if ($accion == 'duplicar') {
         ,cae_codigo = $codigo
         ,cae_tipo_dato = $tipo_dato
         ,cae_validacion = $validacion
+        ,cae_plantilla = $plantilla
         ,cae_orden = $orden
-        ,cae_cantidad = $cantidad
+        ,cae_valor_por_defecto = $valor_por_defecto
         ,cae_padre = $padre
         FROM sai_tipo_dato  
         WHERE cae_id = $id
@@ -105,16 +108,18 @@ if ($accion == 'duplicar') {
             ,cae_codigo
             ,cae_tipo_dato
             ,cae_validacion
+            ,cae_plantilla
             ,cae_orden
-            ,cae_cantidad
+            ,cae_valor_por_defecto
             ,cae_padre
         ) VALUES (
             $texto
             ,$codigo
             ,$tipo_dato
             ,$validacion
+            ,$plantilla
             ,$orden
-            ,$cantidad
+            ,$valor_por_defecto
             ,$padre
         ) RETURNING *
         )

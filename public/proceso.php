@@ -1787,7 +1787,8 @@ function p_desplegar_campos(campos, padre_id) {
     });
 
     campos.forEach(function(campo){
-        var valor = (campo['valor'] == 'null' || campo['valor'] == null) ? '' : campo['valor'];
+        var valor_por_defecto = (campo['valor_por_defecto'] == 'null' || campo['valor_por_defecto'] == null) ? '' : campo['valor_por_defecto'];
+        var valor = (campo['valor'] == 'null' || campo['valor'] == null) ? valor_por_defecto : campo['valor'];
 
         var contenido = '';
         console.log('CAMPO:', campo);

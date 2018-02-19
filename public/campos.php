@@ -70,6 +70,8 @@ $plantilla_cabecera = <<<EOT
         </div>
         <div class="panel-body">
           <a class="btn btn-success pull-right" href="#" onclick="p_abrir(%CAE_ID%);return false;">Acciones</a>
+          <strong>ID:</strong> <span id="cae_id_%CAE_ID%">%CAE_ID%</span>
+          <br>
           <strong>Texto:</strong> <span id="cae_texto_%CAE_ID%">%CAE_TEXTO%</span>
           <br>
           <strong>Código:</strong> \${<span id="cae_codigo_%CAE_ID%">%CAE_CODIGO%</span>}
@@ -78,9 +80,11 @@ $plantilla_cabecera = <<<EOT
           <br>
           <strong>Validación:</strong> <span id="cae_validacion_%CAE_ID%">%CAE_VALIDACION%</span>
           <br>
+          <strong>Validación:</strong> <span id="cae_plantilla_%CAE_ID%">%CAE_PLANTILLA%</span>
+          <br>
           <strong>Orden:</strong> <span id="cae_orden_%CAE_ID%">%CAE_ORDEN%</span>
           <br>
-          <strong>Cantidad:</strong> <span id="cae_cantidad_%CAE_ID%">%CAE_CANTIDAD%</span>
+          <strong>Campo para valor por defecto:</strong> <span id="cae_valor_por_defecto_%CAE_ID%">%CAE_VALOR_POR_DEFECTO%</span>
         </div>
       </div>
       <div class="panel panel-default">
@@ -117,8 +121,9 @@ function p_tree($arbol) {
             ,'%CAE_CODIGO%' => $c[cae_codigo]
             ,'%TID_NOMBRE%' => $c[tid_nombre]
             ,'%CAE_VALIDACION%' => $c[cae_validacion]
+            ,'%CAE_PLANTILLA%' => $c[cae_plantilla]
             ,'%CAE_ORDEN%' => $c[cae_orden]
-            ,'%CAE_CANTIDAD%' => $c[cae_cantidad]
+            ,'%CAE_VALOR_POR_DEFECTO%' => $c[cae_valor_por_defecto]
             ,'%COUNT_HIJOS%' => count($c[hijos])
         );
 
@@ -170,15 +175,21 @@ p_tree($campos[null][hijos]);
     </div>
   </div>
   <div class="form-group">
+    <label for="plantilla" class="col-sm-2 control-label">Plantilla:</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="plantilla" name="plantilla" placeholder="">
+    </div>
+  </div>
+  <div class="form-group">
     <label for="orden" class="col-sm-2 control-label">Orden:</label>
     <div class="col-sm-10">
       <input type="text" class="form-control" id="orden" name="orden" placeholder="">
     </div>
   </div>
   <div class="form-group">
-    <label for="cantidad" class="col-sm-2 control-label">Cantidad de elementos:</label>
+    <label for="valor_por_defecto" class="col-sm-2 control-label">Campo para valor por defecto:</label>
     <div class="col-sm-10">
-      <input type="text" class="form-control" id="cantidad" name="cantidad" placeholder="">
+      <input type="number" class="form-control" id="valor_por_defecto" name="valor_por_defecto" placeholder="">
     </div>
   </div>
   <div class="form-group">
@@ -442,8 +453,9 @@ function p_guardar(){
                     cabecera = cabecera.split('%CAE_TEXTO%').join(data['cae_texto']);
                     cabecera = cabecera.split('%CAE_CODIGO%').join(data['cae_codigo']);
                     cabecera = cabecera.split('%CAE_VALIDACION%').join(data['cae_validacion']);
+                    cabecera = cabecera.split('%CAE_PLANTILLA%').join(data['cae_plantilla']);
                     cabecera = cabecera.split('%CAE_ORDEN%').join(data['cae_orden']);
-                    cabecera = cabecera.split('%CAE_CANTIDAD%').join(data['cae_cantidad']);
+                    cabecera = cabecera.split('%CAE_VALOR_POR_DEFECTO%').join(data['cae_valor_por_defecto']);
                     cabecera = cabecera.split('%TID_NOMBRE%').join(data['tid_nombre']);
                     cabecera = cabecera.split('%COUNT_HIJOS%').join('0');
                     console.log('caberera-pie:', cabecera, pie);
@@ -460,8 +472,9 @@ function p_guardar(){
                     $('#cae_texto_' + data['cae_id']).text(data['cae_texto']);
                     $('#cae_codigo_' + data['cae_id']).text(data['cae_codigo']);
                     $('#cae_validacion_' + data['cae_id']).text(data['cae_validacion']);
+                    $('#cae_plantilla_' + data['cae_id']).text(data['cae_plantilla']);
                     $('#cae_orden_' + data['cae_id']).text(data['cae_orden']);
-                    $('#cae_cantidad_' + data['cae_id']).text(data['cae_cantidad']);
+                    $('#cae_valor_por_defecto_' + data['cae_id']).text(data['cae_valor_por_defecto']);
                     $('#tid_nombre_' + data['cae_id']).text(data['tid_nombre']);
                     console.log('#tid_nombre_' + data['cae_id'], data['tid_nombre'], $('#tid_nombre_' + data['cae_id']).text());
                 }
