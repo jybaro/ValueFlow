@@ -160,9 +160,23 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             RETURNING *
         ");
         $respuesta['pasos_anteriores'] = $result;
+        //mira el rol del usuario logueado para saber la manera de actualizar la atención en cuanto al usuario tecnico y comercial:
+        $rol_codigo = q("SELECT rol_codigo FROM sai_rol WHERE rol_id={$_SESSION[rol]}")[0]['rol_codigo'];
+        $usuario_tecnico = '';
+        if ($rol_codigo == 'tecnico') {
+            $usuario_tecnico = ", ate_usuario_tecnico={$_SESSION['usu_id']}";
+        }
+        $usuario_comercial = '';
+        if ($rol_codigo == 'comercial') {
+            $usuario_comercial = ", ate_usuario_comercial={$_SESSION['usu_id']}";
+        }
+
+
         $result = q("
             UPDATE sai_atencion 
             SET ate_estado_atencion = $estado_siguiente_id 
+            $usuario_tecnico
+            $usuario_comercial
             WHERE ate_borrado IS NULL
             AND ate_id = $ate_id 
             RETURNING *

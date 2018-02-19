@@ -40,5 +40,54 @@ foreach ($pro_id_lista as $pro_id) {
         ) RETURNING *
     ");
     $respuesta[$pro_id] = $result;
+
+    $ate_id = $result[0]['ate_id']; 
+
+    //Trata de obtener una transicion para asociarla al paso que se va a crear:
+    $result_tea_id = q("
+        SELECT tea_id
+        FROM sai_transicion_estado_atencion
+        WHERE tea_borrado IS NULL
+        AND tea_estado_atencion_actual = (
+            SELECT ate_estado_atencion 
+            FROM sai_atencion 
+            WHERE ate_id = $ate_id
+        )
+        AND tea_pertinencia_proveedor = (
+            SELECT ate_pertinencia_proveedor 
+            FROM sai_atencion
+            WHERE ate_id = $ate_id
+        )
+    ");
+    $tea_id = 'null';
+    if ($result_tea_id) {
+        $tea = array();
+        foreach ($result_tea_id as $r) {
+            if (!isset($tea[$r[tea_estado_atencion_siguiente]])) {
+                $tea[$r[tea_estado_atencion_siguiente]] = array();
+            }
+            $tea[$r[tea_estado_atencion_siguiente]][$r[tea_destinatario]] = $r;
+        }
+        if (count($tea) == 1) {
+            //si solo existe un estado siguiente posible para el estado de la atención: 
+            foreach ($tea as $tea_estado_atencion_siguiente => $siguiente) {
+                foreach ($siguiente as $tea_destinatario => $destinatario) {
+                    //coje el tea del último destinatario:
+                    $tea_id = $destinatario[tea_id];
+                }
+            }
+        }
+    }
+    //crea el paso:
+    $paa_id = q("
+        INSERT INTO sai_paso_atencion (
+            paa_transicion_estado_atencion
+            , paa_atencion
+        ) VALUES (
+            $tea_id
+            , $ate_id
+        ) RETURNING *
+    ")[0][paa_id];
+
 }
 echo json_encode($respuesta);

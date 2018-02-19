@@ -28,7 +28,7 @@ if (!$result) {
             FROM sai_atencion
             WHERE ate_id = $ate_id
         )
-        ");
+    ");
     $tea_id = 'null';
     if ($result_tea_id) {
         $tea = array();
