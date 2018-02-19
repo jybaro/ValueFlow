@@ -96,10 +96,12 @@ if (isset($args[0]) && !empty($args[0])) {
 
     //var_dump($respuesta_raw);
     $respuesta = [];
-    foreach($respuesta_raw as $key => $registro){
-        $respuesta[$key] = [];
-        foreach($registro as $k => $v){
-            $respuesta[$key][substr($k, 4)] = $v;
+    if ($respuesta_raw) {
+        foreach($respuesta_raw as $key => $registro){
+            $respuesta[$key] = [];
+            foreach($registro as $k => $v){
+                $respuesta[$key][substr($k, 4)] = $v;
+            }
         }
     }
 

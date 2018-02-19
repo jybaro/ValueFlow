@@ -122,6 +122,9 @@ FROM
                 if (!isset($campo['tipo'])) {
                     $campos[$key]['tipo'] = 'text';
                 }
+                if (!isset($campo['unico'])) {
+                    $campos[$key]['unico'] = false;
+                }
             }
             $campo_etiqueta = $campos[0]['nombre'];
            // $campo_borrado = $prefijo . 'borrado';
@@ -152,6 +155,7 @@ FROM
             $campos[$key]['prefijo'] = $prefijo;
 
             $campos[$key]['validacion'] = '';
+            $campos[$key]['unico'] = false;
             $campos[$key]['tipo'] = $campo['data_type'];
 
         }
@@ -161,6 +165,7 @@ FROM
 
     //var_dump($campos);
     $listado_campos_fk = array();
+    $campos_unicos = array();
 
     foreach ($campos as $campo){
         $c = $campo['nombre']; 
@@ -169,31 +174,35 @@ FROM
             $campos_js[] = $c;
         }
 
+        if ($campo['unico'] == 'unico') {
+            $campos_unicos[] = $c;
+        }
+
         if (isset($fkeys[$c])) {
             //solo si es clave foranea:
             //
             $fk = $fkeys[$c];
 
             $campo_etiqueta_fk = '';
-                $listado_campos_fk[$campo['column_name']] = array();
-                $campos_fk = q("SELECT *
-                    FROM information_schema.columns
-                    WHERE table_schema = 'public'
-                    AND table_name   = '{$fk[foreign_table_name]}'
-                    ORDER BY data_type, is_nullable, column_name
-                    ");
+            $listado_campos_fk[$campo['column_name']] = array();
+            $campos_fk = q("SELECT *
+                FROM information_schema.columns
+                WHERE table_schema = 'public'
+                AND table_name   = '{$fk[foreign_table_name]}'
+                ORDER BY data_type, is_nullable, column_name
+                ");
 
-                foreach($campos_fk as $campo_fk) {
-                    $etiqueta_fk = substr($campo_fk['column_name'], 4);
-                    $listado_campos_fk[$campo['column_name']][$etiqueta_fk] = $campo_fk;
+            foreach($campos_fk as $campo_fk) {
+                $etiqueta_fk = substr($campo_fk['column_name'], 4);
+                $listado_campos_fk[$campo['column_name']][$etiqueta_fk] = $campo_fk;
+            }
+            $campos_posibles = array('nombre', 'razon_social', 'username', 'cedula', 'ruc', 'correo_electronico', 'apellidos', 'texto', 'codigo', 'etiqueta', 'descripcion', 'creado', 'id');
+            foreach($campos_posibles as $campo_posible) {
+                if (isset($listado_campos_fk[$campo['column_name']][$campo_posible])) {
+                    $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
+                    break;
                 }
-                $campos_posibles = array('nombre', 'razon_social', 'username', 'cedula', 'ruc', 'correo_electronico', 'apellidos', 'texto', 'codigo', 'etiqueta', 'descripcion', 'creado', 'id');
-                foreach($campos_posibles as $campo_posible) {
-                    if (isset($listado_campos_fk[$campo['column_name']][$campo_posible])) {
-                        $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
-                        break;
-                    }
-                }
+            }
 
 
             $fkeys[$c]['__opciones'] = array();
@@ -208,7 +217,7 @@ FROM
         }
     }
     //var_dump($campos);
-    echo "<script>var tabla='".substr($tabla, 4)."';var campos = ".json_encode($campos_js).";</script>";
+    echo "<script>var tabla='".substr($tabla, 4)."';var campos = ".json_encode($campos_js).";var campos_unicos=".json_encode($campos_unicos).";</script>";
     //echo "<a href='/autoadmin'><< Regresar al listado de tablas</a>";
     echo "<h1>$nombre_tabla</h1>";
 
@@ -411,14 +420,18 @@ $(document).ready(function() {
 function p_validar(target) {
     console.log('validando', target);
     var resultado = true;
+    var id = $(target).prop('id');
+    var value = $(target).val();
     if (!$(target)[0].checkValidity()) {
         console.log('no valida...', $(target)[0].validationMessage);
         //$('<input type="submit">').hide().appendTo('#formulario').click().remove();
         //$('#formulario').submit();
         //$(target)[0].reportValidity();
         $('#formulario')[0].reportValidity();
+        $(target).popover('hide');
+        $(target).popover('destroy');
         $(target).popover({
-            placement:'auto top',
+            placement:'auto right',
             trigger:'manual',
             html:true,
             content:target.validationMessage
@@ -426,9 +439,41 @@ function p_validar(target) {
         $(target).popover('show');
         setTimeout(function () {
             $(target).popover('hide');
+            $(target).popover('destroy');
         }, 4000);
 
         resultado = false;
+    } else if (jQuery.inArray(id, campos_unicos) > -1){
+        console.log('Validando que campo '+id+' sea unico...');
+        $.get('/_listar/'+tabla+'/'+id+'/'+value, function(data){
+            console.log('/_listar/'+tabla+'/'+id+'/'+value, data);
+            data = JSON.parse(data);
+            console.log('data', data.length, data);
+            if (data.length > 0) {
+                var repetido = data[0][campo_etiqueta];
+                console.log('No valida...');
+                $(target).popover('hide');
+                $(target).popover('destroy');
+                $(target).popover({
+                    placement:'auto top',
+                    trigger:'manual',
+                    html:true,
+                    content:'Ya existe un registro con el valor "'+value+'", este campo no admite valores duplicados.'
+                });
+                $(target).popover('show');
+                setTimeout(function () {
+                    $(target).popover('hide');
+                    $(target).popover('destroy');
+                }, 4000);
+                $(target).parent().parent().removeClass('has-success');
+                $(target).parent().parent().addClass('has-error');
+                $(target).val('');
+
+            } else {
+                $(target).parent().parent().removeClass('has-error');
+                $(target).parent().parent().addClass('has-success');
+            }
+        });
     }
     return resultado;
 }

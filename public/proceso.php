@@ -934,7 +934,7 @@ if ($result_tum) {
   <div class="form-group">
     <label for="cliente" class="col-sm-4 control-label">Empresa:</label>
     <div class="col-sm-8">
-      <select required class="form-control combo-select2" style="width: 50%" id="cliente" name="cliente" tabindex="-1" aria-hidden="true">
+      <select required class="form-control combo-select2" style="width: 50%" id="cliente" name="cliente" tabindex="-1" aria-hidden="true" onchange="p_cargar_contactos_cuentas(this)">
         <option value="">&nbsp;</option>
       <?php
 $result = q("
@@ -961,6 +961,7 @@ if ($result) {
 
         <option value="">&nbsp;</option>
       <?php
+/*
 $result = q("
     SELECT *
     FROM sai_contacto
@@ -973,6 +974,7 @@ if ($result) {
         echo "<option value='$value'>$label</option>";
     }
 }
+ */
         ?>
       </select> 
     </div>
@@ -985,7 +987,8 @@ if ($result) {
       <select required class="form-control combo-select2" style="width: 50%" id="cuenta" name="cuenta" tabindex="-1" aria-hidden="true">
 
         <option value="">&nbsp;</option>
-      <?php
+<?php
+/*
 $result = q("
     SELECT *
     FROM sai_cuenta
@@ -998,6 +1001,7 @@ if ($result) {
         echo "<option value='$value'>$label</option>";
     }
 }
+ */
         ?>
       </select> 
     </div>
@@ -1007,7 +1011,7 @@ if ($result) {
   <div class="form-group">
     <label for="servicio" class="col-sm-4 control-label">Servicio</label>
     <div class="col-sm-8">
-      <select required class="form-control combo-select2" style="width: 50%" id="servicio" name="servicio" tabindex="-1" aria-hidden="true">
+      <select required class="form-control combo-select2" style="width: 50%" id="servicio" name="servicio" tabindex="-1" aria-hidden="true" onchange="p_cargar_proveedores(this)">
 
         <option value="">&nbsp;</option>
       <?php
@@ -1037,6 +1041,7 @@ if ($result) {
       <select required multiple class="form-control combo-select2" style="width: 50%" id="proveedor" name="proveedor[]" tabindex="-1" aria-hidden="true">
         <option value="">&nbsp;</option>
       <?php
+/*
 $result = q("
     SELECT *
     FROM sai_proveedor
@@ -1049,6 +1054,7 @@ if ($result) {
         echo "<option value='$value'>$label</option>";
     }
 }
+ */
         ?>
       </select> 
     </div>
@@ -1936,8 +1942,127 @@ function p_guardar(){
     }
 }
 function p_nuevo(){
+    $('#modal-nuevo').find(':input').each(function() {
+        switch(this.type) {
+        case 'password':
+        case 'text':
+        case 'textarea':
+        case 'file':
+        case 'select-one':
+        case 'select-multiple':
+        case 'date':
+        case 'number':
+        case 'tel':
+        case 'email':
+        case 'hidden':
+            $(this).val('');
+            break;
+        case 'checkbox':
+        case 'radio':
+            this.checked = false;
+            break;
+        }
+        $(this).trigger('change');
+    });
+
+    $('#cuenta').html('<option value="">Seleccione el cliente primero</option>');
+    $('#cuenta').prop('disabled', true);
+    $('#contacto').html('<option value="">Seleccione el cliente primero</option>');
+    $('#contacto').prop('disabled', true);
+    $('#proveedor').html('<option value="">Seleccione el servicio primero</option>');
+    $('#proveedor').prop('disabled', true);
+    $('#proveedor').prop('multiple', false);
+
     $('#modal-nuevo').modal('show');
 }
+
+function p_cargar_proveedores(target) {
+    console.log('En p_cargar_proveedores', target);
+
+    $('#proveedor').html('<option value="">Seleccione el servicio primero</option>');
+    $('#proveedor').prop('disabled', true);
+    $('#proveedor').prop('multiple', false);
+    $('#proveedor').val('');
+    $('#proveedor').trigger('change');
+
+    var ser_id = $(target).val();
+    if (ser_id != '') {
+        $.get('/_listarProveedores/' + ser_id, function(data){
+            console.log('/_listarProveedores/'+ser_id, data);
+            data = JSON.parse(data);
+            console.log('data:', data);
+            var opciones = '';
+            if (data) {
+                var count = 0;
+                Array.from(data).forEach(function(proveedor){
+                    opciones += '<option value="'+proveedor['pro_id']+'">'+proveedor['pro_razon_social']+'</option>';
+                    count++;
+                });
+                
+                $('#proveedor').html(opciones);
+                $('#proveedor').prop('disabled', false);
+                $('#proveedor').prop('multiple', true);
+                if (count > 1) {
+                    $('#proveedor').val([]);
+                }
+                //$('#proveedor').trigger('change');
+
+            }
+        });
+    }
+}
+
+function p_cargar_contactos_cuentas(target) {
+    console.log('En p_cargar_contactos_cuentas', target);
+
+    $('#cuenta').html('<option value="">Seleccione el cliente primero</option>');
+    $('#cuenta').prop('disabled', true);
+    $('#contacto').html('<option value="">Seleccione el cliente primero</option>');
+    $('#contacto').prop('disabled', true);
+
+    var cli_id = $(target).val();
+    if (cli_id != '') {
+        $.get('/_listar/contacto/cliente/' + cli_id, function(data){
+            console.log('/_listar/contacto/cliente/'+cli_id, data);
+            data = JSON.parse(data);
+            console.log('data:', data);
+            var opciones = '';
+            if (data) {
+                var count = 0;
+                Array.from(data).forEach(function(contacto){
+                    opciones += '<option value="'+contacto['id']+'">'+contacto['nombres']+' '+contacto['apellidos']+'</option>';
+                    count++;
+                });
+                if (count > 1) {
+                    opciones = '<option value="">&nbsp;</option>'+ opciones;
+                }
+                $('#contacto').html(opciones);
+                $('#contacto').prop('disabled', false);
+
+            }
+        });
+        $.get('/_listar/cuenta/cliente/' + cli_id, function(data){
+            console.log('/_listar/cuenta/cliente/'+cli_id, data);
+            data = JSON.parse(data);
+            console.log('data:', data);
+            var opciones = '';
+            if (data) {
+                var count = 0;
+                Array.from(data).forEach(function(cuenta){
+                    opciones += '<option value="'+cuenta['id']+'">'+cuenta['codigo']+'</option>';
+                    count++;
+                });
+                if (count > 1) {
+                    opciones = '<option value="">&nbsp;</option>'+ opciones;
+                }
+                $('#cuenta').html(opciones);
+                $('#cuenta').prop('disabled', false);
+
+            }
+        });
+    }
+}
+
 
 function p_crear(){
     console.log('p_crear');
