@@ -1,4 +1,8 @@
 <?php
+//echo ($_solo_lectura ? 'SI solo lectura' : 'NO solo lectura');
+//echo '<pre>';
+//var_dump($_SESSION['seguridades']);
+//echo '</pre>';
     $result_destinatarios = q("
         SELECT des_nombre FROM sai_destinatario
     ");
@@ -72,6 +76,9 @@ desired effect
 -->
 <!-- body class="skin-blue sidebar-mini" style="height: auto; min-height: 100%;" -->
 <body class="skin-blue-light sidebar-mini" style="height: auto; min-height: 100%;">
+<?php
+
+?>
 <div class="wrapper" style="height: auto; min-height: 100%;">
 
   <!-- Main Header -->
@@ -303,13 +310,15 @@ if ($result) {
 
   <div id="collapse_{$r[ate_secuencial]}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{$r[ate_secuencial]}">
 EOT;
-        echo <<<EOT
+
+        if (!$_solo_lectura) {
+            echo <<<EOT
       <div class="pull-right well" style="padding:20px;margin:20px;">
       <h4>Pasar a un siguiente estado:</h4>
 EOT;
-        foreach ($estados_siguentes as $estado_siguiente_id => $estado_siguiente) {
-            $rsig = $estado_siguiente;
-            echo <<<EOT
+            foreach ($estados_siguentes as $estado_siguiente_id => $estado_siguiente) {
+                $rsig = $estado_siguiente;
+                echo <<<EOT
 <form method="POST" onsubmit="return p_validar_transicion(this, {$rsig['tea_id']}, {$rsig['ate_id']}, {$rsig['estado_siguiente_id']})">
 <input type="hidden" name="estado" value="{$rsig['estado_siguiente_id']}">
 <input type="hidden" name="tea_id" value="{$rsig['tea_id']}">
@@ -321,8 +330,9 @@ EOT;
 </form>
 EOT;
 
+            }
+            echo '</div>';
         }
-        echo '</div>';
 
         $glue = '';
         $contacto_empresa = '';
@@ -524,7 +534,7 @@ EOT;
 </div>
 <!-- ./wrapper -->
 
-<?php if (isset($mostrar_nuevo) && $mostrar_nuevo): ?>
+<?php if (isset($mostrar_nuevo) && $mostrar_nuevo && !$_solo_lectura): ?>
 <a href="#" onclick="p_nuevo();return false;" style="position:fixed;bottom:50px;right:10px;"><img src="/img/plus.png" alt="Crear nuevo registro" title="Crear nuevo registro" ></img></a>
 <?php endif; ?>
 <!-- REQUIRED JS SCRIPTS -->

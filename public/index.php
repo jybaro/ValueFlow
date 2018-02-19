@@ -78,6 +78,12 @@ if (file_exists($nedetel_objeto . '.php')) {
     //if ($con_permiso || true) {
     if ($con_permiso) {
         //carga nedetel_objeto
+        $_solo_lectura = false;
+        foreach ($_SESSION['seguridades'] as $s) {
+            if ($s['obj_nombre'] == $nedetel_objeto && $s['per_solo_lectura'] == 1) {
+                $_solo_lectura = true;
+            }
+        }
         require_once($nedetel_objeto . '.php');
         l("Acceso a módulo -$nedetel_objeto-, parámetros: " . implode(',', $args));
     } else {

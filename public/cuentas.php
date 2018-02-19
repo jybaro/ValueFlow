@@ -30,6 +30,7 @@ foreach ($cuentas as $cue_id => $cuenta) {
 }
 
 function p_tree($cuentas) {
+    global $_solo_lectura;
     $plus = '<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>';
     $minus = '<span class="glyphicon glyphicon-minus" aria-hidden="true"></span>';
     $leaf = '<span class="glyphicon glyphicon-leaf" aria-hidden="true"></span>';
@@ -40,6 +41,12 @@ function p_tree($cuentas) {
             $icono = count($cuenta[hijos]) == 0 ? '&nbsp;&nbsp;&nbsp;' : $plus;
 
             $titulo = !isset($cuenta[cue_codigo]) ? '': "{$cuenta[cue_codigo]} ({$cuenta[cli_razon_social]})";
+            if (!$_solo_lectura) {
+                $titulo = <<<EOT
+<a href="#" onclick="p_abrir({$cuenta[cue_id]}); return false;">{$titulo}</a>
+EOT;
+            } else {
+            }
             $count_hijos = count($cuenta[hijos]);
             echo <<<EOT
 <div class="media" id="cuenta_{$cuenta[cue_id]}">
@@ -49,7 +56,8 @@ function p_tree($cuentas) {
     </a>
   </div>
   <div class="media-body">
-    <h4 class="media-heading"><a href="#" onclick="p_abrir({$cuenta[cue_id]}); return false;">{$titulo}</a> <span id="badge_{$cuenta[cue_id]}" class="badge">$count_hijos</span></h4>
+    <h4 class="media-heading">
+{$titulo} <span id="badge_{$cuenta[cue_id]}" class="badge">$count_hijos</span></h4>
     <strong>RUC:</strong> {$cuenta[cli_ruc]} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Mail:</strong> {$cuenta[cli_representante_legal_email]} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Dirección:</strong> {$cuenta[cli_direccion_correspondencia]}
     <div style="margin-top:10px;" id="hijos_{$cuenta[cue_id]}">
 EOT;
@@ -66,7 +74,9 @@ p_tree($cuentas[null][hijos]);
 
 ?>
 
+    <?php if(!$_solo_lectura): ?>
 <a href="#" onclick="p_nuevo();return false;" style="position:fixed;bottom:50px;right:10px;"><img src="/img/plus.png" alt="Crear nuevo registro" title="Crear nuevo registro" ></img></a>
+    <?php endif; ?>
 <div id="modal" class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">

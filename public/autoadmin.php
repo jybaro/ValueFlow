@@ -278,7 +278,7 @@ FROM
 
                     
                     $campo_nombre = $campo['nombre'];
-                    if ($campo['nombre'] == $campo_etiqueta ){
+                    if ($campo['nombre'] == $campo_etiqueta && !$_solo_lectura ){
                         $etiqueta = empty($etiqueta) ? "(registro $id)" : $etiqueta;
                         echo "<td><a href='#' onclick='p_abrir($id, this);return false;' id='dato_{$id}_{$campo_nombre}'>$etiqueta</a></td>";
                     } else {
@@ -295,7 +295,9 @@ FROM
 ?>
 
     <?php if(!empty($tabla)): ?>
+    <?php if(!$_solo_lectura): ?>
 <a href="#" onclick="p_nuevo();return false;" style="position:fixed;bottom:50px;right:10px;"><img src="/img/plus.png" alt="Crear nuevo registro" title="Crear nuevo registro" ></img></a>
+    <?php endif; ?>
 <div id="modal" class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content">

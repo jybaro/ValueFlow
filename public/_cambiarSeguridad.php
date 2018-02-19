@@ -19,21 +19,31 @@ if (!empty($dataset_json)) {
         $rol = $dataset->rol;
         $modulo = $dataset->modulo;
 
-        $count_permiso = q("SELECT COUNT(*) FROM sai_permiso WHERE per_rol=$rol AND per_objeto=$modulo")[0]['count'];
+        //$count_permiso = q("SELECT COUNT(*) FROM sai_permiso WHERE per_rol=$rol AND per_objeto=$modulo")[0]['count'];
+        $result_permiso = q("SELECT * FROM sai_permiso WHERE per_rol = $rol AND per_objeto = $modulo");
 
-        if ($count_permiso == 0) {
-            q("INSERT INTO sai_permiso (per_objeto, per_rol) VALUES ($modulo, $rol)");
+
+        //if ($count_permiso == 0) {
+        if ($result_permiso) {
+            $solo_lectura = $result_permiso[0]['per_solo_lectura'];
+            if ($solo_lectura == 1) {
+                q("DELETE FROM sai_permiso WHERE per_objeto = $modulo AND per_rol = $rol");
+            } else {
+                q("UPDATE sai_permiso SET per_solo_lectura = 1 WHERE per_objeto = $modulo AND per_rol = $rol");
+            }
         } else {
-            q("DELETE FROM sai_permiso WHERE per_objeto=$modulo AND per_rol=$rol");
+            q("INSERT INTO sai_permiso (per_objeto, per_rol) VALUES ($modulo, $rol)");
         }
-        $rol_version = q("UPDATE sai_rol SET rol_version=rol_version+1 WHERE rol_id=$rol RETURNING rol_version")[0]['rol_version'];
+        $rol_version = q("UPDATE sai_rol SET rol_version=rol_version+1 WHERE rol_id = $rol RETURNING rol_version")[0]['rol_version'];
 
-        $count_permiso = q("SELECT COUNT(*) FROM sai_permiso WHERE per_rol=$rol AND per_objeto=$modulo")[0]['count'];
+        //$count_permiso = q("SELECT COUNT(*) FROM sai_permiso WHERE per_rol = $rol AND per_objeto = $modulo")[0]['count'];
+        $result_permiso = q("SELECT * FROM sai_permiso WHERE per_rol = $rol AND per_objeto = $modulo");
 
         $respuesta = array(
             'rol' => $rol,
             'modulo' => $modulo,
-            'count_permiso' => $count_permiso
+            //'count_permiso' => $count_permiso
+            'result_permiso' => $result_permiso
         );
 
     } else {
