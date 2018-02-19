@@ -1753,7 +1753,43 @@ function p_abrir(tea_id, ate_id) {
                 }
             });
 
+            fechas_enlazadas = [];
             $('#campos').append(p_desplegar_campos(campos));
+            if (fechas_enlazadas.length > 0) {
+                var count = 0;
+                var cae_id_anterior = '';
+                var cae_id_actual = '';
+                var cae_id_primera = '';
+                fechas_enlazadas.forEach(function(cae_id){
+                    cae_id_actual = cae_id;
+                    if (count == 0) {
+                        $('#campo_extra_' + cae_id_actual).datetimepicker({
+                            locale: 'es',
+                            format: 'YYYY-MM-DD'
+                        });
+                        cae_id_primera = cae_id;
+                    } else {
+                        $('#campo_extra_' + cae_id_actual).datetimepicker({
+                            useCurrent: false, //Important! See issue #1075
+                            locale: 'es',
+                            format: 'YYYY-MM-DD'
+                        });
+                        $('#campo_extra_' + cae_id_anterior).on("dp.change", function (e) {
+                            (function(cae_id){
+                            $('#campo_extra_' + cae_id).data("DateTimePicker").minDate(e.date);
+                            console.log('dp.change->#campo_extra_' + cae_id, 'minDate', e.date );
+                            })(cae_id);
+                        });
+                    }
+                    cae_id_anterior = cae_id;
+                    count++;
+                });
+                $('#campo_extra_' + cae_id_actual).on("dp.change", function (e) {
+                    var cae_id = cae_id_primera;
+                    $('#campo_extra_' + cae_id).data("DateTimePicker").maxDate(e.date);
+                    console.log('dp.change->#campo_extra_' + cae_id, 'maxDate', e.date );
+                });
+            }
             $('.datetimepicker').datetimepicker({
             locale: 'es',
                 format: 'YYYY-MM-DD'
@@ -1782,6 +1818,7 @@ function p_cargar_canton(cae_id) {
     console.log('En p_cargar_canton', cae_id);
 }
 
+var fechas_enlazadas;
 function p_desplegar_campos(campos, padre_id) {
     var respuesta = '';
     padre_id = padre_id || null;
@@ -1817,6 +1854,22 @@ function p_desplegar_campos(campos, padre_id) {
 '              </div>'+
 '            </div>'+
 '';
+                } else if (campo['tipo_dato'] == 'fecha_enlazada') {
+                    fechas_enlazadas[fechas_enlazadas.length] = campo['cae_id'];
+                    contenido += ''+
+'            <div class="form-group">'+
+                        '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+'                <div class="input-group date" id="datetimepicker2-'+campo['cae_id']+'">'+
+'                    <input type="text" class="form-control" name="campo_extra_'+campo['cae_id']+'" id="campo_extra_'+campo['cae_id']+'" value="'+valor+'" />'+
+'                    <span class="input-group-addon">'+
+'                        <span class="glyphicon glyphicon-calendar"></span>'+
+'                    </span>'+
+'                </div>'+
+'              </div>'+
+'            </div>'+
+'';
+
 
                 } else if (campo['tipo_dato'] == 'numero') {
                     contenido += ''+
