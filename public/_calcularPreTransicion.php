@@ -456,6 +456,8 @@ EOT;
                     $campos_valores['NOW'] = p_formatear_fecha();
                     $campos_valores['IDENTIFICADOR'] = isset($campos_valores['IDENTIFICADOR']) ? $campos_valores['IDENTIFICADOR'] : $campos_valores['ATE_SECUENCIAL']; 
                     $campos_valores['SERVICIO'] = strtoupper($campos_valores['SER_NOMBRE']);
+                    $campos_valores['EQUIS_DATOS'] = ($campos_valores['SERVICIO'] == 'DATOS') ? 'X' : '';
+                    $campos_valores['EQUIS_INTERNET'] = ($campos_valores['SERVICIO'] == 'INTERNET') ? 'X' : '';
                     
                     $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
                     if (isset($campos_valores['CAPACIDAD_ACTUAL']) && isset($campos_valores['NUEVA_CAPACIDAD'])) {
@@ -471,6 +473,7 @@ EOT;
                     $iniciales = strtoupper($iniciales);
 
                     $campos_valores['INICIALES_CLIENTE'] = $iniciales;
+                    $campos_valores['PRECIO_TOTAL'] = (isset($campos_valores['CAPACIDAD_FACTURADA'])?$campos_valores['CAPACIDAD_FACTURADA'] : 0) * (isset($campos_valores['PRECIO_MB'])?$campos_valores['PRECIO_MB'] : 0);
 
                     //var_dump($campos_valores);
                     $search = array();
@@ -499,7 +502,7 @@ EOT;
                     $pla_adjunto_nombre = limpiar_nombre_archivo($pla_adjunto_nombre);
 
                     $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
-                    $pla_cuerpo = (empty($pla_cuerpo)) ? 'Favor revisar' : $pla_cuerpo;
+                    $pla_cuerpo = (empty($pla_cuerpo)) ? 'Favor revisar atención '.$campos_valores['IDENTIFICADOR'] : $pla_cuerpo;
 
 
                     $respuesta['plantillas'][$pla_id]['textos'] = array($pla_cuerpo, $pla_asunto, $pla_adjunto_nombre, $pla_adjunto_texto);
@@ -571,6 +574,15 @@ EOT;
                                         ////////////
                                         // Word
                                         //$doc = \PhpOffice\PhpWord\IOFactory::load($ruta_plantilla);
+                                        //OBTIENE CAMPOS:
+                                        /*
+                                        $phpWordReader = \PhpOffice\PhpWord\IOFactory::createReader('Word2007');
+                                        if($phpWordReader->canRead($ruta_plantilla)) {
+                                            $phpWord = $phpWordReader->load($ruta_plantilla);
+                                        }
+                                         */
+
+                                        //PLANTILLA WORD
                                         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($ruta_plantilla);
 
                                         foreach ($campos_valores as $campo => $valor) {

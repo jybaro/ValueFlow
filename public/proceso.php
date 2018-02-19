@@ -1140,6 +1140,13 @@ if ($result) {
     </div>
   </div>
 
+  <div class="form-group">
+    <label for="cantidad_extremos" class="col-sm-4 control-label">Cantidad de Extremos</label>
+    <div class="col-sm-8">
+      <input type="number" min="1" max="999" step="1" class="form-control" id="cantidad_extremos" name="cantidad_extremos">
+    </div>
+  </div>
+
 
 </form>
 
@@ -1821,6 +1828,17 @@ function p_desplegar_campos(campos, padre_id) {
                         '</div>'+
                         '';
 
+                } else if (campo['tipo_dato'] == 'codigo_atencion') {
+
+                    contenido += ''+
+                        '<div class="form-group" id="campo_extra_grupo_'+campo['cae_id']+'">' +
+                        '<label for="campo_extra_typeahead_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                        '<div class="col-sm-' + col2 + '">' +
+                        '<input type="text" class="form-control" required id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="' + valor + '" onblur="p_validar_codigo_atencion(this)">' +
+                        '</div>' +
+                        '</div>'+
+
+                        '';
                 } else if (campo['tipo_dato'] == 'ciudad') {
                     var descripcion = '';
                     var grupo_style = '';
@@ -1919,6 +1937,47 @@ function p_desplegar_campos(campos, padre_id) {
     return respuesta;
 }
 
+
+function p_validar_codigo_atencion(target){
+    console.log('En p_validar_codigo_atencion', target);
+    var ate_id = $('#ate_id').val();
+    var ate_codigo = $(target).val();
+    $(target).parent().parent().removeClass('has-error');
+    $(target).parent().parent().removeClass('has-success');
+    if (ate_codigo != '') {
+        $(target).val('');
+        $.get('/_validarCodigoAtencion/' + ate_id + '/' + ate_codigo, function(data){
+            console.log('/_validarCodigoAtencion/' + ate_id + '/' + ate_codigo, data);
+            data = JSON.parse(data);
+            console.log('data', data);
+            if (data.length > 0) {
+                console.log('ERROR de validacion');
+                $(target).parent().parent().addClass('has-error');
+                $(target).parent().parent().removeClass('has-success');
+
+                $(target).popover('hide');
+                $(target).popover('destroy');
+                $(target).popover({
+                placement:'auto top',
+                    trigger:'manual',
+                    html:true,
+                    content:'El valor "'+ate_codigo+'" ya está siendo usado por otra atención. Ingrese otro valor.'
+                });
+                $(target).popover('show');
+                setTimeout(function () {
+                    $(target).popover('hide');
+                    $(target).popover('destroy');
+                }, 4000);
+            } else {
+                $(target).parent().parent().removeClass('has-error');
+                $(target).parent().parent().addClass('has-success');
+                $(target).val(ate_codigo);
+            }
+        });
+    }
+}
+
+
 function p_validar(target){
     var id = $(target).attr('id');
     console.log('validando', target, id, $(target)[0].checkValidity());
@@ -1984,12 +2043,17 @@ function p_nuevo(){
     $('#proveedor').prop('disabled', true);
     $('#proveedor').prop('multiple', false);
 
+    $('#cantidad_extremos').prop('disabled', true);
+    $('#cantidad_extremos').parent().parent().hide();
+
     $('#modal-nuevo').modal('show');
 }
 
 function p_cargar_proveedores(target) {
     console.log('En p_cargar_proveedores', target);
 
+    $('#cantidad_extremos').prop('disabled', true);
+    $('#cantidad_extremos').parent().parent().hide();
     $('#proveedor').html('<option value="">Seleccione el servicio primero</option>');
     $('#proveedor').prop('disabled', true);
     $('#proveedor').prop('multiple', false);
@@ -2018,6 +2082,18 @@ function p_cargar_proveedores(target) {
                 }
                 //$('#proveedor').trigger('change');
 
+            }
+        });
+        $.get('/_listar/servicio/'+ser_id, function(data){
+            console.log('/_listar/servicio/'+ser_id, data);
+            data = JSON.parse(data);
+            console.log('data', data);
+            if (data) {
+                var servicio = data[0];
+                if (servicio['nombre'].toLowerCase() == 'datos') {
+                    $('#cantidad_extremos').prop('disabled', false);
+                    $('#cantidad_extremos').parent().parent().show();
+                }
             }
         });
     }
