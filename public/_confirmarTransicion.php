@@ -47,6 +47,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 //MAIL
                 //echo "[[$pla_asunto - $pla_cuerpo]]";
                 $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+                $mail->CharSet = 'UTF-8';
                 $mail->IsSMTP();
                 $mail->SMTPSecure = 'tls';
                 $mail->SMTPAuth = true;
