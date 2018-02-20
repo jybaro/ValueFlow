@@ -153,8 +153,8 @@ EOF;
         foreach ($hijos as $id => $hijo) {
             if (isset($hijo['hijos']) && !empty($hijo['hijos'])) {
                 //no es hoja, tiene hijos
-                $esa_codigo_padre = (!empty($hijo['esa_codigo'])) ? $hijo['esa_codigo'] : $esa_codigo_padre;
-                p_tree($hijo['hijos'], $hijo['esa_nombre'], $esa_codigo_padre);
+                $esa_codigo = (!empty($hijo['esa_codigo'])) ? $hijo['esa_codigo'] : $esa_codigo_padre;
+                p_tree($hijo['hijos'], $hijo['esa_nombre'], $esa_codigo);
             } else {
                 //es hoja
                 echo <<<EOF
@@ -173,6 +173,17 @@ EOF;
     p_tree($tree[""]['hijos']);
     //echo "<pre>";
     //var_dump($tree[""]);
+
+    //VERIFICA FILTRO DE DATOS, Y TITULO:
+$filtro = isset($filtro) ? " AND tea_estado_atencion_actual IN $filtro" : '';
+$esa_id = isset($esa_id) ? intval($esa_id) : null;
+if (isset($args[0]) && !empty($args[0])) {
+    $esa_id = intval($args[0]);
+    $filtro = " AND tea_estado_atencion_actual = $esa_id";
+}
+if (!empty($esa_id)) {
+    $esa_nombre = q("SELECT esa_nombre FROM sai_estado_atencion WHERE esa_borrado IS NULL AND esa_id = $esa_id")[0]['esa_nombre'];
+}
 ?>
       <!-- /.sidebar-menu -->
     </section>
@@ -187,6 +198,7 @@ EOF;
     <section class="content-header">
       <h1>
       <?=(isset($titulo_proceso) ? $titulo_proceso : 'Atenciones')?>
+      <span class="badge"><?=$esa_nombre?></span>
         <!--small>Optional description</small-->
       </h1>
       <!--ol class="breadcrumb">
@@ -205,15 +217,12 @@ EOF;
 <?php
 //if (isset($_POST['estado']) && !empty($_POST['estado'])) {
 
-$filtro = isset($filtro) ? "AND tea_estado_atencion_actual IN $filtro" : '';
-if (isset($args[0]) && !empty($args[0])) {
-    $filtro = "AND tea_estado_atencion_actual = {$args[0]}";
-}
 $sql = ("
     SELECT * 
     ,e1.esa_nombre AS estado_actual
     ,e2.esa_nombre AS estado_siguiente
     ,e2.esa_id AS estado_siguiente_id
+    ,e2.esa_orden AS estado_siguiente_orden
     ,(usu_tecnico.usu_nombres || ' ' || usu_tecnico.usu_apellidos) AS usu_tecnico_nombre
     ,(usu_comercial.usu_nombres || ' ' || usu_comercial.usu_apellidos) AS usu_comercial_nombre
 
@@ -269,7 +278,7 @@ $sql = ("
         $filtro
 
     ORDER BY 
-        ate_id DESC, estado_actual, estado_siguiente
+        ate_id DESC, estado_actual, estado_siguiente_orden
         ,ate_creado DESC
 ");
 $result = q($sql);
