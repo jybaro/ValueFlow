@@ -209,7 +209,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             //echo $sql;
             $result_next = q($sql);
             //echo "[[RESULT NEXT:]]";
-            var_dump($result_next);
+            //var_dump($result_next);
             if ($result_next) {
                 $tea_next = $result_next[0];
                 
