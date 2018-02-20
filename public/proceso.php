@@ -1840,7 +1840,8 @@ function p_desplegar_campos(campos, padre_id) {
     });
 
     campos.forEach(function(campo){
-        var valor_por_defecto = (campo['valor_por_defecto'] == 'null' || campo['valor_por_defecto'] == null) ? '' : campo['valor_por_defecto'];
+        var valor_historico = (campo['valor_historico'] == 'null' || campo['valor_historico'] == null) ? '' : campo['valor_historico'];
+        var valor_por_defecto = (campo['valor_por_defecto'] == 'null' || campo['valor_por_defecto'] == null) ? valor_historico : campo['valor_por_defecto'];
         var valor = (campo['valor'] == 'null' || campo['valor'] == null) ? valor_por_defecto : campo['valor'];
 
         var contenido = '';

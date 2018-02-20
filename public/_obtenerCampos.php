@@ -55,7 +55,7 @@ $sql = "
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
         AND paa_borrado IS NULL 
-        AND vae_campo_extra = cae_id 
+        AND vae_campo_extra = cae.cae_id 
         AND paa_id=vae_paso_atencion
         $filtro_valor_actual
         AND paa_atencion = $ate_id
@@ -68,12 +68,30 @@ $sql = "
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
         AND paa_borrado IS NULL 
-        AND vae_campo_extra = cae_valor_por_defecto 
+        AND vae_campo_extra = cae.cae_valor_por_defecto 
         AND paa_id=vae_paso_atencion
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
         LIMIT 1
     ) AS valor_por_defecto
+    ,(
+        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        FROM sai_valor_extra
+        , sai_paso_atencion 
+        WHERE vae_borrado IS NULL 
+        AND paa_borrado IS NULL 
+        AND vae_campo_extra IN (
+            SELECT cae_historico.cae_id
+            FROM sai_campo_extra AS cae_historico
+            WHERE cae_historico.cae_borrado IS NULL
+            AND cae_historico.cae_codigo = cae.cae_codigo
+            AND cae_historico.cae_id <> cae.cae_id
+        ) 
+        AND paa_id = vae_paso_atencion
+        AND paa_atencion = $ate_id
+        ORDER BY vae_creado DESC
+        LIMIT 1
+    ) AS valor_historico
     , (
         SELECT concat(nod_codigo, ': ',  nod_descripcion, ' (', ubi_direccion, ')')
         FROM sai_valor_extra
@@ -84,7 +102,7 @@ $sql = "
         AND paa_borrado IS NULL 
         AND nod_borrado IS NULL
         AND ubi_borrado IS NULL
-        AND vae_campo_extra = cae_id 
+        AND vae_campo_extra = cae.cae_id 
         AND paa_id=vae_paso_atencion
         AND nod_id = vae_nodo
         AND ubi_id = nod_ubicacion
@@ -101,7 +119,7 @@ $sql = "
         WHERE vae_borrado IS NULL 
         AND paa_borrado IS NULL 
         AND ciu_borrado IS NULL
-        AND vae_campo_extra = cae_id 
+        AND vae_campo_extra = cae.cae_id 
         AND paa_id=vae_paso_atencion
         AND ciu_id = vae_ciudad
         $filtro_valor_actual
@@ -116,16 +134,16 @@ $sql = "
         ,sai_transicion_estado_atencion
         WHERE tea_borrado IS NULL
         AND tea_destinatario = des_id
-        AND tea_id = cae_transicion_estado_atencion
+        AND tea_id = cae.cae_transicion_estado_atencion
     ) AS destinatario
     ,(
         SELECT tid_codigo
         FROM sai_tipo_dato
-        WHERE tid_id = cae_tipo_dato
+        WHERE tid_id = cae.cae_tipo_dato
     ) AS tipo_dato
-    FROM sai_campo_extra 
-    WHERE cae_borrado IS NULL
-    AND cae_transicion_estado_atencion IN (
+    FROM sai_campo_extra AS cae
+    WHERE cae.cae_borrado IS NULL
+    AND cae.cae_transicion_estado_atencion IN (
         $cae_transicion_estado_atencion
     )
     ORDER BY cae_orden
