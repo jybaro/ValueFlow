@@ -59,6 +59,8 @@ $sql = "
         AND paa_id=vae_paso_atencion
         $filtro_valor_actual
         AND paa_atencion = $ate_id
+        ORDER BY vae_creado DESC
+        LIMIT 1
     ) AS valor
     ,(
         SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
@@ -69,6 +71,8 @@ $sql = "
         AND vae_campo_extra = cae_valor_por_defecto 
         AND paa_id=vae_paso_atencion
         AND paa_atencion = $ate_id
+        ORDER BY vae_creado DESC
+        LIMIT 1
     ) AS valor_por_defecto
     , (
         SELECT concat(nod_codigo, ': ',  nod_descripcion, ' (', ubi_direccion, ')')
@@ -86,6 +90,8 @@ $sql = "
         AND ubi_id = nod_ubicacion
         $filtro_valor_actual
         AND paa_atencion = $ate_id
+        ORDER BY vae_creado DESC
+        LIMIT 1
     ) AS nodo
     , (
         SELECT ciu_nombre 
@@ -100,6 +106,8 @@ $sql = "
         AND ciu_id = vae_ciudad
         $filtro_valor_actual
         AND paa_atencion = $ate_id
+        ORDER BY vae_creado DESC
+        LIMIT 1
     ) AS ciudad
 
     , (

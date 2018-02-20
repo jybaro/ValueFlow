@@ -84,8 +84,8 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                     $adjuntos = implode(',', $adjuntos);
 
                     //obtiene el tea_id ultimo, por si haya sido actualizado durante el guardado:
-                    $result_tea_id = q("
-                        SELECT tea_id
+                    $result_tea = q("
+                        SELECT *
                         FROM sai_transicion_estado_atencion
                         WHERE tea_borrado IS NULL
                         AND tea_estado_atencion_actual = (
@@ -110,8 +110,11 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                         )
                     ");
 
-                    if ($result_tea_id) {
-                        $tea_id = $result_tea_id[0][tea_id];
+                    if ($result_tea) {
+                        $tea_id = $result_tea[0][tea_id];
+                        //$tea_automatico = $result_tea[0][tea_automatico];
+                        //var_dump($result_tea);
+                        //return;
                     }
 
                     $result = q("
@@ -173,7 +176,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
         }
 
 
-        $result = q("
+        $sql = ("
             UPDATE sai_atencion 
             SET ate_estado_atencion = $estado_siguiente_id 
             $usuario_tecnico
@@ -182,7 +185,45 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             AND ate_id = $ate_id 
             RETURNING *
         ");
+        //echo "[[CON_ACCION]]".$sql;
+        $result = q($sql);
         $respuesta['atencion'] = $result;
+
+        //PARA LOS AUTOMATICOS:
+        //if ($tea_automatico == 1) {
+            $sql = ("
+                SELECT *
+                FROM sai_transicion_estado_atencion
+                WHERE tea_borrado IS NULL
+                AND tea_estado_atencion_actual = (
+                    SELECT tea_estado_atencion_siguiente 
+                    FROM sai_transicion_estado_atencion 
+                    WHERE tea_id = $tea_id
+                )
+                AND tea_pertinencia_proveedor = (
+                    SELECT tea_pertinencia_proveedor 
+                    FROM sai_transicion_estado_atencion 
+                    WHERE tea_id = $tea_id
+                )
+                ");
+            echo $sql;
+            $result_next = q($sql);
+            echo "[[RESULT NEXT:]]";
+            var_dump($result_next);
+            if ($result_next) {
+                $tea_next = $result_next[0];
+                
+                $tea_id_next = $tea_next['tea_id'];
+                $tea_automatico_next = $tea_next['tea_automatico'];
+                $tea_estado_atencion_siguiente_next = $tea_next['tea_estado_atencion_siguiente'];
+
+                echo "[[tea_id_next: $tea_id_next, tea_automatico_next: $tea_automatico_next, tea_estado_atencion_siguiente_next: $tea_estado_atencion_siguiente_next]]";
+                if ($tea_automatico_next == 1) {
+                    require_once('_confirmarTransicionSinAcciones.php');
+                    $respuesta['automatico'] = p_confirmar_transicion_sin_acciones($ate_id, $tea_id_next, $tea_estado_atencion_siguiente_next);
+                }
+            }
+        //}
     } else {
         $respuesta = array('ERROR' => 'No se pudo realizar el cambio de estado.');
     }
