@@ -411,7 +411,17 @@ EOT;
             //AND paa_borrado IS NULL
         $result_campos = q($sql);
         if ($result_campos) {
+            $paa = null;
             foreach($result_campos as $rdato){
+                if ($paa != $rdato['paa_id']) {
+                    $paa = $rdato['paa_id'];
+                    $fecha_formateada = p_formatear_fecha($r['paa_creado']);
+                    echo <<<EOT
+            <tr>
+              <th colspan=2>{$fecha_formateada}</th>
+            </tr>
+EOT;
+                }
                 $label = ucfirst($rdato['cae_texto']);
                 $dato = $rdato['vae_texto'] . $rdato['vae_numero'] . $rdato['vae_fecha'] . $rdato['nodo'] .$rdato['ciudad'];
                 echo <<<EOT
