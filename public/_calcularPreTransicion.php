@@ -460,7 +460,7 @@ EOT;
                     $campos_valores['EQUIS_INTERNET'] = ($campos_valores['SERVICIO'] == 'INTERNET') ? 'X' : '';
 
                     $campos_valores['PRECIO_CAPACIDAD'] = $campos_valores['CAPACIDAD'] * $campos_valores['PRECIO_MB'];
-                    $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['EXTREMO_NOD_COSTO_INSTALACION_CLIENTE'];
+                    $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
                     $campos_valores['IVA_SERVICIO'] = round($campos_valores['SUBTOTAL_SERVICIO'] * 0.12, 2);
                     $campos_valores['TOTAL_SERVICIO'] = $campos_valores['SUBTOTAL_SERVICIO'] + $campos_valores['IVA_SERVICIO'];
                     
