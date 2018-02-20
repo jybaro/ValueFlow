@@ -206,9 +206,9 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                     WHERE tea_id = $tea_id
                 )
                 ");
-            echo $sql;
+            //echo $sql;
             $result_next = q($sql);
-            echo "[[RESULT NEXT:]]";
+            //echo "[[RESULT NEXT:]]";
             var_dump($result_next);
             if ($result_next) {
                 $tea_next = $result_next[0];
@@ -217,7 +217,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 $tea_automatico_next = $tea_next['tea_automatico'];
                 $tea_estado_atencion_siguiente_next = $tea_next['tea_estado_atencion_siguiente'];
 
-                echo "[[tea_id_next: $tea_id_next, tea_automatico_next: $tea_automatico_next, tea_estado_atencion_siguiente_next: $tea_estado_atencion_siguiente_next]]";
+                //echo "[[tea_id_next: $tea_id_next, tea_automatico_next: $tea_automatico_next, tea_estado_atencion_siguiente_next: $tea_estado_atencion_siguiente_next]]";
                 if ($tea_automatico_next == 1) {
                     require_once('_confirmarTransicionSinAcciones.php');
                     $respuesta['automatico'] = p_confirmar_transicion_sin_acciones($ate_id, $tea_id_next, $tea_estado_atencion_siguiente_next);

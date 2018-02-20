@@ -5,7 +5,7 @@
 
 function p_confirmar_transicion_sin_acciones($ate_id, $tea_id, $estado_siguiente_id){
 
-    echo "EN p_confirmar_transicion_sin_acciones: $ate_id, $tea_id, $estado_siguiente_id";
+    //echo "EN p_confirmar_transicion_sin_acciones: $ate_id, $tea_id, $estado_siguiente_id";
     $respuesta = array();
 
     //$ate_id = $_POST['ate_id'];
@@ -73,7 +73,7 @@ function p_confirmar_transicion_sin_acciones($ate_id, $tea_id, $estado_siguiente
         ) RETURNING *
     ");
     if ($result) {
-        echo "[[INSERTADO NUEVO PASO: $ate_id, $tea_id]]";
+        //echo "[[INSERTADO NUEVO PASO: $ate_id, $tea_id]]";
         $paa_id = $result[0]['paa_id'];
         $paa_id_lista[] = $paa_id;
         $paa_lista[] = $result;
@@ -100,7 +100,7 @@ function p_confirmar_transicion_sin_acciones($ate_id, $tea_id, $estado_siguiente
             RETURNING *
         ");
         $result = q($sql);
-        echo "[[ACTUALIZADOS PASOS ANTERIORES: ate_id:$ate_id, NOT paa_id IN ($paa_id_lista)]]";
+        //echo "[[ACTUALIZADOS PASOS ANTERIORES: ate_id:$ate_id, NOT paa_id IN ($paa_id_lista)]]";
         $respuesta['pasos_anteriores'] = $result;
         $result = array();
 
