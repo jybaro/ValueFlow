@@ -305,7 +305,7 @@ if ($result) {
         $fecha_formateada = p_formatear_fecha($r['ate_creado']);
         echo <<<EOT
       <a name="atencion_{$r[ate_secuencial]}"></a>
-<div class="panel panel-info" xxxstyle="width:500px;">
+<div class="panel panel-info panel-atencion" id="panel_atencion_{$r[ate_id]}"  xxxstyle="width:500px;">
   <div class="panel-heading">
     <div class="pull-right">
       $fecha_formateada 
@@ -369,10 +369,10 @@ EOT;
       <strong>Usuario técnico:</strong> {$r[usu_tecnico_nombre]}
       <br>
       <strong>Usuario comercial:</strong> {$r[usu_comercial_nombre]}
+<div id="campos_estado_vigente_{$r[ate_id]}"></div>
       <div>&nbsp;</div>
-EOT;
-        echo <<<EOT
-        <table style="width:400px" class="table table-striped table-condensed table-hover">
+<a class="btn btn-info" href="#" onclick="p_toggle_historico({$r[ate_secuencial]});return false;">Mostrar histórico</a>
+        <table id="tabla_historico_{$r[ate_secuencial]}" style="width:400px;display:none;" class="table table-striped table-condensed table-hover">
         <tbody>
 EOT;
 
@@ -402,13 +402,14 @@ EOT;
             ,sai_valor_extra
             WHERE cae_borrado IS NULL
             AND vae_borrado IS NULL
+            AND paa_borrado IS NULL
             AND vae_campo_extra = cae_id
             AND vae_paso_atencion = paa_id
             AND paa_atencion={$r[ate_id]}
             AND NOT paa_paso_anterior IS NULL
             ORDER BY paa_id DESC, cae_orden
         ");
-            //AND paa_borrado IS NULL
+            //AND paa_borrado IS NULL // ya agregado...
         $result_campos = q($sql);
         if ($result_campos) {
             $paa = null;
@@ -418,7 +419,7 @@ EOT;
                     $fecha_formateada = p_formatear_fecha($rdato['paa_creado']);
                     echo <<<EOT
             <tr>
-              <th class="bg-info" colspan=2>{$fecha_formateada} - {$rdato[paa_id]}</th>
+              <th class="bg-info" colspan=2>{$fecha_formateada}</th>
             </tr>
 EOT;
                 }
@@ -434,30 +435,8 @@ EOT;
         }
         echo '</tbody></table>';
         //echo "$sql";
-        /*
         echo <<<EOT
       <div>&nbsp;</div>
-      <strong>Estado:</strong> {$r[estado_actual]}
-      <div>&nbsp;</div>
-      <strong>Proveedor:</strong> {$r[pro_razon_social]}
-      <div>&nbsp;</div>
-      <strong>Usuario:</strong> {$r[usu_nombres]} {$r[usu_apellidos]}
-      <div>&nbsp;</div>
-
-EOT;
-         */
-        echo <<<EOT
-
-      <div>&nbsp;</div>
-
-      <!--
-      <div>
-        <button class="btn btn-info" onclick="p_abrir({$r[tea_id]}, {$r[ate_id]})"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Recopilar datos</button>
-      </div>
-      <div>&nbsp;</div>
-      -->
-EOT;
-        echo <<<EOT
     </div>
   </div>
 </div>
@@ -1211,6 +1190,32 @@ if ($result) {
 <script src="/js/bootstrap3-typeahead.min.js"></script>
 <script>
 $(document).ready(function() {
+    $('.panel-atencion').on('shown.bs.collapse', function() {
+        console.log("shown", $(this).prop('id'));
+    }).on('show.bs.collapse', function() {
+        console.log("show", $(this).prop('id'));
+
+        ate_id = parseInt($(this).prop('id').replace('panel_atencion_', ''));
+        $.get('/_obtenerValoresVigentes/'+ate_id, function(data){
+            console.log('/_obtenerValoresVigentes/'+ate_id, data);
+            data = JSON.parse(data);
+            console.log('data', data);
+            var campos_estado_vigente = '';
+            campos_estado_vigente += '<table style="width:400px;display:none;" class="table table-striped table-condensed table-hover"><tbody>';
+            data.forEach(function(d){
+                campos_estado_vigente += ''
+                    + '<tr>'
+                    + '<th>'+d['codigo']+'</th>'
+                    + '<td>'+d['valor']+'</td>'
+                    + '</tr>'
+                    ;
+            });
+            campos_estado_vigente += '</tbody></table>';
+            $('#campos_estado_vigente_'+ate_id).html(campos_estado_vigente);
+
+        });
+    });
+
     $('.combo-select2').select2({
         language: "es"
         ,width: '100%'
@@ -1250,6 +1255,10 @@ $(document).ready(function() {
         $("#modal").off("shown.bs.modal");
     });
 });
+
+function p_toggle_historico(ate_secuencial){
+    $('#tabla_historico_'+ate_secuencial).toggle();
+}
 
 function p_inicializar_autocompletar(id){
     //$('#campo_extra_typeahead_'+id).typeahead({
