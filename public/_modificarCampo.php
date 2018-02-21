@@ -6,7 +6,7 @@ $no_nulo = array();
 
 foreach($_POST as $k => $v) {
     $v = empty($v) ? (in_array($k, $no_nulo) ? (in_array($k, $txt) ? "''" : '0') : 'NULL') : (in_array($k, $txt) ? "'$v'" : $v);
-    $$k = $v;
+    $$k = pg_escape_string($v);
 }
 
 

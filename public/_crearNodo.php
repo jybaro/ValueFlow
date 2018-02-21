@@ -7,7 +7,7 @@ $result = array();
 foreach($_POST as $k => $v){
     $v = (empty($v) ? 'null' : $v); 
     $k = substr($k, 4);
-    $$k = $v;
+    $$k = pg_escape_string($v);
 }
 
 $cae_id = $_POST['nod_cae_id'];

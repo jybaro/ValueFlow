@@ -18,7 +18,7 @@ $error = '';
 //$desde = $_POST['desde'];
 //$hacia= $_POST['hacia'];
 foreach($_POST as $k => $v) {
-    $$k = (empty($v) ? 'null' : $v);
+    $$k = (empty($v) ? 'null' : pg_escape_string($v));
 }
 $tiempo_alerta_horas = ($tiempo_alerta_horas == 'null') ? 0 : $tiempo_alerta_horas;
 

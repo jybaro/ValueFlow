@@ -93,6 +93,8 @@ if (!$result) {
 //echo $paa_id;
 $respuesta = array();
 foreach ($_POST as $k => $v){
+    $v = pg_escape_string($v);
+
     if ($k != 'ate_id') {
         //$cae_id = "(SELECT cae_id FROM sai_campo_extra WHERE cae_codigo='$k')";
         $cae_id = str_replace('campo_extra_', '', $k);
@@ -123,6 +125,7 @@ foreach ($_POST as $k => $v){
             ");
 
             if ($result_cae) {
+
                 $cae = $result_cae[0];
                 switch ($cae[tid_codigo]) {
                 case 'texto': default:
