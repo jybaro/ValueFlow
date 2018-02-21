@@ -47,6 +47,8 @@ if ($accion == 'duplicar') {
                     ,cae_plantilla
                     ,cae_orden
                     ,cae_valor_por_defecto
+                    ,cae_menor_que
+                    ,cae_mayor_que
                     ,cae_padre
                 ) SELECT 
                     cae_texto
@@ -56,6 +58,8 @@ if ($accion == 'duplicar') {
                     ,cae_plantilla
                     ,cae_orden
                     ,cae_valor_por_defecto
+                    ,cae_menor_que
+                    ,cae_mayor_que
                     ,$cae_padre
                 FROM sai_campo_extra
                 WHERE cae_id = {$campo[cae_id]} 
@@ -95,6 +99,8 @@ if ($accion == 'duplicar') {
         ,cae_plantilla = $plantilla
         ,cae_orden = $orden
         ,cae_valor_por_defecto = $valor_por_defecto
+        ,cae_menor_que = $menor_que
+        ,cae_mayor_que = $mayor_que
         ,cae_padre = $padre
         FROM sai_tipo_dato  
         WHERE cae_id = $id
@@ -112,6 +118,8 @@ if ($accion == 'duplicar') {
             ,cae_plantilla
             ,cae_orden
             ,cae_valor_por_defecto
+            ,cae_menor_que
+            ,cae_mayor_que
             ,cae_padre
         ) VALUES (
             $texto
@@ -121,6 +129,8 @@ if ($accion == 'duplicar') {
             ,$plantilla
             ,$orden
             ,$valor_por_defecto
+            ,$menor_que
+            ,$mayor_que
             ,$padre
         ) RETURNING *
         )
