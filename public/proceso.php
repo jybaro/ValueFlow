@@ -1854,6 +1854,9 @@ function p_desplegar_campos(campos, padre_id) {
         var valor_por_defecto = (campo['valor_por_defecto'] == 'null' || campo['valor_por_defecto'] == null  || campo['valor_por_defecto'] == '') ? valor_historico : campo['valor_por_defecto'];
         var valor = (campo['valor'] == 'null' || campo['valor'] == null || campo['valor'] == '') ? valor_por_defecto : campo['valor'];
 
+        var menor_que = (campo['menor_que'] == 'null' || campo['menor_que'] == null || campo['menor_que'] == '') ? null : campo['menor_que'];
+        var mayor_que = (campo['mayor_que'] == 'null' || campo['mayor_que'] == null || campo['mayor_que'] == '') ? null : campo['mayor_que'];
+
         var contenido = '';
         console.log('CAMPO:', campo);
         //if (padre_id == null || padre_id == campo['cae_padre']) {
@@ -1892,11 +1895,13 @@ function p_desplegar_campos(campos, padre_id) {
 
 
                 } else if (campo['tipo_dato'] == 'numero') {
+                    var validacion_mayor_que = (mayor_que == null) ? '' : 'max="'+mayor_que+'"'; 
+                    var validacion_menor_que = (menor_que == null) ? '' : 'min="'+menor_que+'"'; 
                     contenido += ''+
                         '<div class="form-group">' +
                         '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
                         '<div class="col-sm-' + col2 + '">' +
-                        '<input type="number" '+campo['cae_validacion']+' class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
+                        '<input type="number" '+campo['cae_validacion']+' '+validacion_mayor_que+' '+validacion_menor_que+' class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
                         '</div>' +
                         '</div>'+
                         '';
@@ -2057,6 +2062,20 @@ function p_validar(target){
     var resultado = true;
     if (!$(target)[0].checkValidity()) {
         console.log('no valida...');
+        $(target).popover('hide');
+        $(target).popover('destroy');
+        $(target).popover({
+            placement:'auto top',
+            trigger:'manual',
+            html:true,
+            content:target.validationMessage
+        });
+        $(target).popover('show');
+        setTimeout(function () {
+            $(target).popover('hide');
+            $(target).popover('destroy');
+        }, 4000);
+
         $('<input type="submit">').hide().appendTo('#' + id).click().remove();
         resultado = false;
     }
