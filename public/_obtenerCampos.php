@@ -50,7 +50,7 @@ if ($extender_campos_anteriores == 1) {
 $sql = "
     SELECT *
     ,(
-        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'yyyy-MM-dd'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -63,7 +63,7 @@ $sql = "
         LIMIT 1
     ) AS valor
     ,(
-        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'yyyy-MM-dd'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -75,7 +75,7 @@ $sql = "
         LIMIT 1
     ) AS valor_por_defecto
     ,(
-        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'yyyy-MM-dd'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -93,7 +93,7 @@ $sql = "
         LIMIT 1
     ) AS valor_historico
     ,(
-        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'yyyy-MM-dd'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -111,7 +111,7 @@ $sql = "
         LIMIT 1
     ) AS menor_que 
     ,(
-        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'yyyy-MM-dd'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
