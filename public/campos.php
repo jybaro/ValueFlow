@@ -86,9 +86,9 @@ $plantilla_cabecera = <<<EOT
           <br>
           <strong>Campo para valor por defecto:</strong> <span id="cae_valor_por_defecto_%CAE_ID%">%CAE_VALOR_POR_DEFECTO%</span>
           <br>
-          <strong>Campo para validar menor que:</strong> <span id="cae_menor_que_%CAE_ID%">%CAE_MENOR_QUE%</span>
+          <strong>Código para validar menor que:</strong> <span id="cae_menor_que_%CAE_ID%">%CAE_MENOR_QUE%</span>
           <br>
-          <strong>Campo para validar mayor que:</strong> <span id="cae_mayor_que_%CAE_ID%">%CAE_MAYOR_QUE%</span>
+          <strong>Código para validar mayor que:</strong> <span id="cae_mayor_que_%CAE_ID%">%CAE_MAYOR_QUE%</span>
         </div>
       </div>
       <div class="panel panel-default">
@@ -199,15 +199,15 @@ p_tree($campos[null][hijos]);
     </div>
   </div>
   <div class="form-group">
-    <label for="menor_que" class="col-sm-2 control-label">Campo para validar menor que:</label>
+    <label for="menor_que" class="col-sm-2 control-label">Código para validar menor que:</label>
     <div class="col-sm-10">
-      <input type="number" class="form-control" id="menor_que" name="menor_que" placeholder="">
+      <input type="text" class="form-control" id="menor_que" name="menor_que" placeholder="">
     </div>
   </div>
   <div class="form-group">
-    <label for="mayor_que" class="col-sm-2 control-label">Campo para validar mayor que:</label>
+    <label for="mayor_que" class="col-sm-2 control-label">Código para validar mayor que:</label>
     <div class="col-sm-10">
-      <input type="number" class="form-control" id="mayor_que" name="mayor_que" placeholder="">
+      <input type="text" class="form-control" id="mayor_que" name="mayor_que" placeholder="">
     </div>
   </div>
   <div class="form-group">

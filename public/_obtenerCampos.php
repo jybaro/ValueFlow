@@ -80,30 +80,6 @@ $sql = "
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
         AND paa_borrado IS NULL 
-        AND vae_campo_extra = cae.cae_menor_que
-        AND paa_id=vae_paso_atencion
-        AND paa_atencion = $ate_id
-        ORDER BY vae_creado DESC
-        LIMIT 1
-    ) AS menor_que
-    ,(
-        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
-        FROM sai_valor_extra
-        , sai_paso_atencion 
-        WHERE vae_borrado IS NULL 
-        AND paa_borrado IS NULL 
-        AND vae_campo_extra = cae.cae_mayor_que
-        AND paa_id=vae_paso_atencion
-        AND paa_atencion = $ate_id
-        ORDER BY vae_creado DESC
-        LIMIT 1
-    ) AS mayor_que
-    ,(
-        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
-        FROM sai_valor_extra
-        , sai_paso_atencion 
-        WHERE vae_borrado IS NULL 
-        AND paa_borrado IS NULL 
         AND vae_campo_extra IN (
             SELECT cae_historico.cae_id
             FROM sai_campo_extra AS cae_historico
@@ -116,6 +92,42 @@ $sql = "
         ORDER BY vae_creado DESC
         LIMIT 1
     ) AS valor_historico
+    ,(
+        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        FROM sai_valor_extra
+        , sai_paso_atencion 
+        WHERE vae_borrado IS NULL 
+        AND paa_borrado IS NULL 
+        AND vae_campo_extra IN (
+            SELECT cae_historico.cae_id
+            FROM sai_campo_extra AS cae_historico
+            WHERE cae_historico.cae_borrado IS NULL
+            AND cae_historico.cae_codigo = cae.cae_menor_que
+            AND cae_historico.cae_id <> cae.cae_id
+        ) 
+        AND paa_id = vae_paso_atencion
+        AND paa_atencion = $ate_id
+        ORDER BY vae_creado DESC
+        LIMIT 1
+    ) AS menor_que 
+    ,(
+        SELECT concat(vae_texto, vae_numero, vae_fecha, vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        FROM sai_valor_extra
+        , sai_paso_atencion 
+        WHERE vae_borrado IS NULL 
+        AND paa_borrado IS NULL 
+        AND vae_campo_extra IN (
+            SELECT cae_historico.cae_id
+            FROM sai_campo_extra AS cae_historico
+            WHERE cae_historico.cae_borrado IS NULL
+            AND cae_historico.cae_codigo = cae.cae_mayor_que
+            AND cae_historico.cae_id <> cae.cae_id
+        ) 
+        AND paa_id = vae_paso_atencion
+        AND paa_atencion = $ate_id
+        ORDER BY vae_creado DESC
+        LIMIT 1
+    ) AS mayor_que 
     , (
         SELECT concat(nod_codigo, ': ',  nod_descripcion, ' (', ubi_direccion, ')')
         FROM sai_valor_extra
