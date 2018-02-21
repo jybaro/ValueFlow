@@ -406,7 +406,7 @@ EOT;
             AND vae_paso_atencion = paa_id
             AND paa_atencion={$r[ate_id]}
             AND NOT paa_paso_anterior IS NULL
-            ORDER BY vae_creado, cae_orden
+            ORDER BY paa_id DESC, cae_orden
         ");
             //AND paa_borrado IS NULL
         $result_campos = q($sql);
@@ -415,10 +415,10 @@ EOT;
             foreach($result_campos as $rdato){
                 if ($paa != $rdato['paa_id']) {
                     $paa = $rdato['paa_id'];
-                    $fecha_formateada = p_formatear_fecha($r['paa_creado']);
+                    $fecha_formateada = p_formatear_fecha($rdato['paa_creado']);
                     echo <<<EOT
             <tr>
-              <th colspan=2>{$fecha_formateada}</th>
+              <th class="bg-info" colspan=2>{$fecha_formateada} - {$rdato[paa_id]}</th>
             </tr>
 EOT;
                 }

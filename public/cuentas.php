@@ -102,26 +102,26 @@ p_tree($cuentas[null][hijos]);
     </div>
   </div>
   <div class="form-group">
-    <label for="padre" class="col-sm-4 control-label">Dependiencia padre:</label>
-    <div class="col-sm-8">
-      <select id="padre" name="padre" class="form-control combo-select2" style="width:50%">
-        <option value="">&nbsp;</option>
-        <?php $roles=q("SELECT * FROM sai_cuenta ORDER BY cue_codigo"); ?>
-        <?php foreach($roles as $rol): ?>
-            <option value="<?=$rol['cue_id']?>"><?=$rol['cue_codigo']?></option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-  </div>
-  <div class="form-group">
     <label for="cliente" class="col-sm-4 control-label">Empresa:</label>
     <div class="col-sm-8">
-      <select required id="cliente" name="cliente" class="form-control combo-select2" style="width:50%">
+      <select required id="cliente" name="cliente" class="form-control combo-select2" style="width:50%" onchange="p_cargar_cuentas(this)">
         <option value="">&nbsp;</option>
         <?php $roles=q("SELECT * FROM sai_cliente ORDER BY cli_razon_social"); ?>
         <?php foreach($roles as $rol): ?>
             <option value="<?=$rol['cli_id']?>"><?=$rol['cli_razon_social']?></option>
         <?php endforeach; ?>
+      </select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="padre" class="col-sm-4 control-label">Dependiencia padre:</label>
+    <div class="col-sm-8">
+      <select id="padre" name="padre" class="form-control combo-select2" style="width:50%">
+        <option value="">&nbsp;</option>
+        <?php //$roles=q("SELECT * FROM sai_cuenta ORDER BY cue_codigo"); ?>
+        <?php //foreach($roles as $rol): ?>
+            <!--option value="<?=$rol['cue_id']?>"><?=$rol['cue_codigo']?></option-->
+        <?php //endforeach; ?>
       </select>
     </div>
   </div>
@@ -216,6 +216,39 @@ $(document).ready(function() {
     });
 });
 
+function p_cargar_cuentas(target) {
+    console.log('En p_cargar_cuentas', target);
+
+    $('#padre').html('<option value="">Seleccione el servicio primero</option>');
+    $('#padre').prop('disabled', true);
+    $('#padre').val('');
+    $('#padre').trigger('change');
+
+    var cli_id = $(target).val();
+    if (cli_id != '') {
+        $.get('/_listarCuentas/' + cli_id, function(data){
+            console.log('/_listarCuentas/'+cli_id, data);
+            data = JSON.parse(data);
+            console.log('data:', data);
+            var opciones = '';
+            if (data) {
+                var count = 0;
+                Array.from(data).forEach(function(padre){
+                    opciones += '<option value="'+padre['cue_id']+'">'+padre['cue_codigo']+'</option>';
+                    count++;
+                });
+                
+                $('#padre').html(opciones);
+                $('#padre').prop('disabled', false);
+                if (count > 1) {
+                    $('#padre').val([]);
+                }
+                //$('#padre').trigger('change');
+
+            }
+        });
+    }
+}
 function p_validar(target) {
     console.log('validando', target);
     var resultado = true;
@@ -329,6 +362,7 @@ function p_toggle(id) {
 
 function p_nuevo(){
 
+
     $('#formulario_titulo').text('nueva');
     $('#formulario').trigger('reset');
     $('#id').val('');
@@ -360,6 +394,11 @@ function p_nuevo(){
             break;
         }
     });
+
+    $('#padre').html('<option value="">Seleccione el servicio primero</option>');
+    $('#padre').prop('disabled', true);
+    $('#padre').val('');
+    $('#padre').trigger('change');
 
     $('#modal').modal('show');
 }

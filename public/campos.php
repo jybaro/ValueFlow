@@ -80,11 +80,15 @@ $plantilla_cabecera = <<<EOT
           <br>
           <strong>Validación:</strong> <span id="cae_validacion_%CAE_ID%">%CAE_VALIDACION%</span>
           <br>
-          <strong>Validación:</strong> <span id="cae_plantilla_%CAE_ID%">%CAE_PLANTILLA%</span>
+          <strong>Plantilla:</strong> <span id="cae_plantilla_%CAE_ID%">%CAE_PLANTILLA%</span>
           <br>
           <strong>Orden:</strong> <span id="cae_orden_%CAE_ID%">%CAE_ORDEN%</span>
           <br>
           <strong>Campo para valor por defecto:</strong> <span id="cae_valor_por_defecto_%CAE_ID%">%CAE_VALOR_POR_DEFECTO%</span>
+          <br>
+          <strong>Campo para validar menor que:</strong> <span id="cae_menor_que_%CAE_ID%">%CAE_MENOR_QUE%</span>
+          <br>
+          <strong>Campo para validar mayor que:</strong> <span id="cae_mayor_que_%CAE_ID%">%CAE_MAYOR_QUE%</span>
         </div>
       </div>
       <div class="panel panel-default">
@@ -124,6 +128,8 @@ function p_tree($arbol) {
             ,'%CAE_PLANTILLA%' => $c[cae_plantilla]
             ,'%CAE_ORDEN%' => $c[cae_orden]
             ,'%CAE_VALOR_POR_DEFECTO%' => $c[cae_valor_por_defecto]
+            ,'%CAE_MENOR_QUE%' => $c[cae_menor_que]
+            ,'%CAE_MAYOR_QUE%' => $c[cae_mayor_que]
             ,'%COUNT_HIJOS%' => count($c[hijos])
         );
 
@@ -190,6 +196,18 @@ p_tree($campos[null][hijos]);
     <label for="valor_por_defecto" class="col-sm-2 control-label">Campo para valor por defecto:</label>
     <div class="col-sm-10">
       <input type="number" class="form-control" id="valor_por_defecto" name="valor_por_defecto" placeholder="">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="menor_que" class="col-sm-2 control-label">Campo para validar menor que:</label>
+    <div class="col-sm-10">
+      <input type="number" class="form-control" id="menor_que" name="menor_que" placeholder="">
+    </div>
+  </div>
+  <div class="form-group">
+    <label for="mayor_que" class="col-sm-2 control-label">Campo para validar mayor que:</label>
+    <div class="col-sm-10">
+      <input type="number" class="form-control" id="mayor_que" name="mayor_que" placeholder="">
     </div>
   </div>
   <div class="form-group">
@@ -456,6 +474,8 @@ function p_guardar(){
                     cabecera = cabecera.split('%CAE_PLANTILLA%').join(data['cae_plantilla']);
                     cabecera = cabecera.split('%CAE_ORDEN%').join(data['cae_orden']);
                     cabecera = cabecera.split('%CAE_VALOR_POR_DEFECTO%').join(data['cae_valor_por_defecto']);
+                    cabecera = cabecera.split('%CAE_MENOR_QUE%').join(data['cae_menor_que']);
+                    cabecera = cabecera.split('%CAE_MAYOR_QUE%').join(data['cae_mayor_que']);
                     cabecera = cabecera.split('%TID_NOMBRE%').join(data['tid_nombre']);
                     cabecera = cabecera.split('%COUNT_HIJOS%').join('0');
                     console.log('caberera-pie:', cabecera, pie);
@@ -475,6 +495,8 @@ function p_guardar(){
                     $('#cae_plantilla_' + data['cae_id']).text(data['cae_plantilla']);
                     $('#cae_orden_' + data['cae_id']).text(data['cae_orden']);
                     $('#cae_valor_por_defecto_' + data['cae_id']).text(data['cae_valor_por_defecto']);
+                    $('#cae_menor_que_' + data['cae_id']).text(data['cae_menor_que']);
+                    $('#cae_mayor_que_' + data['cae_id']).text(data['cae_mayor_que']);
                     $('#tid_nombre_' + data['cae_id']).text(data['tid_nombre']);
                     console.log('#tid_nombre_' + data['cae_id'], data['tid_nombre'], $('#tid_nombre_' + data['cae_id']).text());
                 }
