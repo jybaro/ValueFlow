@@ -8,6 +8,25 @@ if (isset($args[0]) && !empty($args[0])) {
     $result = q("
         SELECT *
         ,concat(vae_texto, vae_numero, to_char(vae_fecha, 'yyyy-MM-dd'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) AS valor
+    , (
+        SELECT concat(nod_codigo, ': ',  nod_descripcion, ' (', ubi_direccion, ')')
+        FROM 
+        sai_nodo
+        , sai_ubicacion
+        WHERE 
+        nod_borrado IS NULL
+        AND ubi_borrado IS NULL
+        AND nod_id = vae_nodo
+        AND ubi_id = nod_ubicacion
+    ) AS nodo
+    , (
+        SELECT ciu_nombre 
+        FROM 
+         sai_ciudad
+        WHERE 
+        ciu_borrado IS NULL
+        AND ciu_id = vae_ciudad
+    ) AS ciudad
         FROM sai_paso_atencion
         , sai_valor_extra
         , sai_campo_extra
@@ -26,9 +45,11 @@ if (isset($args[0]) && !empty($args[0])) {
                 $codigo = $r[cae_codigo];
                 $codigo = str_replace('_', ' ', $codigo);
                 $codigo = ucfirst($codigo);
+                $nodo = $r[nodo];
+                $ciudad = $r[ciudad];
 
                 $valor = $r[valor];
-                $codigos[$r['cae_codigo']] = array('codigo' => $codigo, 'valor' => $valor);
+                $codigos[$r['cae_codigo']] = array('codigo' => $codigo, 'valor' => $valor, 'nodo' => $nodo, 'ciudad' => $ciudad);
             }
         }
     }

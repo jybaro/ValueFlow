@@ -1203,10 +1203,11 @@ $(document).ready(function() {
             var campos_estado_vigente = '';
             campos_estado_vigente += '<table style="width:400px;" class="table table-striped table-condensed table-hover"><tbody>';
             data.forEach(function(d){
+                var valor = d['valor'] + d['nodo'] + d['ciudad'];
                 campos_estado_vigente += ''
                     + '<tr>'
                     + '<th>'+d['codigo']+'</th>'
-                    + '<td>'+d['valor']+'</td>'
+                    + '<td>'+valor+'</td>'
                     + '</tr>'
                     ;
             });
