@@ -5,9 +5,10 @@ $result = array();
 //var_dump($_POST);
 //echo "[222]";
 foreach($_POST as $k => $v){
+    $v = pg_escape_string($v);
     $v = (empty($v) ? 'null' : $v); 
     $k = substr($k, 4);
-    $$k = pg_escape_string($v);
+    $$k = $v;
 }
 
 $cae_id = $_POST['nod_cae_id'];
