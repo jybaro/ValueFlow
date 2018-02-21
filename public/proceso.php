@@ -1201,7 +1201,7 @@ $(document).ready(function() {
             data = JSON.parse(data);
             console.log('data', data);
             var campos_estado_vigente = '';
-            campos_estado_vigente += '<table style="width:400px;display:none;" class="table table-striped table-condensed table-hover"><tbody>';
+            campos_estado_vigente += '<table style="width:400px;" class="table table-striped table-condensed table-hover"><tbody>';
             data.forEach(function(d){
                 campos_estado_vigente += ''
                     + '<tr>'
