@@ -126,6 +126,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                             ,paa_cuerpo
                             ,paa_destinatarios
                             ,paa_adjuntos 
+                            ,paa_creado_por
                         ) VALUES (
                             $ate_id
                             ,$tea_id
@@ -134,6 +135,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                             ,'$mensaje'
                             ,'$emails'
                             ,'$adjuntos'
+                            ,{$_SESSION['usu_id']}
                         ) RETURNING *
                     ");
                     if ($result) {

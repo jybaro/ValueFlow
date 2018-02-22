@@ -32,6 +32,7 @@ foreach ($pro_id_lista as $pro_id) {
                 ,ate_estado_atencion
                 ,ate_servicio
                 ,ate_contacto
+                ,ate_creado_por
             ) VALUES (
                 $cli_id
                 ,$cue_id
@@ -41,6 +42,7 @@ foreach ($pro_id_lista as $pro_id) {
                 ,$esa_id
                 ,$ser_id
                 ,$con_id
+                ,{$_SESSION['usu_id']}
             ) RETURNING *
         ");
         $respuesta[$pro_id] = $result;
@@ -87,9 +89,11 @@ foreach ($pro_id_lista as $pro_id) {
             INSERT INTO sai_paso_atencion (
                 paa_transicion_estado_atencion
                 , paa_atencion
+                , paa_creado_por
             ) VALUES (
                 $tea_id
                 , $ate_id
+                , {$_SESSION['usu_id']}
             ) RETURNING *
         ")[0][paa_id];
 

@@ -67,9 +67,11 @@ function p_confirmar_transicion_sin_acciones($ate_id, $tea_id, $estado_siguiente
         INSERT INTO sai_paso_atencion (
             paa_atencion
             ,paa_transicion_estado_atencion
+            ,paa_creado_por
         ) VALUES (
             $ate_id
             ,$tea_id
+            ,{$_SESSION['usu_id']}
         ) RETURNING *
     ");
     if ($result) {

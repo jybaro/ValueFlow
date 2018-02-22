@@ -454,6 +454,7 @@ EOT;
                     //Agregando campos automaticos:
                     $campos_valores['FECHA'] = p_formatear_fecha(null, true);
                     $campos_valores['NOW'] = p_formatear_fecha();
+                    $campos_valores['DISPONIBILIDAD_SERVICIO'] = '99.60 %';
                     $campos_valores['IDENTIFICADOR'] = isset($campos_valores['IDENTIFICADOR']) ? $campos_valores['IDENTIFICADOR'] : $campos_valores['ATE_SECUENCIAL']; 
                     $campos_valores['SERVICIO'] = strtoupper($campos_valores['SER_NOMBRE']);
                     $campos_valores['EQUIS_DATOS'] = ($campos_valores['SERVICIO'] == 'DATOS') ? 'X' : '';

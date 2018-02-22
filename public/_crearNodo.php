@@ -42,10 +42,12 @@ if ($result_ubi) {
             nod_codigo
             ,nod_descripcion
             ,nod_ubicacion
+            ,nod_creado_por
         ) VALUES (
             '$codigo'
             ,'$descripcion'
             ,$ubi_id
+            ,{$_SESSION['usu_id']}
         ) RETURNING *
     ");
     $result = $result_nod;

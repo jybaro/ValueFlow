@@ -53,9 +53,11 @@ if (!$result) {
         INSERT INTO sai_paso_atencion (
             paa_transicion_estado_atencion
             , paa_atencion
+            , paa_creado_por
         ) VALUES (
             $tea_id
             , $ate_id
+            , {$_SESSION['usu_id']}
         ) RETURNING *
     ")[0][paa_id];
 
@@ -183,6 +185,7 @@ foreach ($_POST as $k => $v){
                 , vae_nodo
                 , vae_conexion
                 , vae_ciudad
+                , vae_creado_por
             ) VALUES (
                 $cae_id
                 , $paa_id
@@ -192,6 +195,7 @@ foreach ($_POST as $k => $v){
                 , $vae_nodo
                 , $vae_conexion
                 , $vae_ciudad
+                , {$_SESSION['usu_id']}
             ) RETURNING *
         ");
         $respuesta[] = $return;

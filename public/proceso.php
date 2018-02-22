@@ -100,17 +100,15 @@ desired effect
       </div-->
 
       <!-- search form (Optional) -->
-     <!--
-      <form action="#" method="get" class="sidebar-form">
+      <form action="#" method="POST" id="busqueda" onsubmit="p_enviar_busqueda(this)" class="sidebar-form">
         <div class="input-group">
-          <input type="text" name="q" class="form-control" placeholder="Buscar...">
+          <input type="text" name="busqueda_query" id="busqueda_query" class="form-control" placeholder="Buscar...">
           <span class="input-group-btn">
               <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
               </button>
             </span>
         </div>
       </form>
-      -->
       <!-- /.search form -->
 
       <!-- Sidebar Menu -->
@@ -121,6 +119,7 @@ $result = q("
     SELECT * 
     FROM sai_estado_atencion 
     WHERE esa_borrado IS NULL
+    AND esa_nombre <> 'Fin'
     ORDER BY esa_padre, esa_orden, esa_id
 ");
     $tree = array();
@@ -176,11 +175,21 @@ EOF;
 
     //VERIFICA FILTRO DE DATOS, Y TITULO:
 $filtro = isset($filtro) ? " AND tea_estado_atencion_actual IN $filtro" : '';
+$filtro_raw = isset($filtro_raw) ? $filtro_raw : '';
 $esa_id = isset($esa_id) ? intval($esa_id) : null;
+
 if (isset($args[0]) && !empty($args[0])) {
     $esa_id = intval($args[0]);
     $filtro = " AND tea_estado_atencion_actual = $esa_id";
 }
+
+if (isset($args[1]) && !empty($args[1])) {
+    $busqueda = pg_escape_string($args[1]);
+    $busqueda = strtolower($busqueda);
+    $ate_secuencial_busqueda = intval($busqueda);
+    $filtro_busqueda = " AND ate_secuencial = $ate_secuencial_busqueda OR ate_codigo ILIKE '%{$busqueda}%'";
+}
+
 if (!empty($esa_id)) {
     $esa_nombre = q("SELECT esa_nombre FROM sai_estado_atencion WHERE esa_borrado IS NULL AND esa_id = $esa_id")[0]['esa_nombre'];
 }
@@ -197,7 +206,7 @@ if (!empty($esa_id)) {
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-      <?=(isset($titulo_proceso) ? $titulo_proceso : 'Atenciones')?>
+      <?=(isset($titulo_proceso) ? $titulo_proceso : 'Resultados de búsqueda')?>
       <span class="badge"><?=$esa_nombre?></span>
         <!--small>Optional description</small-->
       </h1>
@@ -276,6 +285,7 @@ $sql = ("
 
     WHERE ate_borrado IS NULL
         $filtro
+        $filtro_busqueda
 
     ORDER BY 
         ate_id DESC, estado_actual, estado_siguiente_orden
@@ -303,6 +313,8 @@ if ($result) {
         $r = $atencion;
 
         $fecha_formateada = p_formatear_fecha($r['ate_creado']);
+        $estado_actual = empty($r[estado_actual]) ? 'ATENCION SIN ESTADO': $r[estado_actual];
+        $codigo = empty($r[ate_codigo]) ? '' : " , ID: <strong>{$r[ate_codigo]}</strong>";
         echo <<<EOT
       <a name="atencion_{$r[ate_secuencial]}"></a>
 <div class="panel panel-info panel-atencion" id="panel_atencion_{$r[ate_id]}"  xxxstyle="width:500px;">
@@ -312,7 +324,7 @@ if ($result) {
     </div>
     <h3 class="panel-title">
       <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{$r[ate_secuencial]}" aria-expanded="false" aria-controls="collapse_{$r[ate_secuencial]}" >
-        {$r[ate_secuencial]}. <strong>{$r[estado_actual]}</strong> para servicio de {$r[ser_nombre]} ({$r[pro_razon_social]}) a {$r[cli_razon_social]}
+        {$r[ate_secuencial]}. <strong>{$estado_actual}</strong> para servicio de {$r[ser_nombre]} ({$r[pro_razon_social]}) a {$r[cli_razon_social]} $codigo
       </a>
     </h3>
   </div>
@@ -1263,6 +1275,11 @@ $(document).ready(function() {
         $("#modal").off("shown.bs.modal");
     });
 });
+
+function p_enviar_busqueda(target) {
+    var busqueda = $('#busqueda_query').val();
+    $(target).prop('action', '/proceso/0/' + busqueda);
+}
 
 function p_toggle_historico(ate_secuencial){
     $('#tabla_historico_'+ate_secuencial).toggle();
