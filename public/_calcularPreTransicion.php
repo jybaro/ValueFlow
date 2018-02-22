@@ -405,12 +405,15 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
 
                     $campos_valores = array();
 
-                    foreach ($campos_aun_no_confirmados as $campo) {
-                        $campos_valores[$campo['cae_codigo']] = $campo['valor'];
-                    }
                     foreach ($campos as $campo) {
                         $campos_valores[$campo['cae_codigo']] = $campo['valor'];
                     }
+
+                    //los campos no confirmados se hacen después para actualizar datos históricos:
+                    foreach ($campos_aun_no_confirmados as $campo) {
+                        $campos_valores[$campo['cae_codigo']] = $campo['valor'];
+                    }
+
                     //Agregando campos desde metadata de atencion:
                     //echo "[[RESULT METADATA ATENCION]]";
                     //var_dump($result_metadata_atencion);
@@ -461,6 +464,7 @@ EOT;
                     $campos_valores['EQUIS_INTERNET'] = ($campos_valores['SERVICIO'] == 'INTERNET') ? 'X' : '';
 
                     $campos_valores['PRECIO_CAPACIDAD'] = $campos_valores['CAPACIDAD'] * $campos_valores['PRECIO_MB'];
+                    $campos_valores['PRECIO_BW'] = $campos_valores['PRECIO_CAPACIDAD'];
                     $campos_valores['PRECIO_ACTUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
 
                     $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
