@@ -85,7 +85,6 @@ $sql = "
             FROM sai_campo_extra AS cae_historico
             WHERE cae_historico.cae_borrado IS NULL
             AND cae_historico.cae_codigo = cae.cae_codigo
-            AND cae_historico.cae_id <> cae.cae_id
         ) 
         AND paa_id = vae_paso_atencion
         AND paa_atencion = $ate_id
@@ -103,7 +102,6 @@ $sql = "
             FROM sai_campo_extra AS cae_historico
             WHERE cae_historico.cae_borrado IS NULL
             AND cae_historico.cae_codigo = cae.cae_menor_que
-            AND cae_historico.cae_id <> cae.cae_id
         ) 
         AND paa_id = vae_paso_atencion
         AND paa_atencion = $ate_id
@@ -121,7 +119,6 @@ $sql = "
             FROM sai_campo_extra AS cae_historico
             WHERE cae_historico.cae_borrado IS NULL
             AND cae_historico.cae_codigo = cae.cae_mayor_que
-            AND cae_historico.cae_id <> cae.cae_id
         ) 
         AND paa_id = vae_paso_atencion
         AND paa_atencion = $ate_id
@@ -184,6 +181,7 @@ $sql = "
     )
     ORDER BY cae_orden
 ";
+            //AND cae_historico.cae_id <> cae.cae_id // quitado del historico, menor que, mayor que
 //echo "[$sql]";
 $campos = q($sql);
 

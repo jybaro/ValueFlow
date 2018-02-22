@@ -229,6 +229,7 @@ if (!empty($esa_id)) {
 $sql = ("
     SELECT * 
     ,e1.esa_nombre AS estado_actual
+    ,e1.esa_id AS estado_actual_id
     ,e2.esa_nombre AS estado_siguiente
     ,e2.esa_id AS estado_siguiente_id
     ,e2.esa_orden AS estado_siguiente_orden
@@ -288,7 +289,7 @@ $sql = ("
         $filtro_busqueda
 
     ORDER BY 
-        ate_id DESC, estado_actual, estado_siguiente_orden
+        ate_id DESC, estado_actual_id DESC, estado_siguiente_orden
         ,ate_creado DESC
 ");
 $result = q($sql);
@@ -1221,11 +1222,11 @@ $(document).ready(function() {
             console.log('data', data);
             var campos_estado_vigente = '';
             campos_estado_vigente += '<table style="width:400px;" class="table table-striped table-condensed table-hover"><tbody>';
-            data.forEach(function(d){
-                var valor_detallado = (d['valor_detallado']  == null) ? '' : d['valor_detallado'];
+            data.forEach(function(campo){
+                var valor_detallado = (campo['valor_detallado']  == null) ? '' : campo['valor_detallado'];
                 campos_estado_vigente += ''
                     + '<tr>'
-                    + '<th>' + d['codigo'] + '</th>'
+                    + '<th>' + campo['codigo'] + '</th>'
                     + '<td>' + valor_detallado + '</td>'
                     + '</tr>'
                     ;
@@ -1885,7 +1886,8 @@ function p_desplegar_campos(campos, padre_id) {
 
     campos.forEach(function(campo){
         var valor_historico = (campo['valor_historico'] == 'null' || campo['valor_historico'] == null) ? '' : campo['valor_historico'];
-        var valor_por_defecto = (campo['valor_por_defecto'] == 'null' || campo['valor_por_defecto'] == null  || campo['valor_por_defecto'] == '') ? valor_historico : campo['valor_por_defecto'];
+        //var valor_por_defecto = (campo['valor_por_defecto'] == 'null' || campo['valor_por_defecto'] == null  || campo['valor_por_defecto'] == '') ? valor_historico : campo['valor_por_defecto'];
+        var valor_por_defecto = valor_historico;
         var valor = (campo['valor'] == 'null' || campo['valor'] == null || campo['valor'] == '') ? valor_por_defecto : campo['valor'];
 
         var menor_que = (campo['menor_que'] == 'null' || campo['menor_que'] == null || campo['menor_que'] == '') ? null : campo['menor_que'];

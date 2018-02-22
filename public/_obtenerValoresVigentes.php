@@ -47,9 +47,9 @@ if (isset($args[0]) && !empty($args[0])) {
                 $codigo = ucfirst($codigo);
                 $nodo = $r[nodo];
                 $ciudad = $r[ciudad];
+                $valor = $r[valor];
                 $valor_detallado = (empty($nodo) && empty($ciudad)) ? $valor : $nodo . $ciudad;
 
-                $valor = $r[valor];
                 $codigos[$r['cae_codigo']] = array(
                     'codigo' => $codigo
                     , 'valor' => $valor

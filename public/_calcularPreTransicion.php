@@ -470,6 +470,9 @@ EOT;
                     $campos_valores['NUEVA_CAPACIDAD'] = $campos_valores['CAPACIDAD'];
                     $campos_valores['CAPACIDAD_CONTRATADA'] = $campos_valores['CAPACIDAD'];
                     
+                    $campos_valores['ID_SERVICIO'] = $campos_valores['IDENTIFICADOR'];
+                    $campos_valores['ID_ORDEN_SERVICIO'] = $campos_valores['IDENTIFICADOR'];
+
                     $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
                     if (isset($campos_valores['CAPACIDAD_ACTUAL']) && isset($campos_valores['NUEVA_CAPACIDAD'])) {
                         $campos_valores['CAPACIDAD_DELTA'] = abs($campos_valores['NUEVA_CAPACIDAD'] - $campos_valores['CAPACIDAD_ACTUAL']);
