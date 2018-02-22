@@ -1203,14 +1203,11 @@ $(document).ready(function() {
             var campos_estado_vigente = '';
             campos_estado_vigente += '<table style="width:400px;" class="table table-striped table-condensed table-hover"><tbody>';
             data.forEach(function(d){
-                var nodo = (d['nodo'] == 'null' || d['nodo'] == null) ? '' : d['nodo'];
-                var ciudad = (d['ciudad'] == 'null' || d['ciudad'] == null) ? '' : d['ciudad'];
-                var valor = (d['valor'] == 'null' || d['valor'] == null) ? '' : d['valor'];
-                valor = valor + nodo + ciudad;
+                var valor_detallado = (d['valor_detallado']  == null) ? '' : d['valor_detallado'];
                 campos_estado_vigente += ''
                     + '<tr>'
-                    + '<th>'+d['codigo']+'</th>'
-                    + '<td>'+valor+'</td>'
+                    + '<th>' + d['codigo'] + '</th>'
+                    + '<td>' + valor_detallado + '</td>'
                     + '</tr>'
                     ;
             });
