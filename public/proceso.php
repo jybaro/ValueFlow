@@ -320,7 +320,14 @@ if ($result) {
   <div id="collapse_{$r[ate_secuencial]}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_{$r[ate_secuencial]}">
 EOT;
 
-        if (!$_solo_lectura) {
+        $es_fin = false;
+        foreach ($estados_siguentes as $estado_siguiente_id => $estado_siguiente) {
+            if (strtolower($estado_siguiente[estado_siguiente]) === 'fin') {
+                $es_fin = true;
+            }
+        }
+
+        if (!$_solo_lectura && !$es_fin) {
             echo <<<EOT
       <div class="pull-right well" style="padding:20px;margin:20px;">
       <h4>Pasar a un siguiente estado:</h4>

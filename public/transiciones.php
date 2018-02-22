@@ -102,7 +102,7 @@ foreach($estados as $estado) {
         $estados[$nodo['esa_id']]['primera_hoja'] = $nodo['esa_id'];
 
         $primera_hoja = null;
-        if ($nodo['esa_id'] == array_keys($nodo['padre']['hijos'])[0]) {
+        if (!empty($nodo['padre']['hijos']) && $nodo['esa_id'] == array_keys($nodo['padre']['hijos'])[0]) {
             //es primera hoja
             $primera_hoja = $nodo['esa_id'];
         }
