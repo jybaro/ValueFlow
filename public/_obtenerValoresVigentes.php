@@ -41,7 +41,7 @@ if (isset($args[0]) && !empty($args[0])) {
     ");
     if ($result){
         foreach($result as $r){
-            if (!empty($r[valor])) {
+            if ($r[valor] === '0' || !empty($r[valor])) {
                 $codigo = $r[cae_codigo];
                 $codigo = str_replace('_', ' ', $codigo);
                 $codigo = ucfirst($codigo);

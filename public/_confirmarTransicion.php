@@ -127,6 +127,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                             ,paa_destinatarios
                             ,paa_adjuntos 
                             ,paa_creado_por
+                            ,paa_confirmado
                         ) VALUES (
                             $ate_id
                             ,$tea_id
@@ -136,12 +137,28 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                             ,'$emails'
                             ,'$adjuntos'
                             ,{$_SESSION['usu_id']}
+                            ,now()
                         ) RETURNING *
                     ");
                     if ($result) {
                         $paa_id = $result[0]['paa_id'];
                         $paa_id_lista[] = $paa_id;
                         $paa_lista[] = $result;
+
+                        //Trae los valores del paso falso hacia el nuevo paso confirmado
+                        q("
+                            UPDATE sai_valor_extra
+                            SET vae_paso_atencion = $paa_id
+                            WHERE vae_borrado IS NULL
+                            AND vae_paso_atencion IN (
+                                SELECT paa_id
+                                FROM sai_paso_atencion
+                                WHERE paa_borrado IS NULL
+                                AND paa_atencion = $ate_id 
+                                AND paa_transicion_estado_atencion = $tea_id
+                                AND paa_id <> $paa_id 
+                            )
+                        ");
                     }
                 }
             } catch (Exception $e) {

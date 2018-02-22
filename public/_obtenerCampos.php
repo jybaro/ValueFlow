@@ -20,6 +20,7 @@ if ($extender_campos_anteriores == 1) {
         WHERE tea_borrado IS NULL
         AND paa_borrado IS NULL
         AND paa_transicion_estado_atencion = tea_id
+        AND NOT paa_confirmado IS NULL
         AND paa_atencion = $ate_id
     ";
     $filtro_valor_actual = "";
@@ -87,6 +88,10 @@ $sql = "
             AND cae_historico.cae_codigo = cae.cae_codigo
         ) 
         AND paa_id = vae_paso_atencion
+        AND NOT paa_confirmado IS NULL
+
+        AND NOT paa_paso_anterior IS NULL
+
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
         LIMIT 1
@@ -104,6 +109,10 @@ $sql = "
             AND cae_historico.cae_codigo = cae.cae_menor_que
         ) 
         AND paa_id = vae_paso_atencion
+        AND NOT paa_confirmado IS NULL
+
+        AND NOT paa_paso_anterior IS NULL
+
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
         LIMIT 1
@@ -121,6 +130,10 @@ $sql = "
             AND cae_historico.cae_codigo = cae.cae_mayor_que
         ) 
         AND paa_id = vae_paso_atencion
+        AND NOT paa_confirmado IS NULL
+
+        AND NOT paa_paso_anterior IS NULL
+
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
         LIMIT 1

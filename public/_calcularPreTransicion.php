@@ -405,8 +405,13 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
 
                     $campos_valores = array();
 
+                    //primera pasada de campos con valores históricos, para tener valores po defecto:
                     foreach ($campos as $campo) {
                         $campos_valores[$campo['cae_codigo']] = $campo['valor'];
+                    }
+                    //segunda pasada de campos con valores históricos, para tener la referencia:
+                    foreach ($campos as $campo) {
+                        $campos_valores[$campo['cae_codigo'] . '_HISTORICO'] = $campo['valor'];
                     }
 
                     //los campos no confirmados se hacen después para actualizar datos históricos:
@@ -478,6 +483,7 @@ EOT;
                     $campos_valores['ID_ORDEN_SERVICIO'] = $campos_valores['IDENTIFICADOR'];
 
                     $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
+                    $campos_valores['CAPACIDAD_ACTUAL'] = $campos_valores['CAPACIDAD_HISTORICO'];
                     if (isset($campos_valores['CAPACIDAD_ACTUAL']) && isset($campos_valores['NUEVA_CAPACIDAD'])) {
                         $campos_valores['CAPACIDAD_DELTA'] = abs($campos_valores['NUEVA_CAPACIDAD'] - $campos_valores['CAPACIDAD_ACTUAL']);
                     }

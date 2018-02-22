@@ -13,6 +13,7 @@ $paa_id = "(
     )";
 $result = q($paa_id);
 if (!$result) {
+    //no hay paso para la atencion
     //Trata de obtener una transicion para asociarla al paso que se va a crear:
     $result_tea_id = q("
         SELECT tea_id
@@ -115,7 +116,7 @@ foreach ($_POST as $k => $v){
         $vae_ciudad = 'null';
         $vae_conexion = 'null';
 
-        if (!empty($v) && $v != 'null') {
+        if ($v === '0' || (!empty($v) && $v != 'null')) {
             $result_cae = q("
                 SELECT *
                 FROM sai_campo_extra
