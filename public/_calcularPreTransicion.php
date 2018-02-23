@@ -473,9 +473,17 @@ EOT;
                     $campos_valores['PRECIO_BW'] = $campos_valores['PRECIO_CAPACIDAD'];
                     $campos_valores['PRECIO_ACTUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
 
-                    $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
+                    $campos_valores['PRECIO_INSTALACION'] = isset($campos_valores['PRECIO_INSTALACION']) ? $campos_valores['PRECIO_INSTALACION'] : $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
+                    //$campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
+                    $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['PRECIO_INSTALACION'];
                     $campos_valores['IVA_SERVICIO'] = round($campos_valores['SUBTOTAL_SERVICIO'] * 0.12, 2);
                     $campos_valores['TOTAL_SERVICIO'] = $campos_valores['SUBTOTAL_SERVICIO'] + $campos_valores['IVA_SERVICIO'];
+
+                    $campos_valores['IVA_INSTALACION'] = round($campos_valores['PRECIO_INSTALACION'] * 0.12, 2);
+                    $campos_valores['TOTAL_INSTALACION'] = $campos_valores['PRECIO_INSTALACION'] + $campos_valores['IVA_INSTALACION'];
+
+                    $campos_valores['IVA_MENSUAL'] = round($campos_valores['PRECIO_CAPACIDAD'] * 0.12, 2);
+                    $campos_valores['TOTAL_MENSUAL'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['IVA_MENSUAL'];
 
                     $campos_valores['NUEVA_CAPACIDAD'] = $campos_valores['CAPACIDAD'];
                     $campos_valores['CAPACIDAD_CONTRATADA'] = $campos_valores['CAPACIDAD'];
