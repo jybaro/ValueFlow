@@ -124,6 +124,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
 
         $email_cliente = empty($email_cliente) ? $email_cuenta : (empty($email_cuenta) ? $email_cliente : "$email_cliente,$email_cuenta");
 
+        /*
         $email_proveedor = q("
             SELECT
             vpr_correo_electronico
@@ -137,6 +138,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             AND pep_vendedor_proveedor = vpr_id
             AND ate_id = $ate_id
         ")[0]['vpr_correo_electronico'];
+         */
 
         $email_proveedor_adicionales = q("
             SELECT
@@ -150,6 +152,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             AND ate_pertinencia_proveedor = pep_id
             AND ate_id = $ate_id
         ")[0]['pep_contactos_adicionales'];
+        $email_proveedor = '';
         if (!empty($email_proveedor_adicionales)) {
             $contactos_adicionales = json_decode($email_proveedor_adicionales);
             if (!empty($contactos_adicionales) && is_array($contactos_adicionales)) {
