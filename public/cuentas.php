@@ -200,8 +200,8 @@ if ($result) {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-        <button type="button" class="btn btn-danger" onclick="p_borrar()" id="formulario_eliminar">Eliminar usuario</button>
-        <button type="button" class="btn btn-success" onclick="p_recuperar()" id="formulario_recuperar">Recuperar usuario</button>
+        <button type="button" class="btn btn-danger" onclick="p_borrar()" id="formulario_eliminar">Eliminar registro</button>
+        <button type="button" class="btn btn-success" onclick="p_recuperar()" id="formulario_recuperar">Recuperar registro</button>
         <button type="button" class="btn btn-success" onclick="p_guardar()" id="formulario_guardar">Guardar cambios</button>
       </div>
     </div><!-- /.modal-content -->

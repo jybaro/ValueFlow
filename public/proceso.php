@@ -398,6 +398,11 @@ EOT;
 
         $sql = ("
             SELECT *
+            , concat(
+                vae_texto
+                ,vae_numero
+                ,to_char(vae_fecha, 'yyyy-MM-DD hh:mm')
+            ) AS valor
             , (
                 SELECT concat(nod_codigo, ': ',  nod_descripcion, ' (', ubi_direccion, ')')
                 FROM 
@@ -420,11 +425,20 @@ EOT;
             FROM sai_campo_extra
             ,sai_paso_atencion
             ,sai_valor_extra
+            ,sai_usuario
+            ,sai_transicion_estado_atencion
+            ,sai_estado_atencion
             WHERE cae_borrado IS NULL
             AND vae_borrado IS NULL
             AND paa_borrado IS NULL
+            AND usu_borrado IS NULL
+            AND tea_borrado IS NULL
+            AND esa_borrado IS NULL
             AND vae_campo_extra = cae_id
             AND vae_paso_atencion = paa_id
+            AND paa_creado_por = usu_id
+            AND paa_transicion_estado_atencion = tea_id
+            AND tea_estado_atencion_actual = esa_id
             AND paa_atencion={$r[ate_id]}
             AND NOT paa_paso_anterior IS NULL
             ORDER BY paa_id DESC, cae_orden
@@ -436,19 +450,33 @@ EOT;
             foreach($result_campos as $rdato){
                 if ($paa != $rdato['paa_id']) {
                     $paa = $rdato['paa_id'];
+                    $usuario = $rdato['usu_nombres'] . ' ' . $rdato['usu_apellidos'];
+                    $estado = $rdato['esa_nombre'];
                     $fecha_formateada = p_formatear_fecha($rdato['paa_creado']);
                     echo <<<EOT
             <tr>
-              <th class="bg-info" colspan=2>{$fecha_formateada}</th>
+              <td class="bg-info" colspan=2>
+                <strong>$estado</strong> por $usuario
+                <br>
+                {$fecha_formateada}
+            </td>
             </tr>
 EOT;
                 }
                 $label = ucfirst($rdato['cae_texto']);
-                $dato = $rdato['vae_texto'] . $rdato['vae_numero'] . $rdato['vae_fecha'] . $rdato['nodo'] .$rdato['ciudad'];
+                //$dato = $rdato['vae_texto'] . $rdato['vae_numero'] . $rdato['vae_fecha'] . $rdato['nodo'] .$rdato['ciudad'];
+                if (empty($rdato['nodo'])) {
+                    $dato = $rdato['valor'] . $rdato['ciudad'] ;
+                } else {
+                    $nod_id = $rdato['vae_nodo'];
+                    $dato = <<<EOT
+                    <a href="#" onclick="p_abrir_detalle_nodo($nod_id);return false;">{$rdato['nodo']}</a>
+EOT;
+                }
                 echo <<<EOT
             <tr>
-              <th style="width:30%;">$label:</th>
-              <td id="campo_historico_{$r[ate_id]}_{$rdato[cae_id]}">$dato</td>
+              <th style="width:50%;text-align:right;">$label:</th>
+              <td style="text-align:center;" id="campo_historico_{$r[ate_id]}_{$rdato[cae_id]}">$dato</td>
             </tr>
 EOT;
             }
@@ -569,7 +597,7 @@ EOT;
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-nuevo-title">Nuevo nodo</h4>
+        <h4 class="modal-nuevo-title">Nuevo punto</h4>
       </div>
       <div class="modal-body">
 
@@ -769,7 +797,136 @@ foreach($provincias as $provincia) {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-success" onclick="p_crear_nodo()" id="boton_crear_nodo">Crear nodo y regresar</button>
+        <button type="button" class="btn btn-success" onclick="p_crear_nodo()" id="boton_crear_nodo">Crear punto y regresar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div id="modal_detalle_nodo" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-nuevo-title">Punto <span id="detalle_nodo_titulo"></span></h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-horizontal" id="detalle_nodo_contenido">
+
+          <?php $col1=2;$col2=4; ?>
+
+
+          <div class="form-group">
+            <label class="col-sm-<?=$col1?> control-label">Dirección:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_direccion"></span>
+            </div>
+
+            <label class="col-sm-<?=$col1?> control-label">Sector:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_sector"></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-sm-<?=$col1?> control-label">Longitud:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_longitud"></span>
+            </div>
+
+            <label class="col-sm-<?=$col1?> control-label">Latitud:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_latitud"></span>
+            </div>
+          </div>
+
+          <table class="table table-bordered bg-info">
+            <thead>
+            <tr>
+            <th>Provincia</th>
+            <th>Cantón</th>
+            <th>Parroquia</th>
+            <th>Ciudad</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+            <td><span id="detalle_nodo_provincia"></span></td>
+            <td><span id="detalle_nodo_canton"></span></td>
+            <td><span id="detalle_nodo_parroquia"></span></td>
+            <td><span id="detalle_nodo_ciudad"></span></td>
+            </tr>
+            </tbody>
+          </table>
+
+<hr>
+
+          <div class="form-group">
+            <label class="col-sm-<?=$col1?> control-label">Código:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_codigo"></span>
+            </div>
+
+            <label class="col-sm-<?=$col1?> control-label">Descripción:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_descripcion"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-<?=$col1?> control-label">Tipo de última milla:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_tipo_ultima_milla"></span>
+            </div>
+
+            <label class="col-sm-<?=$col1?> control-label">Responsable de última milla:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_responsable_ultima_milla"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-<?=$col1?> control-label">Costo de instalación del proveedor:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_costo_instalacion_proveedor"></span>
+            </div>
+
+            <label class="col-sm-<?=$col1?> control-label">Costo de instalación del cliente:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_costo_instalacion_cliente"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-<?=$col1?> control-label">Distancia:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_distancia"></span>
+            </div>
+
+            <label class="col-sm-<?=$col1?> control-label">Fecha de término:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_fecha_termino"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-<?=$col1?> control-label">Creado por:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_creado_por"></span>
+            </div>
+
+            <label class="col-sm-<?=$col1?> control-label">Fecha de creación:</label>
+            <div class="col-sm-<?=$col2?>">
+              <span class="form-control" id="detalle_nodo_creado"></span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -782,7 +939,7 @@ foreach($provincias as $provincia) {
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-nuevo-title">Completar datos del nodo</h4>
+        <h4 class="modal-nuevo-title">Completar datos del punto</h4>
       </div>
       <div class="modal-body">
 
@@ -869,7 +1026,7 @@ if ($result_tum) {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-success" onclick="p_completar_nodo()" id="boton_crear_nodo">Guardar datos del nodo y regresar</button>
+        <button type="button" class="btn btn-success" onclick="p_completar_nodo()" id="boton_crear_nodo">Guardar datos del punto y regresar</button>
       </div>
     </div>
   </div>
@@ -1224,6 +1381,12 @@ $(document).ready(function() {
             campos_estado_vigente += '<table style="width:400px;" class="table table-striped table-condensed table-hover"><tbody>';
             data.forEach(function(campo){
                 var valor_detallado = (campo['valor_detallado']  == null) ? '' : campo['valor_detallado'];
+                console.log('CAMPO', campo);
+
+                if (campo['nodo']) {
+                    var nod_id = campo['valor'];
+                    valor_detallado = '<a href="#" onclick="p_abrir_detalle_nodo('+nod_id+');return false;">'+valor_detallado+'</a>';
+                }
                 campos_estado_vigente += ''
                     + '<tr>'
                     + '<th>' + campo['codigo'] + '</th>'
@@ -1276,6 +1439,52 @@ $(document).ready(function() {
         $("#modal").off("shown.bs.modal");
     });
 });
+
+function p_abrir_detalle_nodo(nod_id){
+    console.log('En p_abrir_detalle_nodo', nod_id);
+    $.get('/_obtenerNodo/' + nod_id, function(data){
+        console.log('/_obtenerNodo/' + nod_id, data);
+        data = JSON.parse(data);
+        console.log('data:', data);
+        if (data) {
+            var nodo = data[0];
+            var contenido = '';
+
+            contenido += '<>';
+
+            //$('#detalle_nodo_contenido').html(contenido);
+            var titulo = nodo['nod_codigo'] + ': ' + nodo['nod_descripcion'] + ' ('+nodo['ubi_direccion']+')'
+            $('#detalle_nodo_titulo').text(titulo);
+
+            $('#detalle_nodo_codigo').text(nodo['nod_codigo']);
+            $('#detalle_nodo_descripcion').text(nodo['nod_descripcion']);
+
+            $('#detalle_nodo_tipo_ultima_milla').text(nodo['tum_nombre']);
+            $('#detalle_nodo_responsable_ultima_milla').text(nodo['nod_responsable_ultima_milla']);
+
+            $('#detalle_nodo_costo_instalacion_proveedor').text(nodo['nod_costo_instalacion_proveedor']);
+            $('#detalle_nodo_costo_instalacion_cliente').text(nodo['nod_costo_instalacion_cliente']);
+
+            $('#detalle_nodo_distancia').text(nodo['nod_distancia']);
+            $('#detalle_nodo_fecha_termino').text(nodo['fecha_termino']);
+
+            $('#detalle_nodo_creado_por').text(nodo['usuario']);
+            $('#detalle_nodo_creado').text(nodo['fecha_creacion']);
+
+            $('#detalle_nodo_provincia').text(nodo['prv_nombre']);
+            $('#detalle_nodo_canton').text(nodo['can_nombre']);
+            $('#detalle_nodo_parroquia').text(nodo['par_nombre']);
+            $('#detalle_nodo_ciudad').text(nodo['ciu_nombre']);
+
+            $('#detalle_nodo_direccion').text(nodo['ubi_direccion']);
+            $('#detalle_nodo_sector').text(nodo['ubi_sector']);
+            $('#detalle_nodo_longitud').text(nodo['ubi_longitud']);
+            $('#detalle_nodo_latitud').text(nodo['ubi_latitud']);
+
+            $('#modal_detalle_nodo').modal('show');
+        }
+    });
+}
 
 function p_enviar_busqueda(target) {
     var busqueda = $('#busqueda_query').val();
@@ -1382,7 +1591,7 @@ function p_completar_nodo() {
                     $('#modal_nodo_completo').off('hidden.bs.modal');
                 });
             } else {
-                alert('No se ha podido completar la información del nodo, inténtelo más tarde.');
+                alert('No se ha podido completar la información del punto, inténtelo más tarde.');
             }
         });
     }
@@ -1471,7 +1680,7 @@ function p_abrir_nodo_completo(id) {
                 $('#modal').off('hidden.bs.modal');
             });
         } else {
-            alert('No hay nodo relacionado');
+            alert('No hay punto relacionado');
         }
     });
 }
@@ -2023,7 +2232,7 @@ function p_desplegar_campos(campos, padre_id) {
                         '<div class="form-group" id="nodo_completo_grupo_'+campo['cae_id']+'">' +
                         '<div class="col-sm-' + col2 + '">' +
                         '<input type="hidden" id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="' + valor + '">' +
-                        '<button class="btn btn-' + btn_class + '" id="boton_nodo_completo_'+campo['cae_id']+'" onclick="p_abrir_nodo_completo(' + campo['cae_id'] + ');return false;" >Completar datos de nodo</button>' +
+                        '<button class="btn btn-' + btn_class + '" id="boton_nodo_completo_'+campo['cae_id']+'" onclick="p_abrir_nodo_completo(' + campo['cae_id'] + ');return false;" >Completar datos de punto</button>' +
                         '</div>' +
                         '</div>'+
                         '';
