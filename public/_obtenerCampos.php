@@ -139,7 +139,7 @@ $sql = "
         LIMIT 1
     ) AS mayor_que 
     , (
-        SELECT concat(nod_codigo, ': ',  nod_descripcion, ' (', ubi_direccion, ')')
+        SELECT nod_codigo
         FROM sai_valor_extra
         , sai_paso_atencion 
         , sai_nodo

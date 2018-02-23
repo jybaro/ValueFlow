@@ -1389,8 +1389,8 @@ $(document).ready(function() {
                 }
                 campos_estado_vigente += ''
                     + '<tr>'
-                    + '<th>' + campo['codigo'] + '</th>'
-                    + '<td>' + valor_detallado + '</td>'
+                    + '<th style="width:50%;text-align:right;">' + campo['etiqueta'] + ':</th>'
+                    + '<td style="text-align:center;">' + valor_detallado + '</td>'
                     + '</tr>'
                     ;
             });
@@ -1453,7 +1453,8 @@ function p_abrir_detalle_nodo(nod_id){
             contenido += '<>';
 
             //$('#detalle_nodo_contenido').html(contenido);
-            var titulo = nodo['nod_codigo'] + ': ' + nodo['nod_descripcion'] + ' ('+nodo['ubi_direccion']+')'
+            //var titulo = nodo['nod_codigo'] + ': ' + nodo['nod_descripcion'] + ' ('+nodo['ubi_direccion']+')'
+            var titulo = nodo['nod_codigo'];
             $('#detalle_nodo_titulo').text(titulo);
 
             $('#detalle_nodo_codigo').text(nodo['nod_codigo']);
@@ -1612,7 +1613,8 @@ function p_crear_nodo() {
             $('#modal_nodo').on('hidden.bs.modal', function () {
                 data = data[0];
                 direccion = $('#nod_direccion').val();
-                var item = {id:data['nod_id'], name:data['nod_codigo'] + ': ' + data['nod_descripcion'] + ' ('+direccion+')'};
+                //var item = {id:data['nod_id'], name:data['nod_codigo'] + ': ' + data['nod_descripcion'] + ' ('+direccion+')'};
+                var item = {id:data['nod_id'], name:data['nod_codigo']};
                 $('#campo_extra_'+id).val(item.id);
                 $('#campo_extra_detalle_valor_'+id).text(item.name);
                 $('#campo_extra_grupo_'+id).hide();

@@ -9,7 +9,7 @@ if (isset($args[0]) && !empty($args[0])) {
         SELECT *
         ,concat(vae_texto, vae_numero, to_char(vae_fecha, 'yyyy-MM-dd'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) AS valor
     , (
-        SELECT concat(nod_codigo, ': ',  nod_descripcion, ' (', ubi_direccion, ')')
+        SELECT nod_codigo
         FROM 
         sai_nodo
         , sai_ubicacion
@@ -39,12 +39,24 @@ if (isset($args[0]) && !empty($args[0])) {
         AND paa_atencion = $ate_id
         ORDER BY vae_creado
     ");
+
+    $etiquetas = array();
+    $result_etiquetas = q("SELECT cat_texto FROM sai_catalogo WHERE cat_codigo='cae_codigo_etiquetas'");
+    if ($result_etiquetas) {
+        $etiquetas = $result_etiquetas[0]['cat_texto'];
+        $etiquetas = (array) json_decode($etiquetas, true);
+    }
+    //var_dump($etiquetas);
+
+
+        //SELECT concat(nod_codigo, ': ',  nod_descripcion, ' (', ubi_direccion, ')')
     if ($result){
         foreach($result as $r){
             if ($r[valor] === '0' || !empty($r[valor])) {
                 $codigo = $r[cae_codigo];
                 $codigo = str_replace('_', ' ', $codigo);
-                $codigo = ucfirst($codigo);
+                $codigo = ucfirst(strtolower($codigo));
+                $etiqueta = isset($etiquetas[$r[cae_codigo]]) ? $etiquetas[$r[cae_codigo]] : $codigo;
                 $nodo = $r[nodo];
                 $ciudad = $r[ciudad];
                 $valor = $r[valor];
@@ -52,10 +64,12 @@ if (isset($args[0]) && !empty($args[0])) {
 
                 $codigos[$r['cae_codigo']] = array(
                     'codigo' => $codigo
+                    , 'etiqueta' => $etiqueta
                     , 'valor' => $valor
                     , 'valor_detallado' => $valor_detallado
                     , 'nodo' => $nodo
                     , 'ciudad' => $ciudad
+
                 );
             }
         }

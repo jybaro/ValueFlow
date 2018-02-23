@@ -16,6 +16,7 @@ if (!empty($cae_id) && !empty($ate_id)) {
 
     $result = q("
         SELECT *
+        ,to_char(nod_fecha_termino, 'yyy-MM-DD') AS fecha_termino
         FROM sai_atencion
         ,sai_nodo
         WHERE ate_borrado IS NULL
