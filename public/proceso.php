@@ -2144,7 +2144,7 @@ function p_desplegar_campos(campos, padre_id) {
                 } else if (campo['tipo_dato'] == 'numero') {
                     var validacion_mayor_que = (mayor_que == null) ? '' : 'max="'+mayor_que+'"'; 
                     var validacion_menor_que = (menor_que == null) ? '' : 'min="'+menor_que+'"'; 
-                    valor = (valor == null && (campo['cae_codigo'].indexOf('COSTO_INSTALACION')  !== -1)) ? '0' : valor;
+                    valor = ((valor == null || valor == '') && (campo['cae_codigo'].indexOf('COSTO_INSTALACION')  !== -1)) ? '0' : valor;
                     contenido += ''+
                         '<div class="form-group">' +
                         '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
