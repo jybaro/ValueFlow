@@ -462,16 +462,65 @@ EOT;
                     //Agregando campos automaticos:
                     $campos_valores['FECHA'] = p_formatear_fecha(null, true);
                     $campos_valores['NOW'] = p_formatear_fecha();
-                    $campos_valores['DISPONIBILIDAD_SERVICIO'] = '99.60 %';
                     $campos_valores['IDENTIFICADOR'] = isset($campos_valores['IDENTIFICADOR']) ? $campos_valores['IDENTIFICADOR'] : $campos_valores['ATE_SECUENCIAL']; 
                     $campos_valores['SERVICIO'] = strtoupper($campos_valores['SER_NOMBRE']);
                     $campos_valores['EQUIS_DATOS'] = ($campos_valores['SERVICIO'] == 'DATOS') ? 'X' : '';
                     $campos_valores['EQUIS_INTERNET'] = ($campos_valores['SERVICIO'] == 'INTERNET') ? 'X' : '';
 
+                    $campos_valores['ID_SERVICIO'] = $campos_valores['ATE_CODIGO'];
+                    $campos_valores['ID_ORDEN_SERVICIO'] = $campos_valores['ATE_CODIGO'];
+
+                    $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
+
+                    $iniciales = '';
+                    $nombre = $campos_valores['CON_NOMBRES'] . ' ' . $campos_valores['CON_APELLIDOS'];
+                    $nombre = explode(' ', $nombre);
+                    foreach ($nombre as $parte) {
+                        $iniciales .= $parte[0];
+                    }
+                    $iniciales = strtoupper($iniciales);
+
+                    $campos_valores['INICIALES_CLIENTE'] = $iniciales;
+
+
+
+
+
+
+
+                    ///////////////
+                    // Capacidades:
+                    //
+
+                    $campos_valores['NUEVA_CAPACIDAD'] = $campos_valores['CAPACIDAD'];
+                    $campos_valores['CAPACIDAD_CONTRATADA'] = $campos_valores['CAPACIDAD'];
+
+                    $campos_valores['FALTANTE_CAPACIDAD_CONTRATADA'] = ($campos_valores['CAPACIDAD_CONTRATADA'] < $campos_valores['CAPACIDAD_FACTURADA']) ? ($campos_valores['CAPACIDAD_FACTURADA'] - $campos_valores['CAPACIDAD_CONTRATADA']) : 0;
+
+                    $campos_valores['CAPACIDAD_ACTUAL'] = $campos_valores['CAPACIDAD_HISTORICO'];
+                    if (isset($campos_valores['CAPACIDAD_ACTUAL']) && isset($campos_valores['NUEVA_CAPACIDAD'])) {
+                        $campos_valores['CAPACIDAD_DELTA'] = abs($campos_valores['NUEVA_CAPACIDAD'] - $campos_valores['CAPACIDAD_ACTUAL']);
+                    }
+
+
+
+                    ///////////
+                    // Precios:
+                    //
+                    
                     $campos_valores['PRECIO_CAPACIDAD'] = $campos_valores['CAPACIDAD'] * $campos_valores['PRECIO_MB'];
                     $campos_valores['PRECIO_MENSUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
                     $campos_valores['PRECIO_BW'] = $campos_valores['PRECIO_CAPACIDAD'];
                     $campos_valores['PRECIO_ACTUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
+
+                    //reemplaza los costos de instalacion de los nodos (nodo_nod_costo_) por los de la atención (nodo_costo_):
+                    if (isset($campos_valores['NODO_COSTO_INSTALACION_CLIENTE']) || isset($campos_valores['EXTREMO_COSTO_INSTALACION_CLIENTE'])) {
+                        $campos_valores['EXTREMO_NOD_COSTO_INSTALACION_CLIENTE'] = isset($campos_valores['NODO_COSTO_INSTALACION_CLIENTE']) ? $campos_valores['NODO_COSTO_INSTALACION_CLIENTE'] : $campos_valores['EXTREMO_COSTO_INSTALACION_CLIENTE'] ;
+                    }
+                    if (isset($campos_valores['CONCENTRADOR_COSTO_INSTALACION_CLIENTE'])) {
+                        $campos_valores['CONCENTRADOR_NOD_COSTO_INSTALACION_CLIENTE'] = $campos_valores['CONCENTRADOR_COSTO_INSTALACION_CLIENTE'];
+                    }
+                    $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'] = $campos_valores['EXTREMO_NOD_COSTO_INSTALACION_CLIENTE'];
 
                     $campos_valores['PRECIO_INSTALACION'] = isset($campos_valores['PRECIO_INSTALACION']) ? $campos_valores['PRECIO_INSTALACION'] : $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
                     //$campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
@@ -485,27 +534,7 @@ EOT;
                     $campos_valores['IVA_MENSUAL'] = round($campos_valores['PRECIO_CAPACIDAD'] * 0.12, 2);
                     $campos_valores['TOTAL_MENSUAL'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['IVA_MENSUAL'];
 
-                    $campos_valores['NUEVA_CAPACIDAD'] = $campos_valores['CAPACIDAD'];
-                    $campos_valores['CAPACIDAD_CONTRATADA'] = $campos_valores['CAPACIDAD'];
                     
-                    $campos_valores['ID_SERVICIO'] = $campos_valores['ATE_CODIGO'];
-                    $campos_valores['ID_ORDEN_SERVICIO'] = $campos_valores['ATE_CODIGO'];
-
-                    $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
-                    $campos_valores['CAPACIDAD_ACTUAL'] = $campos_valores['CAPACIDAD_HISTORICO'];
-                    if (isset($campos_valores['CAPACIDAD_ACTUAL']) && isset($campos_valores['NUEVA_CAPACIDAD'])) {
-                        $campos_valores['CAPACIDAD_DELTA'] = abs($campos_valores['NUEVA_CAPACIDAD'] - $campos_valores['CAPACIDAD_ACTUAL']);
-                    }
-                    
-                    $iniciales = '';
-                    $nombre = $campos_valores['CON_NOMBRES'] . ' ' . $campos_valores['CON_APELLIDOS'];
-                    $nombre = explode(' ', $nombre);
-                    foreach ($nombre as $parte) {
-                        $iniciales .= $parte[0];
-                    }
-                    $iniciales = strtoupper($iniciales);
-
-                    $campos_valores['INICIALES_CLIENTE'] = $iniciales;
                     $campos_valores['PRECIO_TOTAL'] = (isset($campos_valores['CAPACIDAD_FACTURADA'])?$campos_valores['CAPACIDAD_FACTURADA'] : 0) * (isset($campos_valores['PRECIO_MB'])?$campos_valores['PRECIO_MB'] : 0);
 
                     //var_dump($campos_valores);

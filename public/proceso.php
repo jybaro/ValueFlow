@@ -887,7 +887,7 @@ foreach($provincias as $provincia) {
             </div>
           </div>
 
-          <div class="form-group">
+          <!--div class="form-group">
             <label class="col-sm-<?=$col1?> control-label">Costo de instalación del proveedor:</label>
             <div class="col-sm-<?=$col2?>">
               <span class="form-control" id="detalle_nodo_costo_instalacion_proveedor"></span>
@@ -897,7 +897,7 @@ foreach($provincias as $provincia) {
             <div class="col-sm-<?=$col2?>">
               <span class="form-control" id="detalle_nodo_costo_instalacion_cliente"></span>
             </div>
-          </div>
+          </div-->
 
           <div class="form-group">
             <label class="col-sm-<?=$col1?> control-label">Distancia:</label>
@@ -960,7 +960,7 @@ foreach($provincias as $provincia) {
       </div>
     </div>
 
-    <div class="form-group">
+    <!--div class="form-group">
       <label for="nod_costo_instalacion_proveedor" class="col-sm-<?=$col1?> control-label">Costo de instalación del proveedor:</label>
       <div class="col-sm-<?=$col2?>">
         <input type='number' <?=$cae_validacion?> class="form-control" id="nod_costo_instalacion_proveedor" name="nod_costo_instalacion_proveedor" placeholder="" value="" onblur="p_validar(this)">
@@ -972,7 +972,7 @@ foreach($provincias as $provincia) {
       <div class="col-sm-<?=$col2?>">
         <input type='number' <?=$cae_validacion?> class="form-control" id="nod_costo_instalacion_cliente" name="nod_costo_instalacion_cliente" placeholder="" value="" onblur="p_validar(this)">
       </div>
-    </div>
+    </div-->
 
     <div class="form-group">
       <label for="nod_tipo_ultima_milla" class="col-sm-<?=$col1?> control-label">Tipo de última milla:</label>
@@ -1463,8 +1463,8 @@ function p_abrir_detalle_nodo(nod_id){
             $('#detalle_nodo_tipo_ultima_milla').text(nodo['tum_nombre']);
             $('#detalle_nodo_responsable_ultima_milla').text(nodo['nod_responsable_ultima_milla']);
 
-            $('#detalle_nodo_costo_instalacion_proveedor').text(nodo['nod_costo_instalacion_proveedor']);
-            $('#detalle_nodo_costo_instalacion_cliente').text(nodo['nod_costo_instalacion_cliente']);
+            //$('#detalle_nodo_costo_instalacion_proveedor').text(nodo['nod_costo_instalacion_proveedor']);
+            //$('#detalle_nodo_costo_instalacion_cliente').text(nodo['nod_costo_instalacion_cliente']);
 
             $('#detalle_nodo_distancia').text(nodo['nod_distancia']);
             $('#detalle_nodo_fecha_termino').text(nodo['fecha_termino']);
@@ -1670,8 +1670,8 @@ function p_abrir_nodo_completo(id) {
                 $('#nod_completo_id').val(data['nod_id']);
                 console.log('CAMPO #nod_completo_id:', $('#nod_completo_id').val());
 
-                $('#nod_costo_instalacion_proveedor').val(data['nod_costo_instalacion_proveedor']);
-                $('#nod_costo_instalacion_cliente').val(data['nod_costo_instalacion_cliente']);
+                //$('#nod_costo_instalacion_proveedor').val(data['nod_costo_instalacion_proveedor']);
+                //$('#nod_costo_instalacion_cliente').val(data['nod_costo_instalacion_cliente']);
                 $('#nod_tipo_ultima_milla').val(data['nod_tipo_ultima_milla']);
                 $('#nod_tipo_ultima_milla').trigger('change');
                 $('#nod_responsable_ultima_milla').val(data['nod_responsable_ultima_milla']);
@@ -2144,6 +2144,7 @@ function p_desplegar_campos(campos, padre_id) {
                 } else if (campo['tipo_dato'] == 'numero') {
                     var validacion_mayor_que = (mayor_que == null) ? '' : 'max="'+mayor_que+'"'; 
                     var validacion_menor_que = (menor_que == null) ? '' : 'min="'+menor_que+'"'; 
+                    valor = (valor == null && (campo['cae_codigo'].indexOf('COSTO_INSTALACION')  !== -1)) ? '0' : valor;
                     contenido += ''+
                         '<div class="form-group">' +
                         '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
