@@ -469,6 +469,7 @@ EOT;
                     $campos_valores['EQUIS_INTERNET'] = ($campos_valores['SERVICIO'] == 'INTERNET') ? 'X' : '';
 
                     $campos_valores['PRECIO_CAPACIDAD'] = $campos_valores['CAPACIDAD'] * $campos_valores['PRECIO_MB'];
+                    $campos_valores['PRECIO_MENSUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
                     $campos_valores['PRECIO_BW'] = $campos_valores['PRECIO_CAPACIDAD'];
                     $campos_valores['PRECIO_ACTUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
 
