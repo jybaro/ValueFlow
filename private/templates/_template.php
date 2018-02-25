@@ -146,6 +146,7 @@ body {
           <ul class="dropdown-menu">
             <li><a href="/autoadmin/sai_pertinencia_proveedor">Pertinencia de proveedores</a></li>
             <li><a href="/usuarios">Usuarios</a></li>
+            <li><a href="/atenciones">Atenciones</a></li>
             <li><a href="/campos">Campos</a></li>
             <li><a href="/ubicaciones">Ubicaciones</a></li>
             <li><a href="/puntos">Puntos</a></li>

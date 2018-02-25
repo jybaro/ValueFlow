@@ -16,6 +16,7 @@
     $result_provincias = q("
         SELECT *
         FROM sai_provincia
+        WHERE prv_borrado IS NULL
         ORDER BY prv_nombre
     ");
     $provincias = array();
@@ -24,6 +25,23 @@
             $provincias[] = $r;
         }
     }
+    $tipos_contactos = array();
+    $result_tipos_contactos = q("
+        SELECT *
+        FROM sai_tipo_contacto
+        WHERE tco_borrado IS NULL
+    ");
+    if ($result_tipos_contactos) {
+        foreach ($result_tipos_contactos as $r) {
+
+            $nombre = ($r['tco_nombre']);
+            $nombre = strtolower($nombre);
+            $nombre = str_replace(' ', '_', $nombre);
+            $nombre = limpiar_nombre_archivo($nombre);
+            $tipos_contactos[$nombre] = $r['tco_id'];
+        }
+    }
+    //var_dump($tipos_contactos);
 ?>
 <html style="height: auto; min-height: 100%;">
 <head>
@@ -1154,22 +1172,16 @@ if ($result) {
       <select required class="form-control combo-select2" style="width: 50%" id="contacto" name="contacto" tabindex="-1" aria-hidden="true">
 
         <option value="">&nbsp;</option>
-      <?php
-/*
-$result = q("
-    SELECT *
-    FROM sai_contacto
-    WHERE con_borrado IS NULL
-");
-if ($result) {
-    foreach ($result as $r) {
-        $value = $r['con_id'];
-        $label = $r['con_nombres'] . ' ' . $r['con_apellidos'] . ' ('.$r['con_correo_electronico'].')';
-        echo "<option value='$value'>$label</option>";
-    }
-}
- */
-        ?>
+      </select> 
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="contacto_en_sitio" class="col-sm-4 control-label">Contacto en sitio:</label>
+    <div class="col-sm-8">
+      <select required class="form-control combo-select2" style="width: 50%" id="contacto_en_sitio" name="contacto_en_sitio" tabindex="-1" aria-hidden="true">
+
+        <option value="">&nbsp;</option>
       </select> 
     </div>
   </div>
@@ -1375,6 +1387,7 @@ if ($result) {
 <script src="/js/ckeditor/ckeditor.js"></script>
 <script src="/js/bootstrap3-typeahead.min.js"></script>
 <script>
+var tipos_contactos = <?=json_encode($tipos_contactos)?>;
 $(document).ready(function() {
     $('.panel-atencion').on('shown.bs.collapse', function() {
         console.log("shown", $(this).prop('id'));
@@ -2388,6 +2401,8 @@ function p_nuevo(){
     $('#cuenta').prop('disabled', true);
     $('#contacto').html('<option value="">Seleccione el cliente primero</option>');
     $('#contacto').prop('disabled', true);
+    $('#contacto_en_sitio').html('<option value="">Seleccione el cliente primero</option>');
+    $('#contacto_en_sitio').prop('disabled', true);
     $('#proveedor').html('<option value="">Seleccione el servicio primero</option>');
     $('#proveedor').prop('disabled', true);
     $('#proveedor').prop('multiple', false);
@@ -2455,6 +2470,8 @@ function p_cargar_contactos_cuentas(target) {
     $('#cuenta').prop('disabled', true);
     $('#contacto').html('<option value="">Seleccione el cliente primero</option>');
     $('#contacto').prop('disabled', true);
+    $('#contacto_en_sitio').html('<option value="">Seleccione el cliente primero</option>');
+    $('#contacto_en_sitio').prop('disabled', true);
 
     var cli_id = $(target).val();
     if (cli_id != '') {
@@ -2462,19 +2479,46 @@ function p_cargar_contactos_cuentas(target) {
             console.log('/_listar/contacto/cliente/'+cli_id, data);
             data = JSON.parse(data);
             console.log('data:', data);
+            console.log('tipos_contactos:', tipos_contactos);
+
             var opciones = '';
+            var opciones_en_sitio = '';
+            var opciones_comercial = '';
+
             if (data) {
                 var count = 0;
+                var count_comercial = 0;
+                var count_en_sitio = 0;
+
                 Array.from(data).forEach(function(contacto){
                     opciones += '<option value="'+contacto['id']+'">'+contacto['nombres']+' '+contacto['apellidos']+'</option>';
+
+                    if (contacto['tipo_contacto'] == tipos_contactos['contacto_en_sitio']) {
+                        opciones_en_sitio += '<option value="'+contacto['id']+'">'+contacto['nombres']+' '+contacto['apellidos']+'</option>';
+                        count_en_sitio++;
+                    }
+                    if (contacto['tipo_contacto'] == tipos_contactos['comercial']) {
+                        opciones_comercial += '<option value="'+contacto['id']+'">'+contacto['nombres']+' '+contacto['apellidos']+'</option>';
+                        count_comercial++;
+                    }
                     count++;
                 });
+                if (count_en_sitio > 1) {
+                    opciones_en_sitio = '<option value="">&nbsp;</option>'+ opciones_en_sitio;
+                }
+                if (count_comercial > 1) {
+                    opciones_comercial = '<option value="">&nbsp;</option>'+ opciones_comercial;
+                }
                 if (count > 1) {
                     opciones = '<option value="">&nbsp;</option>'+ opciones;
                 }
-                $('#contacto').html(opciones);
-                $('#contacto').prop('disabled', false);
+                opciones_comercial = (opciones_comercial == '') ? opciones : opciones_comercial;
+                opciones_en_sitio = (opciones_en_sitio == '') ? opciones : opciones_en_sitio;
 
+                $('#contacto').html(opciones_comercial);
+                $('#contacto').prop('disabled', false);
+                $('#contacto_en_sitio').html(opciones_en_sitio);
+                $('#contacto_en_sitio').prop('disabled', false);
             }
         });
         $.get('/_listar/cuenta/cliente/' + cli_id, function(data){

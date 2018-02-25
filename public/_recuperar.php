@@ -4,22 +4,6 @@
 //echo 'desde ws rest: ';
 //var_dump($_POST);
 //
-function p_formatear_valor_sql($raw){
-    if (strpos($raw, '(') !== false && substr($raw, -1) == ')') {
-        //es funcion
-        $result = $raw;
-    } else if (is_numeric($raw)) {
-        //es numero
-        $result = $raw;
-    } else {
-        //por defecto es texto
-        $texto = htmlentities($raw);
-        $result = "'$texto'";
-    }
-
-    return $result;
-}
-
 if (isset($_POST['dataset_json']) && !empty($_POST['dataset_json'])) {
     $dataset_json = $_POST['dataset_json'];
 //echo 111;

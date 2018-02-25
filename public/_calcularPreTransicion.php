@@ -379,6 +379,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
 
                 foreach ($result_contenido as $rc) {
                     //$tea_id = $rc['tea_id'];
+
                     $pla_asunto = $rc['pla_asunto'];
                     $pla_asunto = ($pla_asunto == 'null') ? 'Notificación' : $pla_asunto;
                     $pla_adjunto_nombre = $rc['pla_adjunto_nombre'];
@@ -429,6 +430,16 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     foreach ($result_metadata_atencion[0] as $k => $v) {
                         $campos_valores[strtoupper($k)] = $v;
                     }
+                    //Agregando contacto en sitio:
+                    //
+                    $ate_contacto_en_sitio = $rc['ate_contacto_en_sitio'];
+                    $result_contacto_en_sitio = q("SELECT * FROM sai_contacto WHERE con_borraso IS NULL AND con_id = $ate_contacto_en_sitio");
+                    if ($result_contacto_en_sitio) {
+                        foreach ($result_contacto_en_sitio as $k => $v) {
+                            $campos_valores['CONTACTO_EN_SITIO_' . strtoupper($k)] = $v;
+                        }
+                    }
+
                     if ($campos_valores['CLI_ES_PERSONA_JURIDICA'] == 1) {
                         $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
                         $nombre = $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'];
