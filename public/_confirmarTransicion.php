@@ -58,7 +58,9 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 $mail->Password = SMTP_PASSWORD;
                 //$mail->SMTPDebug = 2;
                 $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
-                $mail->addCC($cc);
+                if (!empty($cc)) {
+                    $mail->addCC($cc);
+                }
                 $mail->Subject = $asunto;
                 $mail->MsgHTML($mensaje);
 
