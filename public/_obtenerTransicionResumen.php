@@ -10,12 +10,15 @@ if (!empty($args) && isset($args[0]) && isset($args[1])) {
         SELECT tea_id 
         ,tea_destinatario
         ,tea_usuario AS usu_id
-        ,(SELECT pep_proveedor FROM sai_pertinencia_proveedor WHERE pep_id=tea_pertinencia_proveedor) AS pro_id
-        ,(SELECT pep_servicio FROM sai_pertinencia_proveedor WHERE pep_id=tea_pertinencia_proveedor) AS ser_id
+        ,(SELECT pep_proveedor FROM sai_pertinencia_proveedor WHERE pep_borrado IS NULL AND pep_id=tea_pertinencia_proveedor) AS pro_id
+        ,(SELECT pep_servicio FROM sai_pertinencia_proveedor WHERE pep_borrado IS NULL AND pep_id=tea_pertinencia_proveedor) AS ser_id
         ,(SELECT des_nombre FROM sai_destinatario WHERE des_id=tea_destinatario) AS destinatario
         FROM sai_transicion_estado_atencion 
+        ,sai_pertinencia_proveedor
         WHERE 
         tea_borrado IS NULL
+        AND pep_borrado IS NULL
+        AND tea_pertinencia_proveedor = pep_id
         AND tea_estado_atencion_actual=$desde
         AND tea_estado_atencion_siguiente=$hacia
         ");

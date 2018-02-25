@@ -25,7 +25,10 @@ $result = q("
     tea_estado_atencion_actual,
     tea_estado_atencion_siguiente
     FROM sai_transicion_estado_atencion
+    ,sai_pertinencia_proveedor
     WHERE tea_borrado IS NULL
+    AND pep_borrado IS NULL
+    AND tea_pertinencia_proveedor = pep_id
     GROUP BY tea_estado_atencion_actual, tea_estado_atencion_siguiente
     ");
 $transiciones = array();
@@ -634,7 +637,7 @@ function p_borrar_archivo(adp_id, id) {
 
     console.log('borrar archivo', adp_id);
     if (confirm('Seguro desea borrar el archivo?')){
-        $.get('_borrarArchivo/'+adp_id, function(data){
+        $.get('/_borrarArchivo/'+adp_id, function(data){
             console.log('Respuesta de borrarArchivo', data);
             data = JSON.parse(data);
             console.log('data', data);
@@ -855,10 +858,10 @@ function p_abrir(x, y){
     $('.formulario-cae-mensaje').each(function(){$(this).show();});
     $('.boton-agregar').each(function(){$(this).hide();});
 
-    $.get('_obtenerTransicionResumen/'+desde+'/'+hacia, function(data){
+    $.get('/_obtenerTransicionResumen/'+desde+'/'+hacia, function(data){
         console.log(data);
         data = JSON.parse(data);
-        console.log('_obtenerTransicionResumen/'+desde+'/'+hacia, data);
+        console.log('/_obtenerTransicionResumen/'+desde+'/'+hacia, data);
         data.forEach(function(d, k){
             var ser_id = d['ser_id'];
             var pro_id = d['pro_id'];

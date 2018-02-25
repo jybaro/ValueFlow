@@ -18,10 +18,13 @@ if (!empty($args) && isset($args[0]) && isset($args[1]) && isset($args[2]) && is
         ,(SELECT pep_servicio FROM sai_pertinencia_proveedor WHERE pep_borrado IS NULL AND pep_id=tea_pertinencia_proveedor) AS ser_id
         FROM sai_transicion_estado_atencion 
         ,sai_plantilla
+        ,sai_pertinencia_proveedor
         WHERE 
         tea_borrado IS NULL
         AND pla_borrado IS NULL
+        AND pep_borrado IS NULL
         AND pla_transicion_estado_atencion = tea_id
+        AND pep_id = tea_pertinencia_proveedor
         AND tea_estado_atencion_actual=$desde
         AND tea_estado_atencion_siguiente=$hacia
         $filtro_destinatario
