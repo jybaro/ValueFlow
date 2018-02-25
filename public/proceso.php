@@ -943,6 +943,8 @@ foreach($provincias as $provincia) {
       </div>
       <div class="modal-body">
 
+          <?php $col1=3;$col2=8; ?>
+
 <form id="formulario_nodo_completo" class="form-horizontal">
 <input type="hidden" id="nod_completo_cae_id" name="cae_id" value="">
 <input type="hidden" id="nod_completo_id" name="nod_id" value="">
@@ -1060,6 +1062,13 @@ if ($result_tum) {
     <label for="email_<?=$destinatario?>" class="col-sm-3 control-label">Destinatarios:</label>
     <div class="col-sm-9">
       <input class="form-control" id="email_<?=$destinatario?>" name="email_<?=$destinatario?>">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="cc_<?=$destinatario?>" class="col-sm-3 control-label">Con copia a:</label>
+    <div class="col-sm-9">
+      <input class="form-control" id="cc_<?=$destinatario?>" name="cc_<?=$destinatario?>">
     </div>
   </div>
 

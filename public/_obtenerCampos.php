@@ -69,18 +69,6 @@ $sql = "
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
         AND paa_borrado IS NULL 
-        AND vae_campo_extra = cae.cae_valor_por_defecto 
-        AND paa_id=vae_paso_atencion
-        AND paa_atencion = $ate_id
-        ORDER BY vae_creado DESC
-        LIMIT 1
-    ) AS valor_por_defecto
-    ,(
-        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'yyyy-MM-dd'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
-        FROM sai_valor_extra
-        , sai_paso_atencion 
-        WHERE vae_borrado IS NULL 
-        AND paa_borrado IS NULL 
         AND vae_campo_extra IN (
             SELECT cae_historico.cae_id
             FROM sai_campo_extra AS cae_historico
@@ -96,6 +84,27 @@ $sql = "
         ORDER BY vae_creado DESC
         LIMIT 1
     ) AS valor_historico
+    ,(
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'yyyy-MM-dd'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        FROM sai_valor_extra
+        , sai_paso_atencion 
+        WHERE vae_borrado IS NULL 
+        AND paa_borrado IS NULL 
+        AND vae_campo_extra IN (
+            SELECT cae_historico.cae_id
+            FROM sai_campo_extra AS cae_historico
+            WHERE cae_historico.cae_borrado IS NULL
+            AND cae_historico.cae_codigo = cae.cae_valor_por_defecto
+        ) 
+        AND paa_id = vae_paso_atencion
+        AND NOT paa_confirmado IS NULL
+
+        AND NOT paa_paso_anterior IS NULL
+
+        AND paa_atencion = $ate_id
+        ORDER BY vae_creado DESC
+        LIMIT 1
+    ) AS valor_por_defecto 
     ,(
         SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'yyyy-MM-dd'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
         FROM sai_valor_extra

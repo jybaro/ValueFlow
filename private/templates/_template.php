@@ -147,8 +147,8 @@ body {
             <li><a href="/autoadmin/sai_pertinencia_proveedor">Pertinencia de proveedores</a></li>
             <li><a href="/usuarios">Usuarios</a></li>
             <li><a href="/campos">Campos</a></li>
-            <li><a href="/autoadmin/sai_ubicacion">Ubicaciones</a></li>
-            <li><a href="/autoadmin/sai_nodo">Nodos</a></li>
+            <li><a href="/ubicaciones">Ubicaciones</a></li>
+            <li><a href="/puntos">Puntos</a></li>
             <li><a href="/autoadmin/sai_tipo_ultima_milla">Tipos de última milla</a></li>
             <?php if ($_nivel <= 1): ?>
             <li role="separator" class="divider"></li>

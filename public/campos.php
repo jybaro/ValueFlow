@@ -84,7 +84,7 @@ $plantilla_cabecera = <<<EOT
           <br>
           <strong>Orden:</strong> <span id="cae_orden_%CAE_ID%">%CAE_ORDEN%</span>
           <br>
-          <strong>Campo para valor por defecto:</strong> <span id="cae_valor_por_defecto_%CAE_ID%">%CAE_VALOR_POR_DEFECTO%</span>
+          <strong>Código para valor por defecto:</strong> <span id="cae_valor_por_defecto_%CAE_ID%">%CAE_VALOR_POR_DEFECTO%</span>
           <br>
           <strong>Código para validar menor que:</strong> <span id="cae_menor_que_%CAE_ID%">%CAE_MENOR_QUE%</span>
           <br>
@@ -193,9 +193,9 @@ p_tree($campos[null][hijos]);
     </div>
   </div>
   <div class="form-group">
-    <label for="valor_por_defecto" class="col-sm-2 control-label">Campo para valor por defecto:</label>
+    <label for="valor_por_defecto" class="col-sm-2 control-label">Código para valor por defecto:</label>
     <div class="col-sm-10">
-      <input type="number" class="form-control" id="valor_por_defecto" name="valor_por_defecto" placeholder="">
+      <input type="text" class="form-control" id="valor_por_defecto" name="valor_por_defecto" placeholder="">
     </div>
   </div>
   <div class="form-group">

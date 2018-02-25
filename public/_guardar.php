@@ -5,30 +5,6 @@
 //echo 'desde ws rest: ';
 //var_dump($_POST);
 //
-function p_formatear_valor_sql($raw, $tipo = 'text'){
-    $raw = trim($raw);
-    if ($raw === null || $raw === '' || $raw === 'null') {
-        $result = 'null';
-    } else if (strpos($raw, '(') !== false && substr($raw, -1) == ')') {
-        //es funcion
-        $result = $raw;
-    //} else if (is_numeric($raw)) {
-    } else if ($tipo == 'text' || strpos('char', $tipo) !== false) {
-        //es texto 
-        //$texto = htmlentities($raw);
-        
-        //$texto = ($raw);
-        //$result = "'$texto'";
-        $result = pg_escape_literal($raw);
-    } else {
-        //por defecto no lleva comillas
-        //$result = $raw;
-        $result = pg_escape_string($raw);
-    }
-
-    return $result;
-}
-
 if (isset($_POST['dataset_json']) && !empty($_POST['dataset_json'])) {
     $dataset_json = $_POST['dataset_json'];
 } else {

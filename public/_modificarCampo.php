@@ -1,6 +1,6 @@
 <?php
 
-$txt = array('texto', 'codigo', 'validacion', 'plantilla', 'menor_que', 'mayor_que');
+$txt = array('texto', 'codigo', 'validacion', 'plantilla', 'valor_por_defecto', 'menor_que', 'mayor_que');
 //$no_nulo = array('valor_por_defecto');
 $no_nulo = array();
 

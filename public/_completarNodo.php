@@ -11,15 +11,17 @@ foreach($_POST as $k => $v){
 }
 
 $cae_id = $_POST['nod_cae_id'];
-$nod_responsable_ultima_milla = "'$nod_responsable_ultima_milla'";
-$nod_fecha_termino = "to_timestamp('$nod_fecha_termino', 'YYYY-MM-DD hh24:mi:ss')";
+
+//$nod_responsable_ultima_milla = "'$nod_responsable_ultima_milla'";
+$nod_responsable_ultima_milla = p_formatear_valor_sql($nod_responsable_ultima_milla, 'text');
+
+//$nod_fecha_termino = "to_timestamp('$nod_fecha_termino', 'YYYY-MM-DD hh24:mi:ss')";
+$nod_fecha_termino = p_formatear_valor_sql($nod_fecha_termino, 'timestamp'); 
 
 $sql = ("
     UPDATE sai_nodo
     SET
-    nod_costo_instalacion_proveedor = $nod_costo_instalacion_proveedor
-    ,nod_costo_instalacion_cliente = $nod_costo_instalacion_cliente
-    ,nod_tipo_ultima_milla = $nod_tipo_ultima_milla
+    nod_tipo_ultima_milla = $nod_tipo_ultima_milla
     ,nod_responsable_ultima_milla = $nod_responsable_ultima_milla
     ,nod_distancia = $nod_distancia
     ,nod_fecha_termino = $nod_fecha_termino

@@ -9,6 +9,7 @@ $paa_id = "(
     FROM sai_paso_atencion 
     WHERE paa_borrado IS NULL 
     AND paa_paso_anterior IS NULL
+    AND paa_confirmado IS NULL
     AND paa_atencion=$ate_id
     )";
 $result = q($paa_id);
@@ -96,7 +97,7 @@ if (!$result) {
 //echo $paa_id;
 $respuesta = array();
 foreach ($_POST as $k => $v){
-    $v = pg_escape_string($v);
+    //$v = pg_escape_string($v);
 
     if ($k != 'ate_id') {
         //$cae_id = "(SELECT cae_id FROM sai_campo_extra WHERE cae_codigo='$k')";
@@ -132,19 +133,19 @@ foreach ($_POST as $k => $v){
                 $cae = $result_cae[0];
                 switch ($cae[tid_codigo]) {
                 case 'texto': default:
-                    $vae_texto = "'$v'";
+                    $vae_texto = p_formatear_valor_sql($v, 'text');
                     break;
                 case 'numero':
-                    $vae_numero = "$v";
+                    $vae_numero = p_formatear_valor_sql($v, 'number');
                     break;
                 case 'fecha':
-                    $vae_fecha = "to_timestamp('$v', 'YYYY-MM-DD hh24:mi:ss')";
+                    $vae_fecha = p_formatear_valor_sql($v, 'timestamp');
                     break;
                 case 'ciudad':
-                    $vae_ciudad = "$v";
+                    $vae_ciudad = p_formatear_valor_sql($v, 'ciudad');
                     break;
                 case 'nodo': case 'nodo_completo':
-                    $vae_nodo = "$v";
+                    $vae_nodo = p_formatear_valor_sql($v, 'nodo');
                     $campo_nodo = 'nodo';
                     if ($cae[cae_validacion] == 'concentrador' || $cae[cae_validacion] == 'extremo') {
                         $campo_nodo = $cae[cae_validacion];
@@ -161,7 +162,7 @@ foreach ($_POST as $k => $v){
                     q($sql);
                     break;
                 case 'conexion':
-                    $vae_conexion = "$v";
+                    $vae_conexion = p_formatear_valor_sql($v, 'nodo');
                     q("
                         UPDATE sai_atencion
                         SET ate_conexion = $vae_conexion
@@ -170,7 +171,7 @@ foreach ($_POST as $k => $v){
                     ");
                     break;
                 case 'conexion_completar':
-                    $vae_conexion = "$v";
+                    $vae_conexion = p_formatear_valor_sql($v, 'nodo');
                     break;
                 }
             }
