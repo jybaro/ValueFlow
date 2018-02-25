@@ -433,7 +433,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     //Agregando contacto en sitio:
                     //
                     $ate_contacto_en_sitio = $rc['ate_contacto_en_sitio'];
-                    $result_contacto_en_sitio = q("SELECT * FROM sai_contacto WHERE con_borraso IS NULL AND con_id = $ate_contacto_en_sitio");
+                    $result_contacto_en_sitio = q("SELECT * FROM sai_contacto WHERE con_borrado IS NULL AND con_id = $ate_contacto_en_sitio");
                     if ($result_contacto_en_sitio) {
                         foreach ($result_contacto_en_sitio as $k => $v) {
                             $campos_valores['CONTACTO_EN_SITIO_' . strtoupper($k)] = $v;
