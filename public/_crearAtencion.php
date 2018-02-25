@@ -8,6 +8,7 @@ $cue_id = $_POST['cuenta'];
 $pro_id_lista = $_POST['proveedor'];
 $ser_id = $_POST['servicio'];
 $con_id = $_POST['contacto'];
+$contacto_en_sitio_con_id = $_POST['contacto_en_sitio'];
 $usuario_tecnico = $_POST['usuario_tecnico'];
 $usuario_comercial = $_POST['usuario_comercial'];
 $esa_id = "(SELECT esa_id FROM sai_estado_atencion WHERE esa_nombre ILIKE '%factibilidad nueva%')";
@@ -20,7 +21,7 @@ $respuesta = array();
 foreach ($pro_id_lista as $pro_id) {
 
     for ($i = 0; $i < $cantidad_extremos; $i++) {
-        $pep_id = "(SELECT pep_id FROM sai_pertinencia_proveedor WHERE pep_proveedor=$pro_id AND pep_servicio=$ser_id)";
+        $pep_id = "(SELECT pep_id FROM sai_pertinencia_proveedor WHERE pep_borrado IS NULL AND pep_proveedor=$pro_id AND pep_servicio=$ser_id)";
         //$ser_id = "(SELECT pep_servicio FROM sai_pertinencia_proveedor WHERE pep_id=$pep_id)";
         $result = q("
             INSERT INTO sai_atencion(
@@ -32,6 +33,7 @@ foreach ($pro_id_lista as $pro_id) {
                 ,ate_estado_atencion
                 ,ate_servicio
                 ,ate_contacto
+                ,ate_contacto_en_sitio
                 ,ate_creado_por
             ) VALUES (
                 $cli_id
@@ -42,6 +44,7 @@ foreach ($pro_id_lista as $pro_id) {
                 ,$esa_id
                 ,$ser_id
                 ,$con_id
+                ,$contacto_en_sitio_con_id
                 ,{$_SESSION['usu_id']}
             ) RETURNING *
         ");

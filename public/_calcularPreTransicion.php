@@ -430,15 +430,18 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     foreach ($result_metadata_atencion[0] as $k => $v) {
                         $campos_valores[strtoupper($k)] = $v;
                     }
+                    //var_dump($campos_valores);
                     //Agregando contacto en sitio:
                     //
-                    $ate_contacto_en_sitio = $rc['ate_contacto_en_sitio'];
+                    $ate_contacto_en_sitio = $campos_valores['ATE_CONTACTO_EN_SITIO']; 
+                    //echo "[[$ate_contacto_en_sitio]]";
                     $result_contacto_en_sitio = q("SELECT * FROM sai_contacto WHERE con_borrado IS NULL AND con_id = $ate_contacto_en_sitio");
                     if ($result_contacto_en_sitio) {
-                        foreach ($result_contacto_en_sitio as $k => $v) {
+                        foreach ($result_contacto_en_sitio[0] as $k => $v) {
                             $campos_valores['CONTACTO_EN_SITIO_' . strtoupper($k)] = $v;
                         }
                     }
+                    //var_dump($campos_valores);
 
                     if ($campos_valores['CLI_ES_PERSONA_JURIDICA'] == 1) {
                         $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
