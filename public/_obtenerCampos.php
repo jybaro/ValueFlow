@@ -78,7 +78,6 @@ $sql = "
         AND paa_id = vae_paso_atencion
         AND NOT paa_confirmado IS NULL
 
-        AND NOT paa_paso_anterior IS NULL
 
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
@@ -99,7 +98,6 @@ $sql = "
         AND paa_id = vae_paso_atencion
         AND NOT paa_confirmado IS NULL
 
-        AND NOT paa_paso_anterior IS NULL
 
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
@@ -120,7 +118,6 @@ $sql = "
         AND paa_id = vae_paso_atencion
         AND NOT paa_confirmado IS NULL
 
-        AND NOT paa_paso_anterior IS NULL
 
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
@@ -141,7 +138,6 @@ $sql = "
         AND paa_id = vae_paso_atencion
         AND NOT paa_confirmado IS NULL
 
-        AND NOT paa_paso_anterior IS NULL
 
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC

@@ -2119,8 +2119,8 @@ function p_desplegar_campos(campos, padre_id) {
 
     campos.forEach(function(campo){
         var valor_historico = (campo['valor_historico'] == 'null' || campo['valor_historico'] == null) ? '' : campo['valor_historico'];
-        //var valor_por_defecto = (campo['valor_por_defecto'] == 'null' || campo['valor_por_defecto'] == null  || campo['valor_por_defecto'] == '') ? valor_historico : campo['valor_por_defecto'];
-        var valor_por_defecto = valor_historico;
+        var valor_por_defecto = (campo['valor_por_defecto'] == 'null' || campo['valor_por_defecto'] == null  || campo['valor_por_defecto'] == '') ? valor_historico : campo['valor_por_defecto'];
+        //var valor_por_defecto = valor_historico;
         var valor = (campo['valor'] == 'null' || campo['valor'] == null || campo['valor'] == '') ? valor_por_defecto : campo['valor'];
 
         var menor_que = (campo['menor_que'] == 'null' || campo['menor_que'] == null || campo['menor_que'] == '') ? null : campo['menor_que'];
@@ -2166,12 +2166,22 @@ function p_desplegar_campos(campos, padre_id) {
                 } else if (campo['tipo_dato'] == 'numero') {
                     var validacion_mayor_que = (mayor_que == null) ? '' : 'max="'+mayor_que+'"'; 
                     var validacion_menor_que = (menor_que == null) ? '' : 'min="'+menor_que+'"'; 
+
+                    var validacion_html5 = campo['cae_validacion'];
+                    var funcion_validar = 'p_validar(this)';
+
+                    if (campo['cae_validacion'].indexOf('capacidad')  !== -1) {
+                        //el numero es capacidad
+                        //validacion_html5 = 'required';
+                        //funcion_validar = 'p_validar_capacidad(this, \'' + campo['cae_validacion'] + '\')';
+                    }
+
                     valor = ((valor == null || valor == '') && (campo['cae_codigo'].indexOf('COSTO_INSTALACION')  !== -1)) ? '0' : valor;
                     contenido += ''+
                         '<div class="form-group">' +
                         '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
                         '<div class="col-sm-' + col2 + '">' +
-                        '<input type="number" '+campo['cae_validacion']+' '+validacion_mayor_que+' '+validacion_menor_que+' class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="p_validar(this)">' +
+                        '<input type="number" ' + validacion_html5 + ' '+validacion_mayor_que+' '+validacion_menor_que+' class="form-control" id="campo_extra_'+campo['cae_id']+'" name="campo_extra_'+campo['cae_id']+'" placeholder="" value="' + valor + '" onblur="' + funcion_validar + '">' +
                         '</div>' +
                         '</div>'+
                         '';
@@ -2283,6 +2293,18 @@ function p_desplegar_campos(campos, padre_id) {
         respuesta += contenido;
     });
     return respuesta;
+}
+
+function p_validar_capacidad(target, tipo_capacidad) {
+    if (p_validar(target)) {
+        var ate_id = $('#ate_id').val();
+        var capacidad = $(target).val();
+        $.get('/_registrarCapacidad/' + ate_id + '/' + tipo_capacidad + '/' + capacidad, function(data){
+            console.log('/_registrarCapacidad/' + ate_id + '/' + tipo_capacidad + '/' + capacidad, data);
+            data = JSON.parse(data);
+            console.log('data:', data);
+        });
+    }
 }
 
 

@@ -163,6 +163,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                                 AND paa_id <> $paa_id 
                             )
                         ");
+
                     }
                 }
             } catch (Exception $e) {
@@ -175,6 +176,16 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
     }
 
     if (!empty($paa_id_lista)) {
+        //Borra todos los pasos falsos de la atención:
+        q("
+            UPDATE sai_paso_atencion
+            SET paa_borrado = now()
+            WHERE paa_borrado IS NULL
+            AND paa_atencion = $ate_id
+            AND paa_confirmado IS NULL
+        ");
+
+        //Define el paso actual:
         $respuesta['pasos_nuevos'] = $paa_lista;
         $paa_id_lista = implode(',', $paa_id_lista);
         $result = q("
@@ -198,10 +209,40 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             $usuario_comercial = ", ate_usuario_comercial={$_SESSION['usu_id']}";
         }
 
+        $result_capacidad = q("
+            SELECT
+    ,(
+        SELECT vae_numero
+        FROM sai_valor_extra
+        , sai_paso_atencion 
+        WHERE vae_borrado IS NULL 
+        AND paa_borrado IS NULL 
+        AND vae_campo_extra IN (
+            SELECT cae_historico.cae_id
+            FROM sai_campo_extra AS cae_historico
+            WHERE cae_historico.cae_borrado IS NULL
+            AND cae_historico.cae_codigo = cae.cae_codigo
+        ) 
+        AND paa_id = vae_paso_atencion
+        AND NOT paa_confirmado IS NULL
+
+
+        AND paa_atencion = $ate_id
+        ORDER BY vae_creado DESC
+        LIMIT 1
+    ) AS valor_historico
+        ");
+        $capacidad_confirmada = ;
+        $capacidad_facturada = ;
+        $capacidad_facturada = ;
+
 
         $sql = ("
             UPDATE sai_atencion 
             SET ate_estado_atencion = $estado_siguiente_id 
+            ,ate_capacidad_confirmada = $capacidad_confirmada
+            ,ate_capacidad_facturada = $capacidad_facturada
+            ,ate_capacidad_solicitada = $capacidad_solicitada
             $usuario_tecnico
             $usuario_comercial
             WHERE ate_borrado IS NULL
