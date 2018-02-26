@@ -524,8 +524,11 @@ EOT;
                     // Precios:
                     //
                     
-                    $campos_valores['PRECIO_CAPACIDAD'] = $campos_valores['CAPACIDAD'] * $campos_valores['PRECIO_MB'];
+                    $campos_valores['PRECIO_CAPACIDAD_CONTRATADA'] = $campos_valores['CAPACIDAD_CONTRATADA'] * $campos_valores['PRECIO_MB'];
+                    $campos_valores['PRECIO_CAPACIDAD_FACTURADA']  = $campos_valores['CAPACIDAD_FACTURADA']  * $campos_valores['PRECIO_MB'];
                     $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'] = $campos_valores['CAPACIDAD_SOLICITADA'] * $campos_valores['PRECIO_MB'];
+
+                    $campos_valores['PRECIO_CAPACIDAD'] = $campos_valores['PRECIO_CAPACIDAD_CONTRATADA'];
                     $campos_valores['PRECIO_MENSUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
                     $campos_valores['PRECIO_BW'] = $campos_valores['PRECIO_CAPACIDAD'];
                     $campos_valores['PRECIO_BW_SOLICITADA'] = $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'];
