@@ -523,7 +523,7 @@ EOT;
                     ///////////
                     // Precios:
                     //
-                    
+                    $iva = q("SELECT cat_valor FROM sai_catalogo WHERE cat_codigo='iva'")[0]['cat_valor']; 
                     $campos_valores['PRECIO_CAPACIDAD_CONTRATADA'] = $campos_valores['CAPACIDAD_CONTRATADA'] * $campos_valores['PRECIO_MB'];
                     $campos_valores['PRECIO_CAPACIDAD_FACTURADA']  = $campos_valores['CAPACIDAD_FACTURADA']  * $campos_valores['PRECIO_MB'];
                     $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'] = $campos_valores['CAPACIDAD_SOLICITADA'] * $campos_valores['PRECIO_MB'];
@@ -546,14 +546,17 @@ EOT;
                     $campos_valores['PRECIO_INSTALACION'] = isset($campos_valores['PRECIO_INSTALACION']) ? $campos_valores['PRECIO_INSTALACION'] : $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
                     //$campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
                     $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['PRECIO_INSTALACION'];
-                    $campos_valores['IVA_SERVICIO'] = round($campos_valores['SUBTOTAL_SERVICIO'] * 0.12, 2);
+                    $campos_valores['IVA_SERVICIO'] = round($campos_valores['SUBTOTAL_SERVICIO'] * $iva, 2);
                     $campos_valores['TOTAL_SERVICIO'] = $campos_valores['SUBTOTAL_SERVICIO'] + $campos_valores['IVA_SERVICIO'];
 
-                    $campos_valores['IVA_INSTALACION'] = round($campos_valores['PRECIO_INSTALACION'] * 0.12, 2);
+                    $campos_valores['IVA_INSTALACION'] = round($campos_valores['PRECIO_INSTALACION'] * $iva, 2);
                     $campos_valores['TOTAL_INSTALACION'] = $campos_valores['PRECIO_INSTALACION'] + $campos_valores['IVA_INSTALACION'];
 
-                    $campos_valores['IVA_MENSUAL'] = round($campos_valores['PRECIO_CAPACIDAD'] * 0.12, 2);
+                    $campos_valores['IVA_MENSUAL'] = round($campos_valores['PRECIO_CAPACIDAD'] * $iva, 2);
                     $campos_valores['TOTAL_MENSUAL'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['IVA_MENSUAL'];
+
+                    $campos_valores['IVA_MENSUAL_SOLICITADO'] = round($campos_valores['PRECIO_CAPACIDAD_SOLICITADA'] * $iva, 2);
+                    $campos_valores['TOTAL_MENSUAL_SOLICITADO'] = $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'] + $campos_valores['IVA_MENSUAL_SOLICITADO'];
 
                     
                     $campos_valores['PRECIO_TOTAL'] = (isset($campos_valores['CAPACIDAD_FACTURADA'])?$campos_valores['CAPACIDAD_FACTURADA'] : 0) * (isset($campos_valores['PRECIO_MB'])?$campos_valores['PRECIO_MB'] : 0);
