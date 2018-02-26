@@ -209,6 +209,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             $usuario_comercial = ", ate_usuario_comercial={$_SESSION['usu_id']}";
         }
 
+        /*
         $result_capacidad = q("
             SELECT
     ,(
@@ -232,6 +233,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
         LIMIT 1
     ) AS valor_historico
         ");
+         */
         $capacidad_confirmada = 0;
         $capacidad_facturada = 0;
         $capacidad_facturada = 0;
