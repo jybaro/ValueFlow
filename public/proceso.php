@@ -2167,7 +2167,7 @@ function p_desplegar_campos(campos, padre_id) {
 
                 } else if (campo['tipo_dato'] == 'numero') {
                     var validacion_mayor_que = (mayor_que == null) ? '' : 'max="'+mayor_que+'"'; 
-                    var validacion_menor_que = (menor_que == null) ? '' : 'min="'+menor_que+'"'; 
+                    var validacion_menor_que = (menor_que == null) ? 'min="0"' : 'min="'+menor_que+'"'; 
 
                     var validacion_html5 = campo['cae_validacion'];
                     var funcion_validar = 'p_validar(this)';
@@ -2577,7 +2577,7 @@ function p_crear(){
 
             console.log('OK creacion de atencion', data);
             $('#modal').modal('hide');
-            location.reload();
+            location.eload();
         })
     }
 }
