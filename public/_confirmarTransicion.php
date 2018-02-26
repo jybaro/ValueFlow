@@ -236,7 +236,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
          */
         $capacidad_confirmada = 0;
         $capacidad_facturada = 0;
-        $capacidad_facturada = 0;
+        $capacidad_solicitada = 0;
 
 
         $sql = ("
