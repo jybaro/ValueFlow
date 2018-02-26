@@ -196,7 +196,7 @@ FROM
                 $etiqueta_fk = substr($campo_fk['column_name'], 4);
                 $listado_campos_fk[$campo['column_name']][$etiqueta_fk] = $campo_fk;
             }
-            $campos_posibles = array('nombre', 'razon_social', 'username', 'cedula', 'ruc', 'correo_electronico', 'apellidos', 'texto', 'codigo', 'etiqueta', 'descripcion', 'direccion', 'creado', 'id');
+            $campos_posibles = array('nombre', 'razon_social', 'username', 'cedula', 'ruc', 'correo_electronico', 'apellidos', 'texto', 'codigo', 'etiqueta', 'descripcion', 'direccion', 'secuencial', 'creado', 'id');
             foreach($campos_posibles as $campo_posible) {
                 if (isset($listado_campos_fk[$campo['column_name']][$campo_posible])) {
                     $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
@@ -204,13 +204,13 @@ FROM
                 }
             }
 
-
             $fkeys[$c]['__opciones'] = array();
             $opciones = q("SELECT * FROM {$fk[foreign_table_name]} ORDER BY $campo_etiqueta_fk");
             if ($opciones) {
                 foreach($opciones as $opcion){
                     $valor = $opcion[$fk['foreign_column_name']];
                     $etiqueta = $opcion[$campo_etiqueta_fk];
+                    $etiqueta = empty($etiqueta) ? '<i>(id:'.$opcion[substr($campo_etiqueta_fk, 0, 4) . 'id'] . ')</i>' : $etiqueta;
                     $fkeys[$c]['__opciones'][$valor] = $etiqueta;
                 }
             }

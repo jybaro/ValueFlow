@@ -78,8 +78,6 @@ $sql = "
         AND paa_id = vae_paso_atencion
         AND NOT paa_confirmado IS NULL
 
-        AND NOT paa_paso_anterior IS NULL
-
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
         LIMIT 1
@@ -98,8 +96,6 @@ $sql = "
         ) 
         AND paa_id = vae_paso_atencion
         AND NOT paa_confirmado IS NULL
-
-        AND NOT paa_paso_anterior IS NULL
 
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
@@ -120,8 +116,6 @@ $sql = "
         AND paa_id = vae_paso_atencion
         AND NOT paa_confirmado IS NULL
 
-        AND NOT paa_paso_anterior IS NULL
-
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
         LIMIT 1
@@ -141,7 +135,6 @@ $sql = "
         AND paa_id = vae_paso_atencion
         AND NOT paa_confirmado IS NULL
 
-        AND NOT paa_paso_anterior IS NULL
 
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
@@ -203,6 +196,7 @@ $sql = "
     )
     ORDER BY cae_orden
 ";
+        //AND NOT paa_paso_anterior IS NULL//quitado ya que está validando con paa_confirmado
             //AND cae_historico.cae_id <> cae.cae_id // quitado del historico, menor que, mayor que
 //echo "[$sql]";
 $campos = q($sql);

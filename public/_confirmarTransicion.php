@@ -158,11 +158,12 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                                 SELECT paa_id
                                 FROM sai_paso_atencion
                                 WHERE paa_borrado IS NULL
+                                AND paa_confirmado IS NULL
                                 AND paa_atencion = $ate_id 
-                                AND paa_transicion_estado_atencion = $tea_id
                                 AND paa_id <> $paa_id 
                             )
                         ");
+                                //AND paa_transicion_estado_atencion = $tea_id
 
                     }
                 }

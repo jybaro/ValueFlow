@@ -99,6 +99,7 @@ foreach ($pro_id_lista as $pro_id) {
                 , {$_SESSION['usu_id']}
             ) RETURNING *
         ")[0][paa_id];
+        echo "[[$tea_id, $ate_id]]";
 
     }
 }

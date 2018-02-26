@@ -514,11 +514,9 @@ EOT;
 
                     //$campos_valores['FALTANTE_CAPACIDAD_CONTRATADA'] = ($campos_valores['CAPACIDAD_CONTRATADA'] < $campos_valores['CAPACIDAD_FACTURADA']) ? ($campos_valores['CAPACIDAD_FACTURADA'] - $campos_valores['CAPACIDAD_CONTRATADA']) : 0;
                     $campos_valores['FALTANTE_CAPACIDAD_CONTRATADA'] = ($campos_valores['CAPACIDAD_CONTRATADA'] < $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_SOLICITADA'] - $campos_valores['CAPACIDAD_CONTRATADA']) : 0;
+                    $campos_valores['FALTANTE_CAPACIDAD_FACTURADA'] = ($campos_valores['CAPACIDAD_FACTURADA'] < $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_SOLICITADA'] - $campos_valores['CAPACIDAD_FACTURADA']) : 0;
 
                     $campos_valores['CAPACIDAD_ACTUAL'] = $campos_valores['CAPACIDAD_FACTURADA_HISTORICO'];
-                    if (isset($campos_valores['CAPACIDAD_ACTUAL']) && isset($campos_valores['NUEVA_CAPACIDAD'])) {
-                        $campos_valores['CAPACIDAD_DELTA'] = abs($campos_valores['NUEVA_CAPACIDAD'] - $campos_valores['CAPACIDAD_ACTUAL']);
-                    }
 
 
 

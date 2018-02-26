@@ -35,7 +35,7 @@ if (isset($args[0]) && !empty($args[0])) {
         AND cae_borrado IS NULL
         AND vae_paso_atencion = paa_id
         AND vae_campo_extra = cae_id
-        AND NOT paa_paso_anterior IS NULL
+        AND NOT paa_confirmado IS NULL
         AND paa_atencion = $ate_id
         ORDER BY vae_creado
     ");
@@ -74,6 +74,20 @@ if (isset($args[0]) && !empty($args[0])) {
             }
         }
     }
-    $resultado = array_values($codigos);
+
+    //cambia el orden de acuerdo a lo del catalogo:
+    $codigos_nuevo_orden = array();
+    foreach ($etiquetas as $codigo => $etiqueta) {
+        if (isset($codigos[$codigo])) {
+            $codigos_nuevo_orden[$codigo] = $codigos[$codigo];
+        }
+    }
+    foreach($codigos as $codigo => $valor) {
+        if (!isset($codigos_nuevo_orden[$codigo])) {
+            $codigos_nuevo_orden[$codigo] = $valor;
+        }
+    }
+    //$resultado = array_values($codigos);
+    $resultado = array_values($codigos_nuevo_orden);
 }
 echo json_encode($resultado);

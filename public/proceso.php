@@ -422,7 +422,7 @@ EOT;
                 ,to_char(vae_fecha, 'yyyy-MM-DD hh:mm')
             ) AS valor
             , (
-                SELECT concat(nod_codigo, ': ',  nod_descripcion, ' (', ubi_direccion, ')')
+                SELECT nod_codigo
                 FROM 
                  sai_nodo
                 , sai_ubicacion
@@ -458,9 +458,11 @@ EOT;
             AND paa_transicion_estado_atencion = tea_id
             AND tea_estado_atencion_actual = esa_id
             AND paa_atencion={$r[ate_id]}
-            AND NOT paa_paso_anterior IS NULL
+            AND NOT paa_confirmado IS NULL
             ORDER BY paa_id DESC, cae_orden
         ");
+            //AND NOT paa_paso_anterior IS NULL//reemplazado por confirmado
+
             //AND paa_borrado IS NULL // ya agregado...
         $result_campos = q($sql);
         if ($result_campos) {
