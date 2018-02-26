@@ -528,6 +528,7 @@ EOT;
                     $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'] = $campos_valores['CAPACIDAD_SOLICITADA'] * $campos_valores['PRECIO_MB'];
                     $campos_valores['PRECIO_MENSUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
                     $campos_valores['PRECIO_BW'] = $campos_valores['PRECIO_CAPACIDAD'];
+                    $campos_valores['PRECIO_BW_SOLICITADA'] = $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'];
                     $campos_valores['PRECIO_ACTUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
 
                     //reemplaza los costos de instalacion de los nodos (nodo_nod_costo_) por los de la atención (nodo_costo_):
