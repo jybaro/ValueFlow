@@ -9,7 +9,8 @@ $traer_campos_asociados = (isset($traer_campos_asociados)) ? $traer_campos_asoci
 $extender_campos_anteriores = (isset($extender_campos_anteriores)) ? $extender_campos_anteriores : (isset($args[3])?$args[3]:0);
 
 $cae_transicion_estado_atencion = $tea_id;
-$filtro_valor_actual = "AND paa_paso_anterior IS NULL";
+//$filtro_valor_actual = "AND paa_paso_anterior IS NULL";
+$filtro_valor_actual = "";
 
 if ($extender_campos_anteriores == 1) {
     //traer todos los campos y valores de la atencion, incluidos pasos anteriores, sin considerar la transicion:
