@@ -234,7 +234,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
     ) AS valor_historico
         ");
          */
-        $capacidad_confirmada = 0;
+        $capacidad_contratada = 0;
         $capacidad_facturada = 0;
         $capacidad_solicitada = 0;
 
@@ -242,7 +242,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
         $sql = ("
             UPDATE sai_atencion 
             SET ate_estado_atencion = $estado_siguiente_id 
-            ,ate_capacidad_confirmada = $capacidad_confirmada
+            ,ate_capacidad_contratada = $capacidad_contratada
             ,ate_capacidad_facturada = $capacidad_facturada
             ,ate_capacidad_solicitada = $capacidad_solicitada
             $usuario_tecnico
