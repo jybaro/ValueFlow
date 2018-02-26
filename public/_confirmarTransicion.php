@@ -232,9 +232,9 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
         LIMIT 1
     ) AS valor_historico
         ");
-        $capacidad_confirmada = ;
-        $capacidad_facturada = ;
-        $capacidad_facturada = ;
+        $capacidad_confirmada = 0;
+        $capacidad_facturada = 0;
+        $capacidad_facturada = 0;
 
 
         $sql = ("
