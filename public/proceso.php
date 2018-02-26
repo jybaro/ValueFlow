@@ -2170,13 +2170,13 @@ function p_desplegar_campos(campos, padre_id) {
                     var validacion_html5 = campo['cae_validacion'];
                     var funcion_validar = 'p_validar(this)';
 
-                    if (campo['cae_validacion'].indexOf('capacidad')  !== -1) {
+                    if (campo['cae_validacion'] !== null && campo['cae_validacion'].indexOf('capacidad')  !== -1) {
                         //el numero es capacidad
                         //validacion_html5 = 'required';
                         //funcion_validar = 'p_validar_capacidad(this, \'' + campo['cae_validacion'] + '\')';
                     }
 
-                    valor = ((valor == null || valor == '') && (campo['cae_codigo'].indexOf('COSTO_INSTALACION')  !== -1)) ? '0' : valor;
+                    valor = ((valor == null || valor == '') && (campo['cae_codigo'] !== null && campo['cae_codigo'].indexOf('COSTO_INSTALACION')  !== -1)) ? '0' : valor;
                     contenido += ''+
                         '<div class="form-group">' +
                         '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
