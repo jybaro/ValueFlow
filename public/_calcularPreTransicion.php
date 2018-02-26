@@ -548,7 +548,7 @@ EOT;
 
                     $campos_valores['PRECIO_INSTALACION'] = isset($campos_valores['PRECIO_INSTALACION']) ? $campos_valores['PRECIO_INSTALACION'] : $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
                     //$campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
-                    $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['PRECIO_INSTALACION'];
+                    $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD_FACTURADA'] + $campos_valores['PRECIO_INSTALACION'];
                     $campos_valores['IVA_SERVICIO'] = round($campos_valores['SUBTOTAL_SERVICIO'] * $iva, 2);
                     $campos_valores['TOTAL_SERVICIO'] = $campos_valores['SUBTOTAL_SERVICIO'] + $campos_valores['IVA_SERVICIO'];
 
