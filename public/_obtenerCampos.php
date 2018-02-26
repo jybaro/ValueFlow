@@ -9,8 +9,7 @@ $traer_campos_asociados = (isset($traer_campos_asociados)) ? $traer_campos_asoci
 $extender_campos_anteriores = (isset($extender_campos_anteriores)) ? $extender_campos_anteriores : (isset($args[3])?$args[3]:0);
 
 $cae_transicion_estado_atencion = $tea_id;
-//$filtro_valor_actual = "AND paa_paso_anterior IS NULL";
-$filtro_valor_actual = "";
+$filtro_valor_actual = "AND paa_paso_anterior IS NULL";
 
 if ($extender_campos_anteriores == 1) {
     //traer todos los campos y valores de la atencion, incluidos pasos anteriores, sin considerar la transicion:
@@ -21,6 +20,7 @@ if ($extender_campos_anteriores == 1) {
         WHERE tea_borrado IS NULL
         AND paa_borrado IS NULL
         AND paa_transicion_estado_atencion = tea_id
+        AND NOT paa_confirmado IS NULL
         AND paa_atencion = $ate_id
     ";
     $filtro_valor_actual = "";
@@ -76,7 +76,9 @@ $sql = "
             AND cae_historico.cae_codigo = cae.cae_codigo
         ) 
         AND paa_id = vae_paso_atencion
+        AND NOT paa_confirmado IS NULL
 
+        AND NOT paa_paso_anterior IS NULL
 
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
@@ -95,7 +97,9 @@ $sql = "
             AND cae_historico.cae_codigo = cae.cae_valor_por_defecto
         ) 
         AND paa_id = vae_paso_atencion
+        AND NOT paa_confirmado IS NULL
 
+        AND NOT paa_paso_anterior IS NULL
 
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
@@ -114,7 +118,9 @@ $sql = "
             AND cae_historico.cae_codigo = cae.cae_menor_que
         ) 
         AND paa_id = vae_paso_atencion
+        AND NOT paa_confirmado IS NULL
 
+        AND NOT paa_paso_anterior IS NULL
 
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
@@ -133,7 +139,9 @@ $sql = "
             AND cae_historico.cae_codigo = cae.cae_mayor_que
         ) 
         AND paa_id = vae_paso_atencion
+        AND NOT paa_confirmado IS NULL
 
+        AND NOT paa_paso_anterior IS NULL
 
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
