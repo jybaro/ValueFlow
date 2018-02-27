@@ -484,7 +484,10 @@ EOT;
                     $campos_valores['EQUIS_DATOS'] = ($campos_valores['SERVICIO'] == 'DATOS') ? 'X' : '';
                     $campos_valores['EQUIS_INTERNET'] = ($campos_valores['SERVICIO'] == 'INTERNET') ? 'X' : '';
 
+                    $campos_valores['ID'] = $campos_valores['ATE_CODIGO'];
+                    $campos_valores['LOGIN'] = $campos_valores['ATE_CODIGO'];
                     $campos_valores['ID_SERVICIO'] = $campos_valores['ATE_CODIGO'];
+                    $campos_valores['LOGIN_SERVICIO'] = $campos_valores['ATE_CODIGO'];
                     $campos_valores['ID_ORDEN_SERVICIO'] = $campos_valores['ATE_CODIGO'];
 
                     $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
