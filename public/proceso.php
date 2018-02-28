@@ -409,9 +409,9 @@ EOT;
       <strong>Usuario comercial:</strong> {$r[usu_comercial_nombre]}
 <div id="campos_estado_vigente_{$r[ate_id]}"></div>
       <div>&nbsp;</div>
-<a class="btn btn-info" href="#" onclick="p_toggle_historico({$r[ate_secuencial]});return false;">Mostrar histórico</a>
-        <table id="tabla_historico_{$r[ate_secuencial]}" style="width:400px;display:none;" class="table table-striped table-condensed table-hover">
-        <tbody>
+<a class="btn btn-info" href="#" onclick="p_toggle_historico({$r[ate_id]});return false;">Mostrar histórico</a>
+        <table id="tabla_historico_{$r[ate_id]}" style="width:400px;display:none;" class="table table-striped table-condensed table-hover">
+        <tbody id="valores_historicos_{$r[ate_id]}">
 EOT;
 
         $sql = ("
@@ -1516,8 +1516,13 @@ function p_enviar_busqueda(target) {
     $(target).prop('action', '/proceso/0/' + busqueda);
 }
 
-function p_toggle_historico(ate_secuencial){
-    $('#tabla_historico_'+ate_secuencial).toggle();
+function p_toggle_historico(ate_id){
+    $('#tabla_historico_' + ate_id).toggle();
+    $.get('/_obtenerValoresHistoricos/' + ate_id, function(data){
+        console.log('/_obtenerValoresHistoricos/' + ate_id, data);
+        data = JSON.parse(data);
+        console.log('data', data);
+    });
 }
 
 function p_inicializar_autocompletar(id){

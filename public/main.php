@@ -58,7 +58,7 @@ $sql = ("
         OR 
         ate_usuario_comercial = $usu_id
     )
-    ORDER BY ate_creado
+    ORDER BY ate_creado DESC
 ");
     //AND tea_tiempo_alerta_horas > 0
 
