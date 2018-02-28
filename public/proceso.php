@@ -711,7 +711,8 @@ foreach($provincias as $provincia) {
     <div class="form-group">
       <label for="nod_sector" class="col-sm-<?=$col1?> control-label">Sector:</label>
       <div class="col-sm-<?=$col2?>">
-        <input <?=$cae_validacion?> class="form-control" id="nod_sector" name="nod_sector" placeholder="" value="" onblur="p_validar(this)">
+        <!--input <?=$cae_validacion?> class="form-control" id="nod_sector" name="nod_sector" placeholder="" value="" onblur="p_validar(this)"-->
+        <input class="form-control" id="nod_sector" name="nod_sector" placeholder="" value="" onblur="p_validar(this)">
       </div>
     </div>
 
