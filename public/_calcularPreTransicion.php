@@ -207,7 +207,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         $respuesta['emails'] = array(
             'cliente'     => $email_cliente
             , 'proveedor' => $email_proveedor
-            , 'usuario'   => $email_usuario_tecnico . ',' . $email_usuario_comercial . ',' . $email_usuario_responsable
+            , 'usuario'   => implode(',', array_filter(array($email_usuario_tecnico, $email_usuario_comercial,$email_usuario_responsable)))
         );
         /*
         $sql = ("
