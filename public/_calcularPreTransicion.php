@@ -159,11 +159,13 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             AND ate_id = $ate_id
         ")[0]['pep_contactos_adicionales'];
         $email_proveedor = '';
+        $glue = '';
         if (!empty($email_proveedor_adicionales)) {
             $contactos_adicionales = json_decode($email_proveedor_adicionales);
             if (!empty($contactos_adicionales) && is_array($contactos_adicionales)) {
                 foreach ($contactos_adicionales as $contacto_adicional) {
-                    $email_proveedor .= ',' . $contacto_adicional;
+                    $email_proveedor .= $glue . $contacto_adicional;
+                    $glue = ',';
                 }
             }
         }
