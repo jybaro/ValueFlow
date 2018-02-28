@@ -35,6 +35,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         $campos = (!isset($campos) || !is_array($campos)) ? array() : $campos;
         $campos_aun_no_confirmados = $campos;
 
+//var_dump($campos);
 //echo "[[2]]";
 
         //Se obtienen todos los campos que pertenecen a la transición de estado
@@ -43,9 +44,14 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         // es decir también trae los campos de las transiciones de todos los otros 
         // destinatarios (cliente, usuario, proveedor)
 
+        /*
         $extender_campos_anteriores = 1;
         require('_obtenerCampos.php');
         $campos = (!isset($campos) || !is_array($campos)) ? array() : $campos;
+         */
+        require('_obtenerValoresVigentes.php');
+        $valores_vigentes = $resultado;
+        //var_dump($valores_vigentes);
 //echo "[[3]]";
 
 //echo "[$sql]";
@@ -376,6 +382,175 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             ");
 
             if ($result_metadata_atencion) {
+                $campos_valores = array();
+
+                /*
+                //primera pasada de campos con valores históricos, para tener valores po defecto:
+                foreach ($campos as $campo) {
+                    $campos_valores[$campo['cae_codigo']] = $campo['valor'];
+                }
+                //segunda pasada de campos con valores históricos, para tener la referencia:
+                foreach ($campos as $campo) {
+                    $campos_valores[$campo['cae_codigo'] . '_HISTORICO'] = $campo['valor'];
+                }
+                 */
+                foreach($valores_vigentes as $valor_vigente){
+                    $campos_valores[$valor_vigente['codigo']] = $valor_vigente['valor'];
+                }
+                foreach($valores_vigentes as $valor_vigente){
+                    $campos_valores[$valor_vigente['codigo'] . '_HISTORICO'] = $valor_vigente['valor'];
+                }
+
+                //los campos no confirmados se hacen después para actualizar datos históricos:
+                foreach ($campos_aun_no_confirmados as $campo) {
+                    $campos_valores[$campo['cae_codigo']] = $campo['valor'];
+                }
+
+                //Agregando campos desde metadata de atencion:
+                //echo "[[RESULT METADATA ATENCION]]";
+                //var_dump($result_metadata_atencion);
+                //$result_metadata_atencion = $result_metadata_atencion[0];
+                foreach ($result_metadata_atencion[0] as $k => $v) {
+                    $campos_valores[strtoupper($k)] = $v;
+                }
+                //var_dump($campos_valores);
+                //Agregando contacto en sitio:
+                //
+                $ate_contacto_en_sitio = $campos_valores['ATE_CONTACTO_EN_SITIO']; 
+                //echo "[[$ate_contacto_en_sitio]]";
+                $result_contacto_en_sitio = q("SELECT * FROM sai_contacto WHERE con_borrado IS NULL AND con_id = $ate_contacto_en_sitio");
+                if ($result_contacto_en_sitio) {
+                    foreach ($result_contacto_en_sitio[0] as $k => $v) {
+                        $campos_valores['CONTACTO_EN_SITIO_' . strtoupper($k)] = $v;
+                    }
+                }
+                //var_dump($campos_valores);
+
+                if ($campos_valores['CLI_ES_PERSONA_JURIDICA'] == 1) {
+                    $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
+                    $nombre = $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'];
+                    $cedula = $campos_valores['CLI_REPRESENTANTE_LEGAL_CEDULA']; 
+                    $email = $campos_valores['CLI_REPRESENTANTE_LEGAL_EMAIL'];
+                    $domiciliado = $campos_valores['CLI_REPRESENTANTE_LEGAL_DOMICILIADO'];
+                    $canton = $campos_valores['CLI_REPRESENTANTE_LEGAL_CANTON'];
+                    $provincia = $campos_valores['CLI_REPRESENTANTE_LEGAL_PROVINCIA'];
+                    $campos_valores['CLIENTE_CONTRATO'] = <<<EOT
+$razon_social, representada por $nombre, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
+EOT;
+                } else {
+                    $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
+                    $ruc = $campos_valores['CLI_RUC'];
+                    $campos_valores['CLIENTE_CONTRATO'] = "$razon_social, con número de cédula/RUC $ruc";
+                }
+
+                if ($result_nodo) {
+                    foreach($result_nodo[0] as $k => $v) {
+                        $campos_valores['NODO_'.strtoupper($k)] = $v;
+                    }
+                }
+                if ($result_concentrador) {
+                    foreach($result_concentrador[0] as $k => $v) {
+                        $campos_valores['CONCENTRADOR_' . strtoupper($k)] = $v;
+                    }
+                }
+                if ($result_extremo) {
+                    foreach($result_extremo[0] as $k => $v) {
+                        $campos_valores['EXTREMO_' . strtoupper($k)] = $v;
+                        $campos_valores['NODO_' . strtoupper($k)] = $v;
+                    }
+                }
+                //Agregando campos automaticos:
+                $campos_valores['FECHA'] = p_formatear_fecha(null, true);
+                $campos_valores['NOW'] = p_formatear_fecha();
+                $campos_valores['IDENTIFICADOR'] = isset($campos_valores['IDENTIFICADOR']) ? $campos_valores['IDENTIFICADOR'] : $campos_valores['ATE_SECUENCIAL']; 
+                $campos_valores['SERVICIO'] = strtoupper($campos_valores['SER_NOMBRE']);
+                $campos_valores['EQUIS_DATOS'] = ($campos_valores['SERVICIO'] == 'DATOS') ? 'X' : '';
+                $campos_valores['EQUIS_INTERNET'] = ($campos_valores['SERVICIO'] == 'INTERNET') ? 'X' : '';
+
+                $campos_valores['ID'] = $campos_valores['ATE_CODIGO'];
+                $campos_valores['LOGIN'] = $campos_valores['ATE_CODIGO'];
+                $campos_valores['ID_SERVICIO'] = $campos_valores['ATE_CODIGO'];
+                $campos_valores['LOGIN_SERVICIO'] = $campos_valores['ATE_CODIGO'];
+                $campos_valores['ID_ORDEN_SERVICIO'] = $campos_valores['ATE_CODIGO'];
+
+                $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
+
+                $iniciales = '';
+                $nombre = $campos_valores['CON_NOMBRES'] . ' ' . $campos_valores['CON_APELLIDOS'];
+                $nombre = explode(' ', $nombre);
+                foreach ($nombre as $parte) {
+                    $iniciales .= $parte[0];
+                }
+                $iniciales = strtoupper($iniciales);
+
+                $campos_valores['INICIALES_CLIENTE'] = $iniciales;
+
+
+
+
+
+
+
+                ///////////////
+                // Capacidades:
+                //
+
+                $campos_valores['CAPACIDAD'] = $campos_valores['CAPACIDAD_CONTRATADA'];
+                $campos_valores['NUEVA_CAPACIDAD'] = $campos_valores['CAPACIDAD_SOLICITADA'];
+
+                //$campos_valores['FALTANTE_CAPACIDAD_CONTRATADA'] = ($campos_valores['CAPACIDAD_CONTRATADA'] < $campos_valores['CAPACIDAD_FACTURADA']) ? ($campos_valores['CAPACIDAD_FACTURADA'] - $campos_valores['CAPACIDAD_CONTRATADA']) : 0;
+                $campos_valores['FALTANTE_CAPACIDAD_CONTRATADA'] = ($campos_valores['CAPACIDAD_CONTRATADA'] < $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_SOLICITADA'] - $campos_valores['CAPACIDAD_CONTRATADA']) : 0;
+                $campos_valores['FALTANTE_CAPACIDAD_FACTURADA'] = ($campos_valores['CAPACIDAD_FACTURADA'] < $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_SOLICITADA'] - $campos_valores['CAPACIDAD_FACTURADA']) : 0;
+
+                $campos_valores['SOBRANTE_CAPACIDAD_CONTRATADA'] = ($campos_valores['CAPACIDAD_CONTRATADA'] > $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_CONTRATADA'] - $campos_valores['CAPACIDAD_SOLICITADA']) : 0;
+                $campos_valores['SOBRANTE_CAPACIDAD_FACTURADA'] = ($campos_valores['CAPACIDAD_FACTURADA'] > $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_FACTURADA'] - $campos_valores['CAPACIDAD_SOLICITADA']) : 0;
+
+                $campos_valores['CAPACIDAD_ACTUAL'] = $campos_valores['CAPACIDAD_FACTURADA_HISTORICO'];
+
+
+
+                ///////////
+                // Precios:
+                //
+                $iva = q("SELECT cat_texto FROM sai_catalogo WHERE cat_codigo='iva'")[0]['cat_texto']; 
+                $campos_valores['PRECIO_CAPACIDAD_CONTRATADA'] = $campos_valores['CAPACIDAD_CONTRATADA'] * $campos_valores['PRECIO_MB'];
+                $campos_valores['PRECIO_CAPACIDAD_FACTURADA']  = $campos_valores['CAPACIDAD_FACTURADA']  * $campos_valores['PRECIO_MB'];
+                $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'] = $campos_valores['CAPACIDAD_SOLICITADA'] * $campos_valores['PRECIO_MB'];
+
+                $campos_valores['PRECIO_CAPACIDAD'] = $campos_valores['PRECIO_CAPACIDAD_CONTRATADA'];
+                $campos_valores['PRECIO_MENSUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
+                $campos_valores['PRECIO_BW'] = $campos_valores['PRECIO_CAPACIDAD'];
+                $campos_valores['PRECIO_BW_SOLICITADA'] = $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'];
+                $campos_valores['PRECIO_ACTUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
+
+                //reemplaza los costos de instalacion de los nodos (nodo_nod_costo_) por los de la atención (nodo_costo_):
+                if (isset($campos_valores['NODO_COSTO_INSTALACION_CLIENTE']) || isset($campos_valores['EXTREMO_COSTO_INSTALACION_CLIENTE'])) {
+                    $campos_valores['EXTREMO_NOD_COSTO_INSTALACION_CLIENTE'] = isset($campos_valores['NODO_COSTO_INSTALACION_CLIENTE']) ? $campos_valores['NODO_COSTO_INSTALACION_CLIENTE'] : $campos_valores['EXTREMO_COSTO_INSTALACION_CLIENTE'] ;
+                }
+                if (isset($campos_valores['CONCENTRADOR_COSTO_INSTALACION_CLIENTE'])) {
+                    $campos_valores['CONCENTRADOR_NOD_COSTO_INSTALACION_CLIENTE'] = $campos_valores['CONCENTRADOR_COSTO_INSTALACION_CLIENTE'];
+                }
+                $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'] = $campos_valores['EXTREMO_NOD_COSTO_INSTALACION_CLIENTE'];
+
+                $campos_valores['PRECIO_INSTALACION'] = isset($campos_valores['PRECIO_INSTALACION']) ? $campos_valores['PRECIO_INSTALACION'] : $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
+                //$campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
+                $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD_FACTURADA'] + $campos_valores['PRECIO_INSTALACION'];
+                $campos_valores['IVA_SERVICIO'] = round($campos_valores['SUBTOTAL_SERVICIO'] * $iva, 2);
+                $campos_valores['TOTAL_SERVICIO'] = $campos_valores['SUBTOTAL_SERVICIO'] + $campos_valores['IVA_SERVICIO'];
+
+                $campos_valores['IVA_INSTALACION'] = round($campos_valores['PRECIO_INSTALACION'] * $iva, 2);
+                $campos_valores['TOTAL_INSTALACION'] = $campos_valores['PRECIO_INSTALACION'] + $campos_valores['IVA_INSTALACION'];
+
+                $campos_valores['IVA_MENSUAL'] = round($campos_valores['PRECIO_CAPACIDAD'] * $iva, 2);
+                $campos_valores['TOTAL_MENSUAL'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['IVA_MENSUAL'];
+
+                $campos_valores['IVA_MENSUAL_SOLICITADO'] = round($campos_valores['PRECIO_CAPACIDAD_SOLICITADA'] * $iva, 2);
+                $campos_valores['TOTAL_MENSUAL_SOLICITADO'] = $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'] + $campos_valores['IVA_MENSUAL_SOLICITADO'];
+
+                
+                $campos_valores['PRECIO_TOTAL'] = (isset($campos_valores['CAPACIDAD_FACTURADA'])?$campos_valores['CAPACIDAD_FACTURADA'] : 0) * (isset($campos_valores['PRECIO_MB'])?$campos_valores['PRECIO_MB'] : 0);
+
+                //var_dump($campos_valores);
 
                 foreach ($result_contenido as $rc) {
                     //$tea_id = $rc['tea_id'];
@@ -407,167 +582,6 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     $respuesta['plantillas'][$pla_id]['adjuntos'] = $adjuntos_plantilla;
                     $respuesta['plantillas'][$pla_id]['campos'] = array();
 
-                    $campos_valores = array();
-
-                    //primera pasada de campos con valores históricos, para tener valores po defecto:
-                    foreach ($campos as $campo) {
-                        $campos_valores[$campo['cae_codigo']] = $campo['valor'];
-                    }
-                    //segunda pasada de campos con valores históricos, para tener la referencia:
-                    foreach ($campos as $campo) {
-                        $campos_valores[$campo['cae_codigo'] . '_HISTORICO'] = $campo['valor'];
-                    }
-
-                    //los campos no confirmados se hacen después para actualizar datos históricos:
-                    foreach ($campos_aun_no_confirmados as $campo) {
-                        $campos_valores[$campo['cae_codigo']] = $campo['valor'];
-                    }
-
-                    //Agregando campos desde metadata de atencion:
-                    //echo "[[RESULT METADATA ATENCION]]";
-                    //var_dump($result_metadata_atencion);
-                    //$result_metadata_atencion = $result_metadata_atencion[0];
-                    foreach ($result_metadata_atencion[0] as $k => $v) {
-                        $campos_valores[strtoupper($k)] = $v;
-                    }
-                    //var_dump($campos_valores);
-                    //Agregando contacto en sitio:
-                    //
-                    $ate_contacto_en_sitio = $campos_valores['ATE_CONTACTO_EN_SITIO']; 
-                    //echo "[[$ate_contacto_en_sitio]]";
-                    $result_contacto_en_sitio = q("SELECT * FROM sai_contacto WHERE con_borrado IS NULL AND con_id = $ate_contacto_en_sitio");
-                    if ($result_contacto_en_sitio) {
-                        foreach ($result_contacto_en_sitio[0] as $k => $v) {
-                            $campos_valores['CONTACTO_EN_SITIO_' . strtoupper($k)] = $v;
-                        }
-                    }
-                    //var_dump($campos_valores);
-
-                    if ($campos_valores['CLI_ES_PERSONA_JURIDICA'] == 1) {
-                        $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
-                        $nombre = $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'];
-                        $cedula = $campos_valores['CLI_REPRESENTANTE_LEGAL_CEDULA']; 
-                        $email = $campos_valores['CLI_REPRESENTANTE_LEGAL_EMAIL'];
-                        $domiciliado = $campos_valores['CLI_REPRESENTANTE_LEGAL_DOMICILIADO'];
-                        $canton = $campos_valores['CLI_REPRESENTANTE_LEGAL_CANTON'];
-                        $provincia = $campos_valores['CLI_REPRESENTANTE_LEGAL_PROVINCIA'];
-                        $campos_valores['CLIENTE_CONTRATO'] = <<<EOT
-$razon_social, representada por $nombre, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
-EOT;
-                    } else {
-                        $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
-                        $ruc = $campos_valores['CLI_RUC'];
-                        $campos_valores['CLIENTE_CONTRATO'] = "$razon_social, con número de cédula/RUC $ruc";
-                    }
-
-                    if ($result_nodo) {
-                        foreach($result_nodo[0] as $k => $v) {
-                            $campos_valores['NODO_'.strtoupper($k)] = $v;
-                        }
-                    }
-                    if ($result_concentrador) {
-                        foreach($result_concentrador[0] as $k => $v) {
-                            $campos_valores['CONCENTRADOR_' . strtoupper($k)] = $v;
-                        }
-                    }
-                    if ($result_extremo) {
-                        foreach($result_extremo[0] as $k => $v) {
-                            $campos_valores['EXTREMO_' . strtoupper($k)] = $v;
-                            $campos_valores['NODO_' . strtoupper($k)] = $v;
-                        }
-                    }
-                    //Agregando campos automaticos:
-                    $campos_valores['FECHA'] = p_formatear_fecha(null, true);
-                    $campos_valores['NOW'] = p_formatear_fecha();
-                    $campos_valores['IDENTIFICADOR'] = isset($campos_valores['IDENTIFICADOR']) ? $campos_valores['IDENTIFICADOR'] : $campos_valores['ATE_SECUENCIAL']; 
-                    $campos_valores['SERVICIO'] = strtoupper($campos_valores['SER_NOMBRE']);
-                    $campos_valores['EQUIS_DATOS'] = ($campos_valores['SERVICIO'] == 'DATOS') ? 'X' : '';
-                    $campos_valores['EQUIS_INTERNET'] = ($campos_valores['SERVICIO'] == 'INTERNET') ? 'X' : '';
-
-                    $campos_valores['ID'] = $campos_valores['ATE_CODIGO'];
-                    $campos_valores['LOGIN'] = $campos_valores['ATE_CODIGO'];
-                    $campos_valores['ID_SERVICIO'] = $campos_valores['ATE_CODIGO'];
-                    $campos_valores['LOGIN_SERVICIO'] = $campos_valores['ATE_CODIGO'];
-                    $campos_valores['ID_ORDEN_SERVICIO'] = $campos_valores['ATE_CODIGO'];
-
-                    $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
-
-                    $iniciales = '';
-                    $nombre = $campos_valores['CON_NOMBRES'] . ' ' . $campos_valores['CON_APELLIDOS'];
-                    $nombre = explode(' ', $nombre);
-                    foreach ($nombre as $parte) {
-                        $iniciales .= $parte[0];
-                    }
-                    $iniciales = strtoupper($iniciales);
-
-                    $campos_valores['INICIALES_CLIENTE'] = $iniciales;
-
-
-
-
-
-
-
-                    ///////////////
-                    // Capacidades:
-                    //
-
-                    $campos_valores['CAPACIDAD'] = $campos_valores['CAPACIDAD_CONTRATADA'];
-                    $campos_valores['NUEVA_CAPACIDAD'] = $campos_valores['CAPACIDAD_SOLICITADA'];
-
-                    //$campos_valores['FALTANTE_CAPACIDAD_CONTRATADA'] = ($campos_valores['CAPACIDAD_CONTRATADA'] < $campos_valores['CAPACIDAD_FACTURADA']) ? ($campos_valores['CAPACIDAD_FACTURADA'] - $campos_valores['CAPACIDAD_CONTRATADA']) : 0;
-                    $campos_valores['FALTANTE_CAPACIDAD_CONTRATADA'] = ($campos_valores['CAPACIDAD_CONTRATADA'] < $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_SOLICITADA'] - $campos_valores['CAPACIDAD_CONTRATADA']) : 0;
-                    $campos_valores['FALTANTE_CAPACIDAD_FACTURADA'] = ($campos_valores['CAPACIDAD_FACTURADA'] < $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_SOLICITADA'] - $campos_valores['CAPACIDAD_FACTURADA']) : 0;
-
-                    $campos_valores['SOBRANTE_CAPACIDAD_CONTRATADA'] = ($campos_valores['CAPACIDAD_CONTRATADA'] > $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_CONTRATADA'] - $campos_valores['CAPACIDAD_SOLICITADA']) : 0;
-                    $campos_valores['SOBRANTE_CAPACIDAD_FACTURADA'] = ($campos_valores['CAPACIDAD_FACTURADA'] > $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_FACTURADA'] - $campos_valores['CAPACIDAD_SOLICITADA']) : 0;
-
-                    $campos_valores['CAPACIDAD_ACTUAL'] = $campos_valores['CAPACIDAD_FACTURADA_HISTORICO'];
-
-
-
-                    ///////////
-                    // Precios:
-                    //
-                    $iva = q("SELECT cat_texto FROM sai_catalogo WHERE cat_codigo='iva'")[0]['cat_texto']; 
-                    $campos_valores['PRECIO_CAPACIDAD_CONTRATADA'] = $campos_valores['CAPACIDAD_CONTRATADA'] * $campos_valores['PRECIO_MB'];
-                    $campos_valores['PRECIO_CAPACIDAD_FACTURADA']  = $campos_valores['CAPACIDAD_FACTURADA']  * $campos_valores['PRECIO_MB'];
-                    $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'] = $campos_valores['CAPACIDAD_SOLICITADA'] * $campos_valores['PRECIO_MB'];
-
-                    $campos_valores['PRECIO_CAPACIDAD'] = $campos_valores['PRECIO_CAPACIDAD_CONTRATADA'];
-                    $campos_valores['PRECIO_MENSUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
-                    $campos_valores['PRECIO_BW'] = $campos_valores['PRECIO_CAPACIDAD'];
-                    $campos_valores['PRECIO_BW_SOLICITADA'] = $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'];
-                    $campos_valores['PRECIO_ACTUAL'] = $campos_valores['PRECIO_CAPACIDAD'];
-
-                    //reemplaza los costos de instalacion de los nodos (nodo_nod_costo_) por los de la atención (nodo_costo_):
-                    if (isset($campos_valores['NODO_COSTO_INSTALACION_CLIENTE']) || isset($campos_valores['EXTREMO_COSTO_INSTALACION_CLIENTE'])) {
-                        $campos_valores['EXTREMO_NOD_COSTO_INSTALACION_CLIENTE'] = isset($campos_valores['NODO_COSTO_INSTALACION_CLIENTE']) ? $campos_valores['NODO_COSTO_INSTALACION_CLIENTE'] : $campos_valores['EXTREMO_COSTO_INSTALACION_CLIENTE'] ;
-                    }
-                    if (isset($campos_valores['CONCENTRADOR_COSTO_INSTALACION_CLIENTE'])) {
-                        $campos_valores['CONCENTRADOR_NOD_COSTO_INSTALACION_CLIENTE'] = $campos_valores['CONCENTRADOR_COSTO_INSTALACION_CLIENTE'];
-                    }
-                    $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'] = $campos_valores['EXTREMO_NOD_COSTO_INSTALACION_CLIENTE'];
-
-                    $campos_valores['PRECIO_INSTALACION'] = isset($campos_valores['PRECIO_INSTALACION']) ? $campos_valores['PRECIO_INSTALACION'] : $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
-                    //$campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
-                    $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD_FACTURADA'] + $campos_valores['PRECIO_INSTALACION'];
-                    $campos_valores['IVA_SERVICIO'] = round($campos_valores['SUBTOTAL_SERVICIO'] * $iva, 2);
-                    $campos_valores['TOTAL_SERVICIO'] = $campos_valores['SUBTOTAL_SERVICIO'] + $campos_valores['IVA_SERVICIO'];
-
-                    $campos_valores['IVA_INSTALACION'] = round($campos_valores['PRECIO_INSTALACION'] * $iva, 2);
-                    $campos_valores['TOTAL_INSTALACION'] = $campos_valores['PRECIO_INSTALACION'] + $campos_valores['IVA_INSTALACION'];
-
-                    $campos_valores['IVA_MENSUAL'] = round($campos_valores['PRECIO_CAPACIDAD'] * $iva, 2);
-                    $campos_valores['TOTAL_MENSUAL'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['IVA_MENSUAL'];
-
-                    $campos_valores['IVA_MENSUAL_SOLICITADO'] = round($campos_valores['PRECIO_CAPACIDAD_SOLICITADA'] * $iva, 2);
-                    $campos_valores['TOTAL_MENSUAL_SOLICITADO'] = $campos_valores['PRECIO_CAPACIDAD_SOLICITADA'] + $campos_valores['IVA_MENSUAL_SOLICITADO'];
-
-                    
-                    $campos_valores['PRECIO_TOTAL'] = (isset($campos_valores['CAPACIDAD_FACTURADA'])?$campos_valores['CAPACIDAD_FACTURADA'] : 0) * (isset($campos_valores['PRECIO_MB'])?$campos_valores['PRECIO_MB'] : 0);
-
-                    //var_dump($campos_valores);
                     $search = array();
                     $replace = array();
                     foreach($campos_valores as $c => $v) {

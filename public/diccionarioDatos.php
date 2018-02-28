@@ -15,6 +15,7 @@ if (empty($tabla)) {
     $count_campo = 0;
     echo "<div id='diccionario'>";
     echo "<h1>Diccionario de datos</h1>";
+    echo "<table>";
 
     foreach($result as $r){
         if ($table_name != $r['table_name']) {
@@ -24,7 +25,8 @@ if (empty($tabla)) {
             $count_registros = q("SELECT COUNT(*) FROM $table_name")[0]['count'];
             $agregar_fin_tabla = true;
             echo "</table>";
-            echo "$table_name";
+            echo "<hr>";
+            echo "<div>$table_name</div>";
             echo "<table xxxclass='table table-striped table-condensed table-hover'>";
             echo "<tr><th>&nbsp;</th><th>Campo</th><th>Tipo</th><th>Opcional</th><th>Valor por defecto</th></tr>";
         }
@@ -40,6 +42,7 @@ if (empty($tabla)) {
         //var_dump($r);
 
     }
+    echo "</table>";
     echo "</div>xxx";
 }
 ?>

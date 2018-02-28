@@ -1,8 +1,16 @@
 <?php
 
 $resultado = array();
-if (isset($args[0]) && !empty($args[0])) {
+$json = true;
+if (isset($ate_id)) {
+    $json = false;
+} else if (isset($args[0]) && !empty($args[0])) {
     $ate_id = intval($args[0]);
+} else {
+    $ate_id = null;
+}
+
+if (!empty($ate_id)) {
     $codigos = array();
 
     $result = q("
@@ -63,7 +71,7 @@ if (isset($args[0]) && !empty($args[0])) {
                 $valor_detallado = (empty($nodo) && empty($ciudad)) ? $valor : $nodo . $ciudad;
 
                 $codigos[$r['cae_codigo']] = array(
-                    'codigo' => $codigo
+                    'codigo' => $r[cae_codigo]
                     , 'etiqueta' => $etiqueta
                     , 'valor' => $valor
                     , 'valor_detallado' => $valor_detallado
@@ -90,4 +98,7 @@ if (isset($args[0]) && !empty($args[0])) {
     //$resultado = array_values($codigos);
     $resultado = array_values($codigos_nuevo_orden);
 }
-echo json_encode($resultado);
+
+if ($json) {
+    echo json_encode($resultado);
+}

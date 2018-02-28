@@ -12,11 +12,26 @@ require_once($ruta . 'vendor/autoload.php');
 
 $result = q("
     SELECT *
+    ,(
+        SELECT usu_correo_electronico
+        FROM sai_usuario
+        WHERE usu_borrado IS NULL
+        AND usu_id = ate_usuario_tecnico
+    ) AS email_tecnico
+    ,(
+        SELECT usu_correo_electronico
+        FROM sai_usuario
+        WHERE usu_borrado IS NULL
+        AND usu_id = ate_usuario_comercial
+    ) AS email_comercial
     FROM sai_transicion_estado_atencion
     ,sai_paso_atencion
+    ,sai_atencion
     WHERE tea_borrado IS NULL
     AND paa_borrado IS NULL
+    AND ate_borrado IS NULL
     AND paa_transicion_estado_atencion = tea_id
+    AND paa_atencion = ate_id
     AND paa_paso_anterior IS NULL
     AND tea_tiempo_alerta_horas > 0
     AND paa_contador_alerta >= tea_tiempo_alerta_horas;
@@ -38,7 +53,8 @@ if ($result) {
         $mensaje = $r[paa_cuerpo];
         $mensaje = empty($mensaje) ? $asunto : $mensaje;
 
-        $emails = $r[paa_destinatarios];
+        //$emails = $r[paa_destinatarios];
+        $emails = $r['email_comercial'] . ',' . $r['email_tecnico'];
         $emails = explode(',', $emails);
 
         $adjuntos = $r[paa_adjuntos];
