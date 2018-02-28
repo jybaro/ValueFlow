@@ -60,7 +60,12 @@ if (!empty($ate_id)) {
         ORDER BY paa_id DESC, cae_orden
     ");
 
-    $resultado = $result;
+
+    if ($result) {
+        foreach ($result as $r) {
+            $resultado[$r['paa_id']][$r['vae_id']] = $r;
+        }
+    }
 }
 
 if ($json) {

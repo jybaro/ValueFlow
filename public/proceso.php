@@ -1503,7 +1503,7 @@ function p_abrir_detalle_nodo(nod_id){
             $('#detalle_nodo_ciudad').text(nodo['ciu_nombre']);
 
             $('#detalle_nodo_direccion').text(nodo['ubi_direccion']);
-            $('#detalle_nodo_sector').text(nodo['ubi_sector']);
+            $('#detalle_nodo_sector').text(nodo['ubi_sector'] == 'null' ? '' : nodo['ubi_sector']);
             $('#detalle_nodo_longitud').text(nodo['ubi_longitud']);
             $('#detalle_nodo_latitud').text(nodo['ubi_latitud']);
 
@@ -1523,6 +1523,8 @@ function p_toggle_historico(ate_id){
         console.log('/_obtenerValoresHistoricos/' + ate_id, data);
         data = JSON.parse(data);
         console.log('data', data);
+        if (data) {
+        }
     });
 }
 
