@@ -54,7 +54,8 @@ if ($result) {
         $mensaje = empty($mensaje) ? $asunto : $mensaje;
 
         //$emails = $r[paa_destinatarios];
-        $emails = $r['email_comercial'] . ',' . $r['email_tecnico'];
+        //$emails = $r['email_comercial'] . ',' . $r['email_tecnico'];
+        $emails = $r['email_tecnico'];
         $emails = explode(',', $emails);
 
         $adjuntos = $r[paa_adjuntos];
