@@ -6,15 +6,15 @@ define('SMTP_SERVER_ZENIX', 'mail.zenix.com.ec');
 define('SMTP_PORT_ZENIX', 587);
 define('SMTP_USERNAME_ZENIX', 'sait@zenix.com.ec');
 define('SMTP_PASSWORD_ZENIX', 'n3D1$207*');
+define('MAIL_ORDERS_ADDRESS_ZENIX', 'sait@zenix.com.ec');
 
 define('SMTP_SERVER', 'mail.nedetel.net');
 define('SMTP_PORT', 587);
 define('SMTP_USERNAME', 'sait@nedetel.net');
 define('SMTP_PASSWORD', 'n3D1$207*');
-
 define('MAIL_ORDERS_ADDRESS', 'sait@nedetel.net');
-define('MAIL_ORDERS_NAME', 'SAIT');
 
+define('MAIL_ORDERS_NAME', 'SAIT');
 define('MAIL_COPY_ALL_ADDRESS', 'soporte@nedetel.net');
 define('MAIL_COPY_ALL_NAME', 'Soporte');
 

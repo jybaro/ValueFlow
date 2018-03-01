@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="/css/select2.min.css">
 <link rel="stylesheet" href="/css/jquery.dataTables.min.css">
 
-<title><?=ucfirst(str_replace('_', ' ', $nedetel_objeto))?></title>
+<title><?=ucfirst(str_replace('_', ' ', $nedetel_objeto))?> - <?=$_SESSION['username']?> - SAIT</title>
 
 <style>
 html {

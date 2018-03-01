@@ -10,6 +10,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
     $ate_id = $_POST['ate_id'];
     $estado_siguiente_id = $_POST['estado_siguiente_id'];
 
+
     $result_destinatarios = q("
         SELECT des_nombre FROM sai_destinatario
     ");
@@ -43,6 +44,26 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 }
             }
 
+            $es_zenix = false;
+            $result_proveedor = q("
+                SELECT * 
+                FROM sai_proveedor
+                ,sai_atencion
+                ,sai_pertinencia_proveedor
+                WHERE pro_borrado IS NULL
+                AND ate_borrado IS NULL
+                AND pep_borrado IS NULL
+                AND ate_pertinencia_proveedor = pep_id
+                AND pep_proveedor = pro_id
+                AND ate_id = $ate_id
+            ");
+            if ($result_proveedor) {
+                $r = $result_proveedor[0];
+                if ($r['pro_ruc'] === '1768152560001' || $r['pro_razon_social'] === 'CNT' || $r['pro_nombre_comercial'] === 'CNT') {
+
+                    $es_zenix = true;
+                }
+            }
 
             try {
                 //MAIL
@@ -52,12 +73,22 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 $mail->IsSMTP();
                 $mail->SMTPSecure = 'tls';
                 $mail->SMTPAuth = true;
-                $mail->Host = SMTP_SERVER;
-                $mail->Port = SMTP_PORT;
-                $mail->Username = SMTP_USERNAME;
-                $mail->Password = SMTP_PASSWORD;
+
+                if ($es_zenix) {
+                    $mail->Host = SMTP_SERVER_ZENIX;
+                    $mail->Port = SMTP_PORT_ZENIX;
+                    $mail->Username = SMTP_USERNAME_ZENIX;
+                    $mail->Password = SMTP_PASSWORD_ZENIX;
+                    $mail->SetFrom(MAIL_ORDERS_ADDRESS_ZENIX, MAIL_ORDERS_NAME);
+                } else {
+                    $mail->Host = SMTP_SERVER;
+                    $mail->Port = SMTP_PORT;
+                    $mail->Username = SMTP_USERNAME;
+                    $mail->Password = SMTP_PASSWORD;
+                    $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
+                }
+
                 //$mail->SMTPDebug = 2;
-                $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
                 if (!empty($cc)) {
                     $mail->addCC($cc);
                 }
