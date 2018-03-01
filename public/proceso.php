@@ -409,7 +409,8 @@ EOT;
       <strong>Usuario comercial:</strong> {$r[usu_comercial_nombre]}
 <div id="campos_estado_vigente_{$r[ate_id]}"></div>
       <div>&nbsp;</div>
-<a class="btn btn-info" href="#" onclick="p_toggle_historico({$r[ate_id]});return false;">Mostrar histórico</a>
+<a class="btn btn-info" href="#" onclick="p_toggle_historico({$r[ate_id]}, {$r[ate_secuencial]});return false;">Mostrar historial</a>
+<!--
         <table id="tabla_historico_{$r[ate_id]}" style="width:400px;display:none;" class="table table-striped table-condensed table-hover">
         <tbody id="valores_historicos_{$r[ate_id]}">
 EOT;
@@ -464,7 +465,8 @@ EOT;
             //AND NOT paa_paso_anterior IS NULL//reemplazado por confirmado
 
             //AND paa_borrado IS NULL // ya agregado...
-        $result_campos = q($sql);
+        //$result_campos = q($sql);
+        /*
         if ($result_campos) {
             $paa = null;
             foreach($result_campos as $rdato){
@@ -501,9 +503,11 @@ EOT;
 EOT;
             }
         }
-        echo '</tbody></table>';
+         */
         //echo "$sql";
         echo <<<EOT
+        </tbody></table>
+-->
       <div>&nbsp;</div>
     </div>
   </div>
@@ -819,6 +823,27 @@ foreach($provincias as $provincia) {
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-success" onclick="p_crear_nodo()" id="boton_crear_nodo">Crear punto y regresar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<div id="modal_historial" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-nuevo-title">Historial de <?=isset($titulo_proceso_singular)?$titulo_proceso_singular:'atención'?> <span id="historial_titulo"></span></h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-horizontal" id="contenido_historial">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -1465,6 +1490,19 @@ $(document).ready(function() {
     });
 });
 
+function p_abrir_detalle_nodo_desde_historial(ate_id, nod_id){
+    $('#modal_historial').modal('hide');
+    $('#modal_historial').on('hidden.bs.modal', function () {
+
+        $('#modal_historial').off('hidden.bs.modal');
+        $('#modal_detalle_nodo').on('hidden.bs.modal', function () {
+            $('#modal_historial').modal('show');
+            $('#modal_detalle_nodo').off('hidden.bs.modal');
+        });
+        p_abrir_detalle_nodo(nod_id);
+    });
+}
+
 function p_abrir_detalle_nodo(nod_id){
     console.log('En p_abrir_detalle_nodo', nod_id);
     $.get('/_obtenerNodo/' + nod_id, function(data){
@@ -1517,13 +1555,83 @@ function p_enviar_busqueda(target) {
     $(target).prop('action', '/proceso/0/' + busqueda);
 }
 
-function p_toggle_historico(ate_id){
+function p_toggle_historico(ate_id, ate_secuencial){
     $('#tabla_historico_' + ate_id).toggle();
     $.get('/_obtenerValoresHistoricos/' + ate_id, function(data){
         console.log('/_obtenerValoresHistoricos/' + ate_id, data);
         data = JSON.parse(data);
         console.log('data', data);
         if (data) {
+            var contenido = '';
+            contenido += '' +
+                '<table id="tabla_dinamica_historial" class="table">' +
+                '<thead><tr>'+
+                '<th>Fecha</th>'+
+                '<th>Usuario</th>'+
+                '<th>Estado</th>'+
+                '<th>Campo</th>'+
+                '<th>Valor</th>'+
+                '</tr></thead>'+
+                '<tbody>'+
+                '';
+            data.forEach(function(d){
+                var label = d['cae_texto'];
+                var dato = '';
+                if (d['nodo']) {
+                    var nod_id = d['vae_nodo'];
+                    dato += ''+
+                        '<a href="#" onclick="p_abrir_detalle_nodo_desde_historial('+ate_id+','+nod_id+');return false;">'+d['nodo']+'</a>'+
+                        '';
+                } else {
+                    dato = [d['valor'], d['ciudad']].join('') ;
+                }
+                contenido += '' +
+                    '<tr>'+
+                    '<td style="text-align:center;">'+d['fecha']+'</td>'+
+                    '<td style="text-align:center;">'+d['usu_nombres']+' '+d['usu_apellidos']+'</td>'+
+                    '<td style="text-align:center;">'+d['esa_nombre']+'</td>'+
+                    '<td style="text-align:right;">'+label+':</td>'+
+                    '<td style="text-align:center;">'+dato+'</td>'+
+                    '</tr>'+
+                    '';
+                console.log(d['vae_creado']);
+            });
+            contenido += '' +
+                '</tbody>' +
+                '</table>' +
+                '';
+
+            $('#contenido_historial').html(contenido);
+            $('#historial_titulo').text(ate_secuencial);
+
+            $('#tabla_dinamica_historial').DataTable({ 
+                language: {
+                    "sProcessing":     "Procesando...",
+                    "sLengthMenu":     "Mostrar _MENU_ registros",
+                    "sZeroRecords":    "No se encontraron resultados",
+                    "sEmptyTable":     "Ningún dato disponible en esta tabla",
+                    "sInfo":           "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                    "sInfoEmpty":      "Mostrando registros del 0 al 0 de un total de 0 registros",
+                    "sInfoFiltered":   "(filtrado de un total de _MAX_ registros)",
+                    "sInfoPostFix":    "",
+                    "sSearch":         "Buscar:",
+                    "sUrl":            "",
+                    "sInfoThousands":  ",",
+                    "sLoadingRecords": "Cargando...",
+                    "oPaginate": {
+                        "sFirst":    "Primero",
+                        "sLast":     "Último",
+                        "sNext":     "Siguiente",
+                        "sPrevious": "Anterior"
+                    },
+                    "oAria": {
+                        "sSortAscending":  ": Activar para ordenar la columna de manera ascendente",
+                        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                    },
+                },
+                "order": [[ 0, "desc" ]]
+            });
+            $('#modal_historial').modal('show');
         }
     });
 }

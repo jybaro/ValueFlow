@@ -38,6 +38,7 @@ if (!empty($ate_id)) {
             ciu_borrado IS NULL
             AND ciu_id = vae_ciudad
         ) AS ciudad
+        ,to_char(vae_creado, 'yyyy-MM-DD hh:mm') AS fecha
         FROM sai_campo_extra
         ,sai_paso_atencion
         ,sai_valor_extra
@@ -57,15 +58,12 @@ if (!empty($ate_id)) {
         AND tea_estado_atencion_actual = esa_id
         AND paa_atencion = {$ate_id}
         AND NOT paa_confirmado IS NULL
-        ORDER BY paa_id DESC, cae_orden
+        ORDER BY vae_creado DESC, cae_orden
     ");
 
+    //var_dump($result);
 
-    if ($result) {
-        foreach ($result as $r) {
-            $resultado[$r['paa_id']][$r['vae_id']] = $r;
-        }
-    }
+    $resultado = $result;
 }
 
 if ($json) {
