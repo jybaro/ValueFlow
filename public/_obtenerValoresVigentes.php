@@ -15,7 +15,7 @@ if (!empty($ate_id)) {
 
     $result = q("
         SELECT *
-        ,concat(vae_texto, vae_numero, to_char(vae_fecha, 'yyyy-MM-dd'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) AS valor
+        ,concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) AS valor
     , (
         SELECT nod_codigo
         FROM 

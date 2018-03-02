@@ -14,8 +14,8 @@ if (!empty($nod_id)) {
             WHERE usu_borrado IS NULL
             AND usu_id = nod_creado_por
         ) AS usuario
-        ,to_char(nod_creado, 'YYYY-mm-dd') AS fecha_creacion
-        ,to_char(nod_fecha_termino, 'YYYY-mm-dd') AS fecha_termino
+        ,to_char(nod_creado, 'YYYY-MM-DD') AS fecha_creacion
+        ,to_char(nod_fecha_termino, 'YYYY-MM-DD') AS fecha_termino
         ,(
             SELECT tum_nombre
             FROM sai_tipo_ultima_milla

@@ -253,6 +253,14 @@ $sql = ("
     ,e2.esa_orden AS estado_siguiente_orden
     ,(usu_tecnico.usu_nombres || ' ' || usu_tecnico.usu_apellidos) AS usu_tecnico_nombre
     ,(usu_comercial.usu_nombres || ' ' || usu_comercial.usu_apellidos) AS usu_comercial_nombre
+    ,(
+        SELECT to_char(paa_creado, 'YYYY-MM-DD ')
+        FROM sai_paso_atencion
+        WHERE paa_borrado IS NULL
+        AND paa_atencion = ate_id
+        ORDER BY paa_creado DESC
+        LIMIT 1 
+    ) AS fecha_vigencia
 
     FROM sai_atencion
 
@@ -407,6 +415,8 @@ EOT;
       <strong>Usuario técnico:</strong> {$r[usu_tecnico_nombre]}
       <br>
       <strong>Usuario comercial:</strong> {$r[usu_comercial_nombre]}
+      <br>
+      <strong>Fecha de transición:</strong> {$r[fecha_vigencia]}
 <div id="campos_estado_vigente_{$r[ate_id]}"></div>
       <div>&nbsp;</div>
 <a class="btn btn-info" href="#" onclick="p_toggle_historico({$r[ate_id]}, {$r[ate_secuencial]});return false;">Mostrar historial</a>
@@ -415,6 +425,7 @@ EOT;
         <tbody id="valores_historicos_{$r[ate_id]}">
 EOT;
 
+        /*
         $sql = ("
             SELECT *
             , concat(
@@ -466,7 +477,6 @@ EOT;
 
             //AND paa_borrado IS NULL // ya agregado...
         //$result_campos = q($sql);
-        /*
         if ($result_campos) {
             $paa = null;
             foreach($result_campos as $rdato){
@@ -1575,7 +1585,7 @@ function p_toggle_historico(ate_id, ate_secuencial){
                 '<tbody>'+
                 '';
             data.forEach(function(d){
-                var label = d['cae_texto'];
+                var label = [d['cae_texto']].join('');
                 var dato = '';
                 if (d['nodo']) {
                     var nod_id = d['vae_nodo'];
@@ -1588,9 +1598,9 @@ function p_toggle_historico(ate_id, ate_secuencial){
                 contenido += '' +
                     '<tr>'+
                     '<td style="text-align:center;">'+d['fecha']+'</td>'+
-                    '<td style="text-align:center;">'+d['usu_nombres']+' '+d['usu_apellidos']+'</td>'+
+                    '<td style="text-align:center;">'+d['usuario']+'</td>'+
                     '<td style="text-align:center;">'+d['esa_nombre']+'</td>'+
-                    '<td style="text-align:right;">'+label+':</td>'+
+                    '<td style="text-align:center;">'+label+'</td>'+
                     '<td style="text-align:center;">'+dato+'</td>'+
                     '</tr>'+
                     '';
