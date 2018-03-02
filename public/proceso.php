@@ -2033,6 +2033,8 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
 
             $('#tea_id_accion_'+destinatario).val(tea_id);
             $('#email_'+destinatario).val(emails[destinatario]);
+            $('#cc_'+destinatario).val(emails['cc']);
+            console.log('CC', '#cc_'+destinatario, emails['cc'], emails);
             CKEDITOR.instances['mensaje_'+destinatario].setData(plantilla.textos[0]);
             $('#asunto_'+destinatario).val(plantilla.textos[1]);
             console.log('PLANTILLA:', plantilla);

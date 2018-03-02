@@ -29,8 +29,9 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
         if (isset($_POST['email_' . $destinatario]) && !empty($_POST['email_' . $destinatario])) {
             $tea_id = $_POST['tea_id_' . $destinatario];
             $cc = (isset($_POST['cc_' . $destinatario]) && !empty($_POST['cc_' . $destinatario])) ? $_POST['cc_' . $destinatario] : '';
+            //echo "XXXXXXXX";
             $cc = str_replace(';', ',', $cc);
-            $cc = explode(',', $emails);
+            $cc = explode(',', $cc);
             $asunto = (isset($_POST['asunto_' . $destinatario]) && !empty($_POST['asunto_' . $destinatario])) ? $_POST['asunto_' . $destinatario] : 'Notificación SAIT';
 
             $mensaje = (isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) ? $_POST['mensaje_' . $destinatario] : 'Notificación SAIT';

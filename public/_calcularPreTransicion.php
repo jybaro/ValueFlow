@@ -146,9 +146,11 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         ")[0]['vpr_correo_electronico'];
          */
 
-        $email_proveedor_adicionales = q("
+        $result_email= q("
             SELECT
             pep_contactos_adicionales
+            ,pep_contactos_internos
+            ,*
             FROM 
             sai_pertinencia_proveedor
             ,sai_atencion
@@ -157,7 +159,10 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             AND ate_borrado IS NULL 
             AND ate_pertinencia_proveedor = pep_id
             AND ate_id = $ate_id
-        ")[0]['pep_contactos_adicionales'];
+        ");
+        //echo "[[ate_id: $ate_id]]";
+        //var_dump($result_email);
+        $email_proveedor_adicionales = $result_email[0]['pep_contactos_adicionales'];
         $email_proveedor = '';
         $glue = '';
         if (!empty($email_proveedor_adicionales)) {
@@ -168,6 +173,13 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     $glue = ',';
                 }
             }
+        }
+
+        $email_contactos_internos = $result_email[0]['pep_contactos_internos'];
+        $cc = '';
+        if (!empty($email_contactos_internos)) {
+            $contactos_internos = json_decode($email_contactos_internos);
+            $cc = implode(',', array_filter($contactos_internos));
         }
 
         $email_usuario_tecnico = q("
@@ -208,6 +220,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             'cliente'     => $email_cliente
             , 'proveedor' => $email_proveedor
             , 'usuario'   => implode(',', array_filter(array($email_usuario_tecnico, $email_usuario_comercial,$email_usuario_responsable)))
+            ,'cc' => $cc
         );
         /*
         $sql = ("
