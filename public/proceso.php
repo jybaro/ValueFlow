@@ -2141,6 +2141,7 @@ function p_ejecutar_transicion(){
     })
 }
 
+var nodos_completos = [];
 function p_abrir(tea_id, ate_id) {
     console.log('En p_abrir', tea_id, ate_id);
 
@@ -2153,6 +2154,7 @@ function p_abrir(tea_id, ate_id) {
 
         $('#campos').html("");
         $('#ate_id').val(ate_id);
+        nodos_completos = [];
         if (data) {
             var campos = [];
             data.forEach(function(d){
@@ -2172,6 +2174,31 @@ function p_abrir(tea_id, ate_id) {
 
             fechas_enlazadas = [];
             $('#campos').append(p_desplegar_campos(campos));
+            //inicializar nodos completos:
+            nodos_completos.forEach(function(campo){
+                var cae_id = campo['cae_id'];
+                $.get('/_obtenerNodoDeAtencion/' + cae_id + '/' + ate_id, function(nodo_completo){
+                    console.log('/_obtenerNodoDeAtencion/' + cae_id + '/' + ate_id, nodo_completo);
+                    nodo_completo = JSON.parse(nodo_completo);
+                    if (nodo_completo) {
+                        nodo_completo = nodo_completo[0];
+                        console.log('nodo_completo', nodo_completo);
+                        $('#boton_nodo_completo_'+cae_id).removeClass('btn-default');
+                        if (nodo_completo && nodo_completo['nod_fecha_termino'] !== null && nodo_completo['nod_tipo_ultima_milla'] !== null && nodo_completo['nod_responsable_ultima_milla'] !== null && nodo_completo['nod_distancia'] !== null && nodo_completo['nod_id'] != null) {
+                            console.log('el nodo parece completo...', '#campo_extra_'+cae_id, nodo_completo['nod_id']);
+                            $('#campo_extra_'+cae_id).val(nodo_completo['nod_id']);
+                            $('#boton_nodo_completo_'+cae_id).removeClass('btn-warning');
+                            $('#boton_nodo_completo_'+cae_id).addClass('btn-success');
+
+                        } else {
+                            $('#campo_extra_'+cae_id).val('');
+                            $('#boton_nodo_completo_'+cae_id).removeClass('btn-success');
+                            $('#boton_nodo_completo_'+cae_id).addClass('btn-warning');
+                        }
+                    }
+                });
+            });
+            //configurar fechas enlazadas:
             if (fechas_enlazadas.length > 0) {
                 var count = 0;
                 var cae_id_anterior = '';
@@ -2391,13 +2418,13 @@ function p_desplegar_campos(campos, padre_id) {
                         '</div>'+
                         '';
                 } else if (campo['tipo_dato'] == 'nodo_completo') {
+                    nodos_completos.push(campo);
 
-                    var btn_class = (valor == parseInt(valor)) ? 'success' : 'warning';
                     contenido += ''+
                         '<div class="form-group" id="nodo_completo_grupo_'+campo['cae_id']+'">' +
                         '<div class="col-sm-' + col2 + '">' +
-                        '<input type="hidden" id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="' + valor + '">' +
-                        '<button class="btn btn-' + btn_class + '" id="boton_nodo_completo_'+campo['cae_id']+'" onclick="p_abrir_nodo_completo(' + campo['cae_id'] + ');return false;" >Completar datos de punto</button>' +
+                        '<input type="number" required ' + campo['cae_validacion'] + ' style="display:none;" id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="">' +
+                        '<button class="btn btn-default" id="boton_nodo_completo_'+campo['cae_id']+'" onclick="p_abrir_nodo_completo(' + campo['cae_id'] + ');return false;" >Completar datos de punto</button>' +
                         '</div>' +
                         '</div>'+
                         '';
@@ -2483,7 +2510,7 @@ function p_validar(target){
     console.log('validando', target, id, $(target)[0].checkValidity());
     var resultado = true;
     if (!$(target)[0].checkValidity()) {
-        console.log('no valida...');
+        console.log('no valida...', target);
         $(target).popover('hide');
         $(target).popover('destroy');
         $(target).popover({

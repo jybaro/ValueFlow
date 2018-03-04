@@ -52,7 +52,7 @@ if ($extender_campos_anteriores == 1) {
 $sql = "
     SELECT *
     ,(
-        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodo)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -68,7 +68,7 @@ $sql = "
         LIMIT 1
     ) AS valor
     ,(
-        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodo)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -87,7 +87,7 @@ $sql = "
         LIMIT 1
     ) AS valor_historico
     ,(
-        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodo)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -106,7 +106,7 @@ $sql = "
         LIMIT 1
     ) AS valor_por_defecto 
     ,(
-        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodo)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -125,7 +125,7 @@ $sql = "
         LIMIT 1
     ) AS menor_que 
     ,(
-        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodo)) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -163,6 +163,22 @@ $sql = "
         ORDER BY vae_creado DESC
         LIMIT 1
     ) AS nodo
+    , (
+        SELECT to_json(sai_nodo)
+        FROM sai_valor_extra
+        , sai_paso_atencion 
+        , sai_nodo
+        WHERE vae_borrado IS NULL 
+        AND paa_borrado IS NULL 
+        AND nod_borrado IS NULL
+        AND vae_campo_extra = cae.cae_id 
+        AND paa_id=vae_paso_atencion
+        AND nod_id = vae_nodo
+        $filtro_valor_actual
+        AND paa_atencion = $ate_id
+        ORDER BY vae_creado DESC
+        LIMIT 1
+    ) AS nodo_completo
     , (
         SELECT ciu_nombre 
         FROM sai_valor_extra
