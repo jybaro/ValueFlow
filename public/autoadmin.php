@@ -674,7 +674,7 @@ function p_guardar() {
             } else {
                 if ($("#fila_" + data['id']).length) { // 0 == false; >0 == true
 
-                    location.reload();
+                    //location.reload();
 
                     ///////////////
                     //YA EXISTE:
@@ -698,6 +698,7 @@ function p_guardar() {
                         }
                         //$(id).text(texto);
                         $(id).html(valor);
+
                         //si es recursivo:
                         campo = key;
                         if ($('#recursivo_' + campo).length > 0) {
@@ -712,7 +713,8 @@ function p_guardar() {
                     ///////////
                     //NUEVO:
                     console.log('nuevo registro');
-                    var numero = $('#lista_registros').children().length + 1;
+                    //var numero = $('#lista_registros').children().length + 1;
+                    var numero = $('#tabla').DataTable().data().length + 1;
                     var celdas = '';
                     var valor = '';
                     var option_value = '';
@@ -746,7 +748,10 @@ function p_guardar() {
                  */
 
                     console.log('celdas:', celdas, '<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
-                    $('#lista_registros').append('<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
+                    //$('#lista_registros').append('<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
+                    var jRow = $('<tr id="fila_'+data['id']+'" class="alert alert-success">').append('<th>'+numero+'.</th>' + celdas);
+                    $('#tabla').DataTable().row.add(jRow).draw();
+                    $('#lista_registros').prepend('<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
                     
                 }
                 $('#fila_' + data['id']).removeClass('alert alert-danger alert-success alert-info');

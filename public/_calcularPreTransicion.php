@@ -677,8 +677,16 @@ EOT;
                         foreach ($adjuntos_plantilla as $adjunto_plantilla) {
                             try {
                                 //$adjunto_plantilla = $adjunto_plantilla[0];
-                                $nombre = $pla_adjunto_nombre;
-                                $nombre = $nombre . '-' . random_int(100000, 999999);
+                                
+                                //$nombre = $pla_adjunto_nombre;
+                                //$nombre = $nombre . '-' . random_int(100000, 999999);
+                                
+                                $nombre = $adjunto_plantilla['arc_nombre'];
+                                $nombre = p_reemplazar_campos_valores($nombre);
+                                $nombre = (empty($nombre)) ? 'adjunto' : $nombre;
+                                $nombre = limpiar_nombre_archivo($nombre);
+                                $nombre = pathinfo($nombre, PATHINFO_FILENAME) . '-' . random_int(100000, 999999);
+
                                 $ext = strtolower(pathinfo($adjunto_plantilla['arc_nombre'], PATHINFO_EXTENSION));
                                 $ruta_plantilla = 'uploads/' . $adjunto_plantilla['arc_nombre'];
                                 if (file_exists($ruta_plantilla)) {
