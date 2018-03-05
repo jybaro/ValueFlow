@@ -64,6 +64,7 @@ if ($result) {
         try {
 
             $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+            $mail->CharSet = 'UTF-8';
             $mail->IsSMTP();
             $mail->SMTPSecure = 'tls';
             $mail->SMTPAuth = true;
