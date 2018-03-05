@@ -424,6 +424,8 @@ function p_validar(target) {
     var resultado = true;
     var id = $(target).prop('id');
     var value = $(target).val();
+    $(target).parent().parent().removeClass('has-success');
+    $(target).parent().parent().removeClass('has-error');
     if (!$(target)[0].checkValidity()) {
         console.log('no valida...', $(target)[0].validationMessage);
         //$('<input type="submit">').hide().appendTo('#formulario').click().remove();
@@ -453,7 +455,7 @@ function p_validar(target) {
             console.log('/_listar/'+tabla+'/'+id+'/'+value, data);
             data = JSON.parse(data);
             console.log('data', data.length, data);
-            if (data.length > 0) {
+            if (data.length > 0 && $('#id').val() != data[0]['id']) {
                 var repetido = data[0][campo_etiqueta];
                 console.log('No valida...');
                 $(target).popover('hide');
@@ -671,6 +673,9 @@ function p_guardar() {
                 alert(data['ERROR']);
             } else {
                 if ($("#fila_" + data['id']).length) { // 0 == false; >0 == true
+
+                    location.reload();
+
                     ///////////////
                     //YA EXISTE:
                     for (key in data){
