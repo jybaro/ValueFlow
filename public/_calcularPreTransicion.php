@@ -797,6 +797,7 @@ EOT;
                             //    unlink('adjunto.html');
                             //}
                             $nombre = $pla_adjunto_nombre;
+                            $nombre = limpiar_nombre_archivo($nombre);
                             $nombre = $nombre . '-' . random_int(100000, 999999);
                             $nombre = $nombre . '.pdf';
 
