@@ -25,6 +25,7 @@ $sql = ("
     ,nod_responsable_ultima_milla = $nod_responsable_ultima_milla
     ,nod_distancia = $nod_distancia
     ,nod_fecha_termino = $nod_fecha_termino
+    ,nod_nodo = $nod_nodo
     WHERE
     nod_id = $nod_id
     RETURNING *

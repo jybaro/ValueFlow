@@ -1080,6 +1080,13 @@ if ($result_tum) {
       </div>
     </div>
 
+    <div class="form-group">
+      <label for="nod_nodo" class="col-sm-<?=$col1?> control-label">Nodo:</label>
+      <div class="col-sm-<?=$col2?>">
+        <input type='number' <?=$cae_validacion?> class="form-control" id="nod_nodo" name="nod_nodo" placeholder="" value="" onblur="p_validar(this)">
+      </div>
+    </div>
+
 </form>
 
       </div>
