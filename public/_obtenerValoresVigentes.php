@@ -17,15 +17,18 @@ if (!empty($ate_id)) {
         SELECT *
         ,concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) AS valor
     , (
-        SELECT nod_codigo
+        SELECT concat(ate_secuencial, '. ', COALESCE(ate_codigo, '(sin ID)'))
         FROM 
         sai_nodo
         , sai_ubicacion
+        , sai_atencion
         WHERE 
         nod_borrado IS NULL
         AND ubi_borrado IS NULL
+        AND ate_borrado IS NULL
         AND nod_id = vae_nodo
         AND ubi_id = nod_ubicacion
+        AND nod_atencion = ate_id
     ) AS nodo
     , (
         SELECT ciu_nombre 

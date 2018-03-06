@@ -21,15 +21,18 @@ if (!empty($ate_id)) {
             ,to_char(vae_fecha, 'YYYY-MM-DD HH24:MI')
         ) AS valor
         , (
-            SELECT nod_codigo
+            SELECT concat(ate_secuencial, '. ', COALESCE(ate_codigo, '(sin ID)'))
             FROM 
              sai_nodo
             , sai_ubicacion
+            , sai_atencion
             WHERE 
             nod_borrado IS NULL
             AND ubi_borrado IS NULL
+            AND ate_borrado IS NULL
             AND nod_id = vae_nodo
             AND ubi_id = nod_ubicacion
+            AND nod_atencion = ate_id
         ) AS nodo
         , (
             SELECT ciu_nombre 

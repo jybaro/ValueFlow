@@ -8,6 +8,7 @@ $extension_minima = 2;
 
 if (strlen($query) >= $extension_minima) {
 
+    /*
     $result = q("
         SELECT *
         FROM sai_nodo
@@ -18,10 +19,50 @@ if (strlen($query) >= $extension_minima) {
         AND (ubi_direccion ILIKE '%$query%' OR nod_codigo ILIKE '%$query%'  OR nod_descripcion ILIKE '%$query%')
         ORDER BY nod_codigo
     ");
+     */
 
+    $int_query = is_numeric($query) ? intval($query) : -1;
+
+    $result = q("
+        SELECT *
+        FROM sai_nodo
+        ,sai_ubicacion
+        ,sai_atencion
+        ,sai_estado_atencion
+        WHERE nod_borrado IS NULL
+        AND ubi_borrado IS NULL
+        AND ate_borrado IS NULL
+        AND esa_borrado IS NULL
+        AND nod_ubicacion = ubi_id
+        AND ate_estado_atencion = esa_id
+        AND (
+            esa_nombre ILIKE '%servicio activo%'
+            OR esa_nombre ILIKE '%servicio suspendido%'
+            OR esa_nombre ILIKE '%incremento%'
+            OR esa_nombre ILIKE '%decremento%'
+            OR esa_nombre ILIKE '%suspensión%'
+        )
+        AND nod_atencion = ate_id
+        AND (
+            ate_secuencial = $int_query
+            OR ate_codigo ILIKE '%{$query}%'
+            OR ubi_direccion ILIKE '%$query%'
+            OR nod_codigo ILIKE '%$query%'
+            OR nod_descripcion ILIKE '%$query%'
+        )
+        ORDER BY ate_codigo
+    ");
+
+    /*
+        AND (
+            ate_nodo = nod_id
+            OR ate_extremo = nod_id
+        )
+     * */
     if ($result) {
         foreach($result as $r){
-            $respuesta = array('id' => $r['nod_id'], 'name' => ($r['nod_codigo'] . ': ' . $r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')'));
+            //$respuesta = array('id' => $r['nod_id'], 'name' => ($r['nod_codigo'] . ': ' . $r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')'));
+            $respuesta = array('id' => $r['nod_id'], 'name' => ($r['ate_secuencial'] . '. ' .$r['ate_codigo'] . ': ' . $r['nod_codigo'] . ', ' .$r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')'));
             $respuestas[] = $respuesta; 
         }
     } else {

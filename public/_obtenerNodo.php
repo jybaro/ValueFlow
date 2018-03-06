@@ -28,6 +28,7 @@ if (!empty($nod_id)) {
         ,sai_canton
         ,sai_parroquia
         ,sai_ciudad
+        ,sai_atencion
 
         WHERE nod_borrado IS NULL
         AND ubi_borrado IS NULL
@@ -35,12 +36,14 @@ if (!empty($nod_id)) {
         AND can_borrado IS NULL
         AND par_borrado IS NULL
         AND ciu_borrado IS NULL
+        AND ate_borrado IS NULL
         
         AND nod_ubicacion = ubi_id
         AND ubi_provincia = prv_id
         AND ubi_canton = can_id
         AND ubi_parroquia = par_id
         AND ubi_ciudad = ciu_id
+        AND nod_atencion = ate_id
 
         AND nod_id = $nod_id
     ");

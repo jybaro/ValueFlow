@@ -637,6 +637,7 @@ EOT;
 
 <form id="formulario_nodo" class="form-horizontal">
 <input type="hidden" id="nod_cae_id" name="nod_cae_id" value="">
+<input type="hidden" id="nod_atencion" name="nod_atencion" value="">
 <?php
 
 $cae_texto = 'Ubicación';
@@ -1527,7 +1528,8 @@ function p_abrir_detalle_nodo(nod_id){
 
             //$('#detalle_nodo_contenido').html(contenido);
             //var titulo = nodo['nod_codigo'] + ': ' + nodo['nod_descripcion'] + ' ('+nodo['ubi_direccion']+')'
-            var titulo = nodo['nod_codigo'];
+            //var titulo = nodo['nod_codigo'];
+            var titulo = 'de atención ' + nodo['ate_secuencial'] +'. '+(nodo['ate_codigo'] == null ? '(sin ID)' : nodo['ate_codigo']);
             $('#detalle_nodo_titulo').text(titulo);
 
             $('#detalle_nodo_codigo').text(nodo['nod_codigo']);
@@ -1866,6 +1868,7 @@ function p_abrir_nuevo_nodo(id){
             $(this).collapse('hide');
         });
         $('#nod_cae_id').val(id);
+        $('#nod_atencion').val($('#ate_id').val());
         $('#modal_nodo').modal('show');
         $('#modal').off('hidden.bs.modal');
     });
@@ -2187,8 +2190,12 @@ function p_abrir(tea_id, ate_id) {
                         if (nodo_completo && nodo_completo['nod_fecha_termino'] !== null && nodo_completo['nod_tipo_ultima_milla'] !== null && nodo_completo['nod_responsable_ultima_milla'] !== null && nodo_completo['nod_distancia'] !== null && nodo_completo['nod_id'] != null) {
                             console.log('el nodo parece completo...', '#campo_extra_'+cae_id, nodo_completo['nod_id']);
                             $('#campo_extra_'+cae_id).val(nodo_completo['nod_id']);
-                            $('#boton_nodo_completo_'+cae_id).removeClass('btn-warning');
-                            $('#boton_nodo_completo_'+cae_id).addClass('btn-success');
+                            if (nodo_completo['nod_atencion'] == $('#ate_id').val()) {
+                                $('#boton_nodo_completo_'+cae_id).removeClass('btn-warning');
+                                $('#boton_nodo_completo_'+cae_id).addClass('btn-success');
+                            } else {
+                                $('#boton_nodo_completo_'+cae_id).hide();
+                            }
 
                         } else {
                             $('#campo_extra_'+cae_id).val('');

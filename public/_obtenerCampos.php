@@ -145,19 +145,22 @@ $sql = "
         LIMIT 1
     ) AS mayor_que 
     , (
-        SELECT nod_codigo
+        SELECT concat(ate_secuencial, '. ', COALESCE(ate_codigo, '(sin ID)'))
         FROM sai_valor_extra
         , sai_paso_atencion 
         , sai_nodo
         , sai_ubicacion
+        , sai_atencion
         WHERE vae_borrado IS NULL 
         AND paa_borrado IS NULL 
         AND nod_borrado IS NULL
         AND ubi_borrado IS NULL
+        AND ate_borrado IS NULL
         AND vae_campo_extra = cae.cae_id 
         AND paa_id=vae_paso_atencion
         AND nod_id = vae_nodo
         AND ubi_id = nod_ubicacion
+        AND nod_atencion = ate_id
         $filtro_valor_actual
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC
