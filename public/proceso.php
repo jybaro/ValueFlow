@@ -1083,7 +1083,7 @@ if ($result_tum) {
     <div class="form-group">
       <label for="nod_nodo" class="col-sm-<?=$col1?> control-label">Nodo:</label>
       <div class="col-sm-<?=$col2?>">
-        <input type='number' <?=$cae_validacion?> class="form-control" id="nod_nodo" name="nod_nodo" placeholder="" value="" onblur="p_validar(this)">
+        <input type='text' <?=$cae_validacion?> class="form-control" id="nod_nodo" name="nod_nodo" placeholder="" value="" onblur="p_validar(this)">
       </div>
     </div>
 
@@ -1836,6 +1836,7 @@ function p_abrir_nodo_completo(id) {
                 $('#nod_responsable_ultima_milla').val(data['nod_responsable_ultima_milla']);
                 $('#nod_distancia').val(data['nod_distancia']);
                 $('#nod_fecha_termino').val(data['nod_fecha_termino']);
+                $('#nod_nodo').val(data['nod_nodo']);
 
                 $('#modal_nodo_completo').modal('show');
                 $('#modal').off('hidden.bs.modal');
@@ -2194,7 +2195,7 @@ function p_abrir(tea_id, ate_id) {
                         nodo_completo = nodo_completo[0];
                         console.log('nodo_completo', nodo_completo);
                         $('#boton_nodo_completo_'+cae_id).removeClass('btn-default');
-                        if (nodo_completo && nodo_completo['nod_fecha_termino'] !== null && nodo_completo['nod_tipo_ultima_milla'] !== null && nodo_completo['nod_responsable_ultima_milla'] !== null && nodo_completo['nod_distancia'] !== null && nodo_completo['nod_id'] != null) {
+                        if (nodo_completo && nodo_completo['nod_fecha_termino'] !== null && nodo_completo['nod_nodo'] !== null && nodo_completo['nod_tipo_ultima_milla'] !== null && nodo_completo['nod_responsable_ultima_milla'] !== null && nodo_completo['nod_distancia'] !== null && nodo_completo['nod_id'] != null) {
                             console.log('el nodo parece completo...', '#campo_extra_'+cae_id, nodo_completo['nod_id']);
                             $('#campo_extra_'+cae_id).val(nodo_completo['nod_id']);
                             if (nodo_completo['nod_atencion'] == $('#ate_id').val()) {

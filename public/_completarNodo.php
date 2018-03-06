@@ -17,6 +17,7 @@ $nod_responsable_ultima_milla = p_formatear_valor_sql($nod_responsable_ultima_mi
 
 //$nod_fecha_termino = "to_timestamp('$nod_fecha_termino', 'YYYY-MM-DD hh24:mi:ss')";
 $nod_fecha_termino = p_formatear_valor_sql($nod_fecha_termino, 'timestamp'); 
+$nod_nodo = p_formatear_valor_sql($nod_nodo, 'text');
 
 $sql = ("
     UPDATE sai_nodo
