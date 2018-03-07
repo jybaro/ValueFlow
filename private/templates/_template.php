@@ -138,7 +138,7 @@ body {
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reportes<span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="/reportePendientes">Pendientes de atención</a></li>
+            <li><a href="/reporteAtenciones">Atenciones</a></li>
             <li role="separator" class="divider"></li>
           </ul>
         </li>
