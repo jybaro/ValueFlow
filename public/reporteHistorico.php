@@ -130,6 +130,46 @@ if (isset($_POST['estados']) && !empty($_POST['estados'])) {
             WHERE esa_borrado IS NULL
             AND tea_estado_atencion_actual = esa_id
         ) AS estado_historico
+        ,(
+            SELECT concat(
+                con_nombres
+                , ' '
+                ,con_apellidos 
+                , ' '
+                ,con_cargo
+                , ' '
+                ,con_correo_electronico
+                , ' '
+                ,con_telefono
+                , ' '
+                ,con_celular
+
+            )
+            FROM sai_contacto
+            WHERE con_borrado IS NULL
+            AND ate_contacto = con_id
+        ) AS contacto
+
+        ,(
+            SELECT concat(
+                con_nombres
+                , ' '
+                ,con_apellidos 
+                , ' '
+                ,con_cargo
+                , ' '
+                ,con_correo_electronico
+                , ' '
+                ,con_telefono
+                , ' '
+                ,con_celular
+
+            )
+            FROM sai_contacto
+            WHERE con_borrado IS NULL
+            AND ate_contacto_en_sitio = con_id
+        ) AS contacto_en_sitio
+
 
         FROM sai_paso_atencion
 
@@ -156,10 +196,6 @@ if (isset($_POST['estados']) && !empty($_POST['estados'])) {
         LEFT OUTER JOIN sai_proveedor
             ON pro_borrado IS NULL
             AND pep_proveedor = pro_id
-
-        LEFT OUTER JOIN sai_contacto
-            ON con_borrado IS NULL
-            AND ate_contacto = con_id
 
         LEFT OUTER JOIN sai_usuario AS usu_tecnico
             ON usu_tecnico.usu_borrado IS NULL
@@ -276,8 +312,13 @@ if (isset($_POST['estados']) && !empty($_POST['estados'])) {
         )
         ,array(
             'titulo' => 'Contacto'
-            ,'plantilla'=>'%1$s %2$s'
-            ,'campos' => array('con_nombres', 'con_apellidos')
+            ,'plantilla'=>'%s'
+            ,'campos' => array('contacto')
+        )
+        ,array(
+            'titulo' => 'Contacto en sitio'
+            ,'plantilla'=>'%s'
+            ,'campos' => array('contacto_en_sitio')
         )
         ,array(
             'titulo' => 'Dependencia'
@@ -420,6 +461,46 @@ EOT;
             LIMIT 1 
         ) 
 
+        ,(
+            SELECT concat(
+                con_nombres
+                , ' '
+                ,con_apellidos 
+                , ' '
+                ,con_cargo
+                , ' '
+                ,con_correo_electronico
+                , ' '
+                ,con_telefono
+                , ' '
+                ,con_celular
+
+            )
+            FROM sai_contacto
+            WHERE con_borrado IS NULL
+            AND ate_contacto = con_id
+        ) AS contacto
+
+        ,(
+            SELECT concat(
+                con_nombres
+                , ' '
+                ,con_apellidos 
+                , ' '
+                ,con_cargo
+                , ' '
+                ,con_correo_electronico
+                , ' '
+                ,con_telefono
+                , ' '
+                ,con_celular
+
+            )
+            FROM sai_contacto
+            WHERE con_borrado IS NULL
+            AND ate_contacto_en_sitio = con_id
+        ) AS contacto_en_sitio
+
         FROM sai_atencion
 
         LEFT OUTER JOIN sai_paso_atencion
@@ -451,10 +532,6 @@ EOT;
         LEFT OUTER JOIN sai_proveedor
             ON pro_borrado IS NULL
             AND pep_proveedor = pro_id
-
-        LEFT OUTER JOIN sai_contacto
-            ON con_borrado IS NULL
-            AND ate_contacto = con_id
 
         LEFT OUTER JOIN sai_usuario AS usu_tecnico
             ON usu_tecnico.usu_borrado IS NULL
@@ -552,8 +629,13 @@ EOT;
         )
         ,array(
             'titulo' => 'Contacto'
-            ,'plantilla'=>'%1$s %2$s'
-            ,'campos' => array('con_nombres', 'con_apellidos')
+            ,'plantilla'=>'%s'
+            ,'campos' => array('contacto')
+        )
+        ,array(
+            'titulo' => 'Contacto en sitio'
+            ,'plantilla'=>'%s'
+            ,'campos' => array('contacto_en_sitio')
         )
         ,array(
             'titulo' => 'Dependencia'

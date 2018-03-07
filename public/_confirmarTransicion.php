@@ -275,7 +275,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
         ");
          */
 
-        require('/_obtenerValoresVigentes');
+        require('_obtenerValoresVigentes.php');
         $valores_vigentes = $resultado;
         $campos_valores = array();
         foreach($valores_vigentes as $valor_vigente){
