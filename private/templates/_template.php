@@ -16,6 +16,8 @@
 <link rel="stylesheet" href="/css/bootstrap-datetimepicker.min.css">
 <link rel="stylesheet" href="/css/select2.min.css">
 <link rel="stylesheet" href="/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="/css/dataTables.bootstrap.min.css">
+
 
 <title><?=ucfirst(str_replace('_', ' ', $nedetel_objeto))?> - <?=$_SESSION['username']?> - SAIT</title>
 
@@ -138,7 +140,7 @@ body {
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reportes<span class="caret"></span></a>
           <ul class="dropdown-menu">
-            <li><a href="/reporteAtenciones">Atenciones</a></li>
+            <li><a href="/reporteHistorico">Histórico de atenciones</a></li>
             <li role="separator" class="divider"></li>
           </ul>
         </li>

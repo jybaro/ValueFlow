@@ -274,10 +274,19 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
     ) AS valor_historico
         ");
          */
-        $capacidad_contratada = 0;
-        $capacidad_facturada = 0;
-        $capacidad_solicitada = 0;
 
+        require('/_obtenerValoresVigentes');
+        $valores_vigentes = $resultado;
+        $campos_valores = array();
+        foreach($valores_vigentes as $valor_vigente){
+            $campos_valores[$valor_vigente['codigo']] = $valor_vigente['valor'];
+        }
+
+        $capacidad_contratada = isset($campos_valores['CAPACIDAD_CONTRATADA']) ? $campos_valores['CAPACIDAD_CONTRATADA'] : 0;
+        $capacidad_facturada = isset($campos_valores['CAPACIDAD_FACTURADA']) ? $campos_valores['CAPACIDAD_FACTURADA'] : 0;
+        $capacidad_solicitada = isset($campos_valores['CAPACIDAD_SOLICITADA']) ? $campos_valores['CAPACIDAD_SOLICITADA'] : 0;
+        $precio_mb = isset($campos_valores['PRECIO_MB']) ? $campos_valores['PRECIO_MB'] : 0;
+        $costo_mb = isset($campos_valores['COSTO_MB']) ? $campos_valores['COSTO_MB'] : 0;
 
         $sql = ("
             UPDATE sai_atencion 
@@ -285,8 +294,12 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             ,ate_capacidad_contratada = $capacidad_contratada
             ,ate_capacidad_facturada = $capacidad_facturada
             ,ate_capacidad_solicitada = $capacidad_solicitada
+            ,ate_precio_mb = $precio_mb
+            ,ate_costo_mb = $costo_mb
+
             $usuario_tecnico
             $usuario_comercial
+            ,ate_fecha_cambio_estado = now()
             WHERE ate_borrado IS NULL
             AND ate_id = $ate_id 
             RETURNING *
