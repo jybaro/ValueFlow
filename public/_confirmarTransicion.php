@@ -32,9 +32,15 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             //echo "XXXXXXXX";
             $cc = str_replace(';', ',', $cc);
             $cc = explode(',', $cc);
-            $asunto = (isset($_POST['asunto_' . $destinatario]) && !empty($_POST['asunto_' . $destinatario])) ? $_POST['asunto_' . $destinatario] : 'Notificación SAIT';
+            $enviar_email = false;
+            if (isset($_POST['asunto_' . $destinatario]) && !empty($_POST['asunto_' . $destinatario]) && isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) {
+                $enviar_email = true;
+            }
+            //$asunto = (isset($_POST['asunto_' . $destinatario]) && !empty($_POST['asunto_' . $destinatario])) ? $_POST['asunto_' . $destinatario] : 'Notificación SAIT';
+            $asunto = (isset($_POST['asunto_' . $destinatario]) && !empty($_POST['asunto_' . $destinatario])) ? $_POST['asunto_' . $destinatario] : '';
 
-            $mensaje = (isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) ? $_POST['mensaje_' . $destinatario] : 'Notificación SAIT';
+            //$mensaje = (isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) ? $_POST['mensaje_' . $destinatario] : 'Notificación SAIT';
+            $mensaje = (isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) ? $_POST['mensaje_' . $destinatario] : '';
 
             $emails = $_POST['email_' . $destinatario];
             $emails = str_replace(';', ',', $emails);
@@ -69,148 +75,157 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                 }
             }
 
-            try {
-                //MAIL
-                //echo "[[$pla_asunto - $pla_cuerpo]]";
-                $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-                $mail->CharSet = 'UTF-8';
-                $mail->IsSMTP();
-                $mail->SMTPSecure = 'tls';
-                $mail->SMTPAuth = true;
+            $confirmada_ejecucion_accion = false;
+            if ($enviar_email) { 
+                try {
+                    //MAIL
+                    //echo "[[$pla_asunto - $pla_cuerpo]]";
+                    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+                    $mail->CharSet = 'UTF-8';
+                    $mail->IsSMTP();
+                    $mail->SMTPSecure = 'tls';
+                    $mail->SMTPAuth = true;
 
-                if ($es_zenix) {
-                    $mail->Host = SMTP_SERVER_ZENIX;
-                    $mail->Port = SMTP_PORT_ZENIX;
-                    $mail->Username = SMTP_USERNAME_ZENIX;
-                    $mail->Password = SMTP_PASSWORD_ZENIX;
-                    $mail->SetFrom(MAIL_ORDERS_ADDRESS_ZENIX, MAIL_ORDERS_NAME);
-                } else {
-                    $mail->Host = SMTP_SERVER;
-                    $mail->Port = SMTP_PORT;
-                    $mail->Username = SMTP_USERNAME;
-                    $mail->Password = SMTP_PASSWORD;
-                    $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
-                }
+                    if ($es_zenix) {
+                        $mail->Host = SMTP_SERVER_ZENIX;
+                        $mail->Port = SMTP_PORT_ZENIX;
+                        $mail->Username = SMTP_USERNAME_ZENIX;
+                        $mail->Password = SMTP_PASSWORD_ZENIX;
+                        $mail->SetFrom(MAIL_ORDERS_ADDRESS_ZENIX, MAIL_ORDERS_NAME);
+                    } else {
+                        $mail->Host = SMTP_SERVER;
+                        $mail->Port = SMTP_PORT;
+                        $mail->Username = SMTP_USERNAME;
+                        $mail->Password = SMTP_PASSWORD;
+                        $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
+                    }
 
-                //$mail->SMTPDebug = 2;
-                if (!empty($cc)) {
-                    foreach($cc as $email) {
-                        if (!empty($email)) {
-                            $mail->addCC($email);
+                    //$mail->SMTPDebug = 2;
+                    if (!empty($cc)) {
+                        foreach($cc as $email) {
+                            if (!empty($email)) {
+                                $mail->addCC($email);
+                            }
                         }
                     }
-                }
-                $mail->Subject = $asunto;
-                $mail->MsgHTML($mensaje);
+                    $mail->Subject = $asunto;
+                    $mail->MsgHTML($mensaje);
 
-                foreach ($emails as $email) {
-                    if (!empty($email)) {
-                        $mail->AddAddress($email);
+                    foreach ($emails as $email) {
+                        if (!empty($email)) {
+                            $mail->AddAddress($email);
+                        }
                     }
-                }
 
-                foreach ($adjuntos as $adjunto) {
-                    if (!empty($adjunto)) {
-                        $mail->AddAttachment($adjunto);
+                    foreach ($adjuntos as $adjunto) {
+                        if (!empty($adjunto)) {
+                            $mail->AddAttachment($adjunto);
+                        }
                     }
+
+                    $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
+                    $mail->AddBCC(MAIL_COPY_ALL_ADDRESS, MAIL_COPY_ALL_NAME);
+
+
+                    if (!$mail->Send()) { 
+                        throw new Exception($mail->ErrorInfo);
+                    } else {
+                        $confirmada_ejecucion_accion = true;
+
+                    }
+                } catch (Exception $e) {
+                    //echo $e->getMessage();
+                    l('Error en ' . $e->getFile() . ', linea ' . $e->getLine() . ': ' . $e->getMessage());
+                    echo json_encode(array('ERROR'=>$e->getMessage()));
+                    return;
+                }
+            } else {
+                $confirmada_ejecucion_accion = true;
+            }
+
+            if ($confirmada_ejecucion_accion) {
+                $email_count++;
+                $emails = implode(',', $emails);
+                $adjuntos = implode(',', $adjuntos);
+
+                //obtiene el tea_id ultimo, por si haya sido actualizado durante el guardado:
+                $result_tea = q("
+                    SELECT *
+                    FROM sai_transicion_estado_atencion
+                    WHERE tea_borrado IS NULL
+                    AND tea_estado_atencion_actual = (
+                        SELECT tea_estado_atencion_actual 
+                        FROM sai_transicion_estado_atencion 
+                        WHERE tea_id = $tea_id
+                    )
+                    AND tea_estado_atencion_siguiente = (
+                        SELECT tea_estado_atencion_siguiente 
+                        FROM sai_transicion_estado_atencion 
+                        WHERE tea_id = $tea_id
+                    )
+                    AND tea_pertinencia_proveedor = (
+                        SELECT tea_pertinencia_proveedor 
+                        FROM sai_transicion_estado_atencion 
+                        WHERE tea_id = $tea_id
+                    )
+                    AND tea_destinatario = (
+                        SELECT tea_destinatario
+                        FROM sai_transicion_estado_atencion 
+                        WHERE tea_id = $tea_id
+                    )
+                ");
+
+                if ($result_tea) {
+                    $tea_id = $result_tea[0][tea_id];
+                    //$tea_automatico = $result_tea[0][tea_automatico];
+                    //var_dump($result_tea);
+                    //return;
                 }
 
-                $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
-                $mail->AddBCC(MAIL_COPY_ALL_ADDRESS, MAIL_COPY_ALL_NAME);
+                $result = q("
+                    INSERT INTO sai_paso_atencion (
+                        paa_atencion
+                        ,paa_transicion_estado_atencion
+                        ,paa_codigo
+                        ,paa_asunto
+                        ,paa_cuerpo
+                        ,paa_destinatarios
+                        ,paa_adjuntos 
+                        ,paa_creado_por
+                        ,paa_confirmado
+                    ) VALUES (
+                        $ate_id
+                        ,$tea_id
+                        ,''
+                        ,'$asunto'
+                        ,'$mensaje'
+                        ,'$emails'
+                        ,'$adjuntos'
+                        ,{$_SESSION['usu_id']}
+                        ,now()
+                    ) RETURNING *
+                ");
+                if ($result) {
+                    $paa_id = $result[0]['paa_id'];
+                    $paa_id_lista[] = $paa_id;
+                    $paa_lista[] = $result;
 
-
-                if (!$mail->Send()) { 
-                    throw new Exception($mail->ErrorInfo);
-                } else {
-                    $email_count++;
-                    $emails = implode(',', $emails);
-                    $adjuntos = implode(',', $adjuntos);
-
-                    //obtiene el tea_id ultimo, por si haya sido actualizado durante el guardado:
-                    $result_tea = q("
-                        SELECT *
-                        FROM sai_transicion_estado_atencion
-                        WHERE tea_borrado IS NULL
-                        AND tea_estado_atencion_actual = (
-                            SELECT tea_estado_atencion_actual 
-                            FROM sai_transicion_estado_atencion 
-                            WHERE tea_id = $tea_id
-                        )
-                        AND tea_estado_atencion_siguiente = (
-                            SELECT tea_estado_atencion_siguiente 
-                            FROM sai_transicion_estado_atencion 
-                            WHERE tea_id = $tea_id
-                        )
-                        AND tea_pertinencia_proveedor = (
-                            SELECT tea_pertinencia_proveedor 
-                            FROM sai_transicion_estado_atencion 
-                            WHERE tea_id = $tea_id
-                        )
-                        AND tea_destinatario = (
-                            SELECT tea_destinatario
-                            FROM sai_transicion_estado_atencion 
-                            WHERE tea_id = $tea_id
+                    //Trae los valores del paso falso hacia el nuevo paso confirmado
+                    q("
+                        UPDATE sai_valor_extra
+                        SET vae_paso_atencion = $paa_id
+                        WHERE vae_borrado IS NULL
+                        AND vae_paso_atencion IN (
+                            SELECT paa_id
+                            FROM sai_paso_atencion
+                            WHERE paa_borrado IS NULL
+                            AND paa_confirmado IS NULL
+                            AND paa_atencion = $ate_id 
+                            AND paa_id <> $paa_id 
                         )
                     ");
-
-                    if ($result_tea) {
-                        $tea_id = $result_tea[0][tea_id];
-                        //$tea_automatico = $result_tea[0][tea_automatico];
-                        //var_dump($result_tea);
-                        //return;
-                    }
-
-                    $result = q("
-                        INSERT INTO sai_paso_atencion (
-                            paa_atencion
-                            ,paa_transicion_estado_atencion
-                            ,paa_codigo
-                            ,paa_asunto
-                            ,paa_cuerpo
-                            ,paa_destinatarios
-                            ,paa_adjuntos 
-                            ,paa_creado_por
-                            ,paa_confirmado
-                        ) VALUES (
-                            $ate_id
-                            ,$tea_id
-                            ,''
-                            ,'$asunto'
-                            ,'$mensaje'
-                            ,'$emails'
-                            ,'$adjuntos'
-                            ,{$_SESSION['usu_id']}
-                            ,now()
-                        ) RETURNING *
-                    ");
-                    if ($result) {
-                        $paa_id = $result[0]['paa_id'];
-                        $paa_id_lista[] = $paa_id;
-                        $paa_lista[] = $result;
-
-                        //Trae los valores del paso falso hacia el nuevo paso confirmado
-                        q("
-                            UPDATE sai_valor_extra
-                            SET vae_paso_atencion = $paa_id
-                            WHERE vae_borrado IS NULL
-                            AND vae_paso_atencion IN (
-                                SELECT paa_id
-                                FROM sai_paso_atencion
-                                WHERE paa_borrado IS NULL
-                                AND paa_confirmado IS NULL
-                                AND paa_atencion = $ate_id 
-                                AND paa_id <> $paa_id 
-                            )
-                        ");
-                                //AND paa_transicion_estado_atencion = $tea_id
-
-                    }
+                    //AND paa_transicion_estado_atencion = $tea_id
                 }
-            } catch (Exception $e) {
-                //echo $e->getMessage();
-                l('Error en ' . $e->getFile() . ', linea ' . $e->getLine() . ': ' . $e->getMessage());
-                echo json_encode(array('ERROR'=>$e->getMessage()));
-                return;
             }
         }
     }

@@ -499,6 +499,7 @@ EOT;
                 $iniciales = strtoupper($iniciales);
 
                 $campos_valores['INICIALES_CLIENTE'] = $iniciales;
+                $campos_valores['ROUTER'] = 'Cisco';
 
 
 
@@ -521,7 +522,7 @@ EOT;
                 $campos_valores['SOBRANTE_CAPACIDAD_FACTURADA'] = ($campos_valores['CAPACIDAD_FACTURADA'] > $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_FACTURADA'] - $campos_valores['CAPACIDAD_SOLICITADA']) : 0;
 
                 $campos_valores['CAPACIDAD_ACTUAL'] = $campos_valores['CAPACIDAD_FACTURADA_HISTORICO'];
-
+                $campos_valores['VELOCIDAD_MINIMA_EFECTIVA'] = $campos_valores['CAPACIDAD_CONTRATADA'];
 
 
                 $iva = q("SELECT cat_texto FROM sai_catalogo WHERE cat_codigo='iva'")[0]['cat_texto']; 
@@ -613,11 +614,16 @@ EOT;
                     //$tea_id = $rc['tea_id'];
 
                     $pla_asunto = $rc['pla_asunto'];
-                    $pla_asunto = ($pla_asunto == 'null') ? 'Notificación' : $pla_asunto;
+                    
+                    //$pla_asunto = ($pla_asunto == 'null') ? 'Notificación' : $pla_asunto;
+                    $pla_asunto = ($pla_asunto == 'null') ? '' : $pla_asunto;
+                    
                     $pla_adjunto_nombre = $rc['pla_adjunto_nombre'];
 
                     $pla_cuerpo = $rc['pla_cuerpo'];
-                    $pla_cuerpo = ($pla_cuerpo == 'null') ? 'Favor revisar.' : $pla_cuerpo;
+                    //$pla_cuerpo = ($pla_cuerpo == 'null') ? 'Favor revisar.' : $pla_cuerpo;
+                    $pla_cuerpo = ($pla_cuerpo == 'null') ? '' : $pla_cuerpo;
+
                     $pla_adjunto_texto = $rc['pla_adjunto_texto'];
                     $pla_id = $rc['pla_id'];
 
@@ -664,8 +670,10 @@ EOT;
                     $pla_adjunto_nombre = (empty($pla_adjunto_nombre)) ? 'adjunto' : $pla_adjunto_nombre;
                     $pla_adjunto_nombre = limpiar_nombre_archivo($pla_adjunto_nombre);
 
-                    $pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
-                    $pla_cuerpo = (empty($pla_cuerpo)) ? 'Favor revisar atención '.$campos_valores['IDENTIFICADOR'] : $pla_cuerpo;
+                    //$pla_asunto = (empty($pla_asunto)) ? 'Notificacion' : $pla_asunto;
+                    $pla_asunto = (empty($pla_asunto)) ? '' : $pla_asunto;
+                    //$pla_cuerpo = (empty($pla_cuerpo)) ? 'Favor revisar atención '.$campos_valores['IDENTIFICADOR'] : $pla_cuerpo;
+                    $pla_cuerpo = (empty($pla_cuerpo)) ? '' : $pla_cuerpo;
 
 
                     $respuesta['plantillas'][$pla_id]['textos'] = array($pla_cuerpo, $pla_asunto, $pla_adjunto_nombre, $pla_adjunto_texto);
