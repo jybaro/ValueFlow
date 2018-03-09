@@ -13,11 +13,12 @@ if (isset($ate_id)) {
 if (!empty($ate_id)) {
     $codigos = array();
 
+    //    SELECT concat(ate_secuencial, '. ', COALESCE(ate_codigo, '(sin ID)'))
     $result = q("
         SELECT *
-        ,concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodos)) AS valor
+        ,concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad) AS valor
     , (
-        SELECT concat(ate_secuencial, '. ', COALESCE(ate_codigo, '(sin ID)'))
+        SELECT concat(trim(concat('', ate_secuencial, ' ', COALESCE(ate_codigo, ''))), ', punto ', nod_codigo)
         FROM 
         sai_nodo
         , sai_ubicacion
@@ -28,7 +29,7 @@ if (!empty($ate_id)) {
         AND ate_borrado IS NULL
         AND nod_id = vae_nodo
         AND ubi_id = nod_ubicacion
-        AND nod_atencion = ate_id
+        AND nod_atencion_referenciada = ate_id
     ) AS nodo
     , (
         SELECT ciu_nombre 

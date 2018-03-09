@@ -52,7 +52,7 @@ if ($extender_campos_anteriores == 1) {
 $sql = "
     SELECT *
     ,(
-        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodo)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -68,7 +68,7 @@ $sql = "
         LIMIT 1
     ) AS valor
     ,(
-        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodo)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -87,7 +87,7 @@ $sql = "
         LIMIT 1
     ) AS valor_historico
     ,(
-        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodo)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -106,7 +106,7 @@ $sql = "
         LIMIT 1
     ) AS valor_por_defecto 
     ,(
-        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodo)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -125,7 +125,7 @@ $sql = "
         LIMIT 1
     ) AS menor_que 
     ,(
-        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad, to_json(vae_nodo)) 
+        SELECT concat(vae_texto, vae_numero, to_char(vae_fecha, 'YYYY-MM-DD'), vae_nodo, vae_conexion, vae_ciudad) 
         FROM sai_valor_extra
         , sai_paso_atencion 
         WHERE vae_borrado IS NULL 
@@ -145,7 +145,7 @@ $sql = "
         LIMIT 1
     ) AS mayor_que 
     , (
-        SELECT concat(ate_secuencial, '. ', COALESCE(ate_codigo, '(sin ID)'))
+        SELECT concat(trim(concat('', ate_secuencial, ' ', COALESCE(ate_codigo, ''))), ', punto ', nod_codigo)
         FROM sai_valor_extra
         , sai_paso_atencion 
         , sai_nodo
@@ -160,7 +160,7 @@ $sql = "
         AND paa_id=vae_paso_atencion
         AND nod_id = vae_nodo
         AND ubi_id = nod_ubicacion
-        AND nod_atencion = ate_id
+        AND nod_atencion_referenciada = ate_id
         $filtro_valor_actual
         AND paa_atencion = $ate_id
         ORDER BY vae_creado DESC

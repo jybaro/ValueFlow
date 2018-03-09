@@ -27,15 +27,30 @@ if (strlen($query) >= $extension_minima) {
         SELECT *
         FROM sai_nodo
         ,sai_ubicacion
+        ,sai_atencion
+        ,sai_estado_atencion
         WHERE nod_borrado IS NULL
         AND ubi_borrado IS NULL
+        AND ate_borrado IS NULL
+        AND esa_borrado IS NULL
         AND nod_ubicacion = ubi_id
+        AND ate_estado_atencion = esa_id
         AND (
-            ubi_direccion ILIKE '%$query%'
+            esa_nombre ILIKE '%servicio activo%'
+            OR esa_nombre ILIKE '%servicio suspendido%'
+            OR esa_nombre ILIKE '%incremento%'
+            OR esa_nombre ILIKE '%decremento%'
+            OR esa_nombre ILIKE '%suspensión%'
+        )
+        AND nod_atencion = ate_id
+        AND (
+            ate_secuencial = $int_query
+            OR ate_codigo ILIKE '%{$query}%'
+            OR ubi_direccion ILIKE '%$query%'
             OR nod_codigo ILIKE '%$query%'
             OR nod_descripcion ILIKE '%$query%'
         )
-        ORDER BY nod_codigo
+        ORDER BY ate_codigo
     ");
 
     /*
@@ -46,7 +61,10 @@ if (strlen($query) >= $extension_minima) {
      * */
     if ($result) {
         foreach($result as $r){
-            $respuesta = array('id' => $r['nod_id'], 'name' => ($r['nod_codigo'] . ': ' . $r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')'));
+            $tipo = ($r['ate_concentrador'] == $r['nod_id']) ? 'concentrador' : (($r['ate_extremo'] == $r['nod_id']) ? 'extremo' : '');
+
+            //$respuesta = array('id' => $r['nod_id'], 'name' => ($r['nod_codigo'] . ': ' . $r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')'));
+            $respuesta = array('id' => $r['nod_id'], 'name' => 'Servicio activo '. ($r['ate_secuencial'] . ' ' .$r['ate_codigo'] . ', ' . $tipo . ' ' . $r['nod_codigo'] . ', ' .$r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')'));
             $respuestas[] = $respuesta; 
         }
     } else {

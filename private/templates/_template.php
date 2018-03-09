@@ -66,7 +66,6 @@ body {
             <li><a href="/empresas">Empresas</a></li>
             <li><a href="/directorio">Directorio</a></li>
             <li><a href="/dependencias">Dependencias</a></li>
-            <li role="separator" class="divider"></li>
             <!--li><a href="/autoadmin/sai_atencion">Atenciones</a></li>
             <li><a href="/atenciones">Flujo de las atenciones</a></li-->
             <li role="separator" class="divider"></li>

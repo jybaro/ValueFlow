@@ -76,7 +76,7 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             }
 
             $confirmada_ejecucion_accion = false;
-            if ($enviar_email) { 
+            if ($enviar_email) {
                 try {
                     //MAIL
                     //echo "[[$pla_asunto - $pla_cuerpo]]";

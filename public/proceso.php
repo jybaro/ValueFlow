@@ -1536,7 +1536,10 @@ function p_abrir_detalle_nodo(nod_id){
             //$('#detalle_nodo_contenido').html(contenido);
             //var titulo = nodo['nod_codigo'] + ': ' + nodo['nod_descripcion'] + ' ('+nodo['ubi_direccion']+')'
             //var titulo = nodo['nod_codigo'];
-            var titulo = 'de atención ' + nodo['ate_secuencial'] +'. '+(nodo['ate_codigo'] == null ? '(sin ID)' : nodo['ate_codigo']);
+            //var titulo = 'de atención ' + nodo['ate_secuencial'] +'. '+(nodo['ate_codigo'] == null ? '(sin ID)' : nodo['ate_codigo']);
+            //var titulo = 'de servicio ' + nodo['ate_secuencial'] +' '+(nodo['ate_codigo'] == null ? '(sin ID)' : nodo['ate_codigo']) + ', punto ' + nodo['nod_codigo'];
+            var titulo = (nodo['ate_codigo'] == null) ? ' ' + nodo['nod_codigo'] : ' de servicio ' + nodo['ate_secuencial'] +' '+ nodo['ate_codigo'] + ', punto ' + nodo['nod_codigo'];
+
             $('#detalle_nodo_titulo').text(titulo);
 
             $('#detalle_nodo_codigo').text(nodo['nod_codigo']);
@@ -1660,6 +1663,35 @@ function p_inicializar_autocompletar(id){
     $('.typeahead-ciudad').typeahead({
         source:function(query, process){
             $.get('/_listarCiudades/' + query, function(data){
+                console.log(data);
+                data = JSON.parse(data);
+                process(data.lista);
+            });
+        },
+        displayField:'name',
+        valueField:'id',
+        highlighter:function(name){
+            var ficha = '';
+            ficha +='<div>';
+            ficha +='<h4>'+name+'</h4>';
+            ficha +='</div>';
+            return ficha;
+        },
+        updater:function(item){
+            var id = $(this.$element[0]).prop('id').split('_').pop();
+
+            console.log('typeahead ID:' , id);
+
+            $('#campo_extra_'+id).val(item.id);
+            $('#campo_extra_detalle_valor_'+id).text(item.name);
+            $('#campo_extra_grupo_'+id).hide();
+            $('#campo_extra_detalle_'+id).show();
+            return item.name;
+        }
+    });
+    $('.typeahead-servicio-activo').typeahead({
+        source:function(query, process){
+            $.get('/_listarNodosServiciosActivos/' + query, function(data){
                 console.log(data);
                 data = JSON.parse(data);
                 process(data.lista);
@@ -2198,7 +2230,8 @@ function p_abrir(tea_id, ate_id) {
                         if (nodo_completo && nodo_completo['nod_fecha_termino'] !== null && nodo_completo['nod_nodo'] !== null && nodo_completo['nod_tipo_ultima_milla'] !== null && nodo_completo['nod_responsable_ultima_milla'] !== null && nodo_completo['nod_distancia'] !== null && nodo_completo['nod_id'] != null) {
                             console.log('el nodo parece completo...', '#campo_extra_'+cae_id, nodo_completo['nod_id']);
                             $('#campo_extra_'+cae_id).val(nodo_completo['nod_id']);
-                            if (nodo_completo['nod_atencion'] == $('#ate_id').val()) {
+                            //if (nodo_completo['nod_atencion'] == $('#ate_id').val()) {
+                            if (nodo_completo['nod_atencion_referenciada'] == $('#ate_id').val()) {
                                 $('#boton_nodo_completo_'+cae_id).removeClass('btn-warning');
                                 $('#boton_nodo_completo_'+cae_id).addClass('btn-success');
                             } else {
@@ -2385,7 +2418,7 @@ function p_desplegar_campos(campos, padre_id) {
                         '<label for="campo_extra_typeahead_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
                         '<div class="col-sm-' + col2 + '">' +
                         '<input type="hidden" id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="' + valor + '">' +
-                        '<input type="text" '+campo['cae_validacion']+' class="form-control typeahead-ciudad" id="campo_extra_typeahead_'+campo['cae_id']+'" name="campo_extra_typeahead_'+campo['cae_id']+'" data-provide="typeahead" autocomplete="off" placeholder="Ingrese al menos 2 caracteres" value="' + valor + '" onblur="p_validar(this)">' +
+                        '<input type="text" '+campo['cae_validacion']+' class="form-control typeahead-ciudad" id="campo_extra_typeahead_'+campo['cae_id']+'" xxxname="campo_extra_typeahead_'+campo['cae_id']+'" data-provide="typeahead" autocomplete="off" placeholder="Ingrese al menos 2 caracteres" value="' + valor + '" onblur="p_validar(this)">' +
                         '</div>' +
                         '</div>'+
 
@@ -2410,26 +2443,55 @@ function p_desplegar_campos(campos, padre_id) {
                         detalle_style = '';
                     }
 
+                    var contenido_nodo = '';
+                    var punto = ''+
+                        '<div class="col-sm-' + (col2 - 2) + '">' +
+                            '<input type="text" '+campo['cae_validacion']+' class="form-control typeahead-nodo" id="campo_extra_typeahead_'+campo['cae_id']+'" xxxname="campo_extra_typeahead_'+campo['cae_id']+'" data-provide="typeahead" autocomplete="off" placeholder="Ingrese código del punto" value="' + valor + '" onblur="p_validar(this)">' +
+                        '</div>' +
+                        '<div class="col-sm-1">' +
+                            '<button type="button" class="btn btn-success boton-nuevo" id="campo_extra_nuevo_'+campo['cae_id']+'" onclick="p_abrir_nuevo_nodo('+campo['cae_id']+')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>' +
+                        '</div>' +
+                        '';
+
+                    if (campo['cae_validacion'] == 'concentrador' || campo['cae_validacion'] == 'extremo') {
+                        var servicio_activo = ''+
+                            '<div class="col-sm-' + (col2 - 2) + '">' +
+                                '<input type="text" '+campo['cae_validacion']+' class="form-control typeahead-servicio-activo" id="campo_extra_typeahead_'+campo['cae_id']+'" xxxname="campo_extra_typeahead_'+campo['cae_id']+'" data-provide="typeahead" autocomplete="off" placeholder="Ingrese ID del servicio activo" value="' + valor + '" onblur="p_validar(this)">' +
+                            '</div>' +
+
+                            '';
+
+                        contenido_nodo = ''+
+                            '<div class="checkbox">'+
+                                '<label>'+
+                                    '<input type="checkbox" id="cambiar_nodo_existe_'+campo['cae_id']+'"  onclick="p_cambiar_nodo_existe(this, '+campo['cae_id']+')">' +
+                                    'Existe el servicio activo'+
+                                '</label>'+
+                            '</div>'+
+                            '<div style="display:none;" id="nodo_existe_'+campo['cae_id']+'">'+
+                                servicio_activo+
+                            '</div>'+
+                            '<div id="nodo_no_existe_'+campo['cae_id']+'">'+
+                                punto +
+                            '</div>'+
+                            '';
+                    } else {
+                        contenido_nodo = punto;
+                    }
                     contenido += ''+
                         '<div class="form-group" '+grupo_style+' id="campo_extra_grupo_'+campo['cae_id']+'">' +
-                        '<label for="campo_extra_typeahead_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
-                        '<div class="col-sm-' + (col2 - 2) + '">' +
-                        '<input type="hidden" id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="' + valor + '">' +
-                        '<input type="text" '+campo['cae_validacion']+' class="form-control typeahead-nodo" id="campo_extra_typeahead_'+campo['cae_id']+'" name="campo_extra_typeahead_'+campo['cae_id']+'" data-provide="typeahead" autocomplete="off" placeholder="Ingrese al menos 2 caracteres" value="' + valor + '" onblur="p_validar(this)">' +
-                        '</div>' +
-    '<div class="col-sm-1">' +
-    '<button type="button" class="btn btn-success boton-nuevo" id="campo_extra_nuevo_'+campo['cae_id']+'" onclick="p_abrir_nuevo_nodo('+campo['cae_id']+')"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>' +
-    '</div>' +
+                            '<label for="campo_extra_typeahead_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                            '<input type="hidden" id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="' + valor + '">' +
+                            contenido_nodo +
                         '</div>'+
-
                         '<div class="form-group" '+detalle_style+' id="campo_extra_detalle_'+campo['cae_id']+'">' +
-                        '<label class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
-                        '<div class="col-sm-' + (col2 - 2) + '">' +
-                        '<span id="campo_extra_detalle_valor_' + campo['cae_id'] + '">' + descripcion + '</span>' +
-                        '</div>' +
-    '<div class="col-sm-1">' +
-    '<button type="button" class="btn btn-danger boton-quitar" id="campo_extra_quitar_'+campo['cae_id']+'" onclick="p_quitar_opcion_typeahead('+campo['cae_id']+')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>' +
-    '</div>' +
+                            '<label class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                            '<div class="col-sm-' + (col2 - 2) + '">' +
+                                '<span id="campo_extra_detalle_valor_' + campo['cae_id'] + '">' + descripcion + '</span>' +
+                            '</div>' +
+                            '<div class="col-sm-1">' +
+                                '<button type="button" class="btn btn-danger boton-quitar" id="campo_extra_quitar_'+campo['cae_id']+'" onclick="p_quitar_opcion_typeahead('+campo['cae_id']+')"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>' +
+                            '</div>' +
                         '</div>'+
                         '';
                 } else if (campo['tipo_dato'] == 'nodo_completo') {
@@ -2466,6 +2528,18 @@ function p_desplegar_campos(campos, padre_id) {
     });
     return respuesta;
 }
+
+
+function p_cambiar_nodo_existe(target, cae_id) {
+    if ($(target).is(":checked")) {
+        $('#nodo_existe_' + cae_id).show();
+        $('#nodo_no_existe_' + cae_id).hide();
+    } else {
+        $('#nodo_existe_' + cae_id).hide();
+        $('#nodo_no_existe_' + cae_id).show();
+    }
+}
+
 
 function p_validar_capacidad(target, tipo_capacidad) {
     if (p_validar(target)) {

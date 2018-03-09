@@ -111,13 +111,14 @@ function p_formatear_valor_sql($raw, $tipo = 'text'){
     } else if (strpos($raw, '(') !== false && substr($raw, -1) == ')') {
         //es funcion
         $result = $raw;
-    //} else if (is_numeric($raw)) {
     } else if (strpos($tipo, 'time') !== false || strpos($tipo, 'date') !== false  || strpos($tipo, 'fecha') !== false) {
         //es timestamp
         $result = ($raw);
         //$result = date('c', strtotime($result));
         $result = pg_escape_literal($result);
         $result = "to_timestamp(" . $result . ", 'YYYY-MM-DD hh24:mi:ss')";
+    } else if (strpos($tipo, 'int') !== false) {
+        $result = is_numeric($raw) ? intval($raw) : 0;
     } else if (strpos($tipo, 'text') !== false || strpos($tipo, 'char') !== false) {
         //es texto 
         //$texto = htmlentities($raw);

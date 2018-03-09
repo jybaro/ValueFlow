@@ -150,6 +150,99 @@ foreach ($_POST as $k => $v){
                     if ($cae[cae_validacion] == 'concentrador' || $cae[cae_validacion] == 'extremo') {
                         $campo_nodo = $cae[cae_validacion];
                     }
+                    //verifica si es nuevo nodo, o si es referencia a uno existente y se lo debe duplicar:
+                    $result_nodo = q("
+                        SELECT *
+                        FROM sai_nodo
+
+                        LEFT OUTER JOIN sai_atencion
+                            ON ate_borrado IS NULL
+                            AND nod_atencion = ate_id
+
+                        LEFT OUTER JOIN sai_estado_atencion
+                            ON esa_borrado IS NULL
+                            AND esa_id = ate_estado_atencion
+                            AND (
+                                esa_nombre ILIKE '%servicio activo%'
+                                OR esa_nombre ILIKE '%servicio suspendido%'
+                                OR esa_nombre ILIKE '%incremento%'
+                                OR esa_nombre ILIKE '%decremento%'
+                                OR esa_nombre ILIKE '%suspensión%'
+                            )
+
+                        WHERE nod_borrado IS NULL
+                        AND nod_id = $vae_nodo
+                    ");
+                    if ($result_nodo) {
+                        $nodo = $result_nodo[0];
+                        if ($nodo['nod_atencion'] != $ate_id) {
+                            //si la atencion del nodo no es la actual atención, se lo debe duplicar:
+
+                            //$atencion_referenciada = 'null';
+                            $atencion_referenciada = $ate_id;
+
+                            $costo_instalacion_proveedor = 'nod_costo_instalacion_proveedor';
+                            $costo_instalacion_cliente = 'nod_costo_instalacion_cliente';
+
+                            if (!empty($nodo['esa_nombre'])) {
+                                //Si es servicio activo, se guarda la referencia a la atencion:
+                                $atencion_referenciada = $nodo['nod_atencion'];
+                                //$atencion_referenciada = $ate_id;
+
+                                //Si es servicio activo, no hay costos de instalacion:
+                                $costo_instalacion_proveedor = 0;
+                                $costo_instalacion_cliente = 0;
+                            }
+
+                            $sql = ("
+                                INSERT INTO sai_nodo(
+                                    nod_codigo
+                                    ,nod_descripcion
+                                    ,nod_ubicacion
+                                    ,nod_creado_por
+                                    ,nod_atencion
+                                    ,nod_costo_instalacion_proveedor
+                                    ,nod_costo_instalacion_cliente
+                                    ,nod_tipo_ultima_milla
+                                    ,nod_responsable_ultima_milla
+                                    ,nod_distancia
+                                    ,nod_fecha_termino
+                                    ,nod_nodo 
+                                    ,nod_duplicado_desde
+                                    ,nod_atencion_referenciada
+                                ) SELECT
+                                    nod_codigo
+                                    ,nod_descripcion
+                                    ,nod_ubicacion
+                                    ,nod_creado_por
+                                    ,$ate_id
+                                    ,$costo_instalacion_proveedor
+                                    ,$costo_instalacion_cliente
+                                    ,nod_tipo_ultima_milla
+                                    ,nod_responsable_ultima_milla
+                                    ,nod_distancia
+                                    ,nod_fecha_termino
+                                    ,nod_nodo 
+                                    ,{$nodo[nod_id]}
+                                    ,$atencion_referenciada
+                                FROM sai_nodo
+                                WHERE nod_borrado IS NULL
+                                AND nod_id = {$nodo[nod_id]} 
+                                RETURNING *
+                            ");
+                            echo $sql;
+                            $result_nuevo_nodo = q($sql);
+
+                            if ($result_nuevo_nodo) {
+                                $nuevo_nodo = $result_nuevo_nodo[0];
+                                $vae_nodo = $nuevo_nodo['nod_id'];
+                            }
+                        }
+                    }
+                    
+
+
+                    //actualiza la atencion con el nodo
 
                     $sql = ("
                         UPDATE sai_atencion

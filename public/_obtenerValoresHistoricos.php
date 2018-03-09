@@ -12,6 +12,7 @@ if (isset($ate_id)) {
 
 if (!empty($ate_id)) {
 
+    //SELECT concat(ate_secuencial, '. ', COALESCE(ate_codigo, '(sin ID)'))
     //trae los pasos 
     $result = q("
         SELECT *
@@ -21,18 +22,18 @@ if (!empty($ate_id)) {
             ,to_char(vae_fecha, 'YYYY-MM-DD HH24:MI')
         ) AS valor
         , (
-            SELECT concat(ate_secuencial, '. ', COALESCE(ate_codigo, '(sin ID)'))
+            SELECT concat(trim(concat('', ate_secuencial, ' ', COALESCE(ate_codigo, ''))), ', punto ', nod_codigo)
             FROM 
              sai_nodo
             , sai_ubicacion
             , sai_atencion
             WHERE 
-            nod_borrado IS NULL
-            AND ubi_borrado IS NULL
-            AND ate_borrado IS NULL
-            AND nod_id = vae_nodo
-            AND ubi_id = nod_ubicacion
-            AND nod_atencion = ate_id
+                nod_borrado IS NULL
+                AND ubi_borrado IS NULL
+                AND ate_borrado IS NULL
+                AND nod_id = vae_nodo
+                AND ubi_id = nod_ubicacion
+                AND nod_atencion_referenciada = ate_id
         ) AS nodo
         , (
             SELECT ciu_nombre 

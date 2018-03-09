@@ -52,6 +52,7 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
             $glue = '';
             foreach ($data as $columna => $valor){
                 if ($columna != 'id' && $columna != 'creado' && $columna != 'modificado') {
+                    //echo "[[VALOR:$valor, $columna, {$tipos[$columna]}]]";
                     $valor_sql = p_formatear_valor_sql($valor, $tipos[$columna]);
                     $sql_parejas .= "{$glue}{$prefijo}{$columna}={$valor_sql}";
                     $glue = ',';
@@ -60,6 +61,7 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
             if ($glue == ',') {
                 //$sql_parejas .= "{$glue}{$prefijo}modificado=now()";
                 $sql = "UPDATE {$tabla} SET $sql_parejas WHERE {$prefijo}id = {$data[id]}";
+                //echo $sql;
             }
         } else {
             $sql_campos = '';
