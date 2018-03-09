@@ -140,6 +140,7 @@ body {
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reportes<span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="/reporteHistorico">Histórico de atenciones</a></li>
+            <li><a href="/reporteServiciosActivos">Servicios Activos</a></li>
             <li role="separator" class="divider"></li>
           </ul>
         </li>
