@@ -239,8 +239,6 @@ foreach ($_POST as $k => $v){
                             }
                         }
                     }
-                    
-
 
                     //actualiza la atencion con el nodo
 
