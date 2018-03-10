@@ -2,7 +2,8 @@
 
 $respuestas = array();
 $error = array();
-$query = $args[0];
+$ate_id = $args[0];
+$query = $args[1];
 
 $extension_minima = 2;
 
@@ -29,10 +30,12 @@ if (strlen($query) >= $extension_minima) {
         ,sai_ubicacion
         ,sai_atencion
         ,sai_estado_atencion
+        ,sai_pertinencia_proveedor
         WHERE nod_borrado IS NULL
         AND ubi_borrado IS NULL
         AND ate_borrado IS NULL
         AND esa_borrado IS NULL
+        AND pep_borrado IS NULL
         AND nod_ubicacion = ubi_id
         AND ate_estado_atencion = esa_id
         AND (
@@ -41,6 +44,16 @@ if (strlen($query) >= $extension_minima) {
             OR esa_nombre ILIKE '%incremento%'
             OR esa_nombre ILIKE '%decremento%'
             OR esa_nombre ILIKE '%suspensión%'
+        )
+        AND ate_pertinencia_proveedor = pep_id
+        AND pep_proveedor = (
+            SELECT pep_proveedor
+            FROM sai_pertinencia_proveedor
+            ,sai_atencion
+            WHERE pep_borrado IS NULL
+            AND ate_borrado IS NULL
+            AND ate_pertinencia_proveedor = pep_id
+            AND ate_id = $ate_id 
         )
         AND nod_atencion = ate_id
         AND (

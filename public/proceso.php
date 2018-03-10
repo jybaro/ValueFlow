@@ -1691,7 +1691,8 @@ function p_inicializar_autocompletar(id){
     });
     $('.typeahead-servicio-activo').typeahead({
         source:function(query, process){
-            $.get('/_listarNodosServiciosActivos/' + query, function(data){
+            var ate_id = $('#ate_id').val();
+            $.get('/_listarNodosServiciosActivos/' + ate_id + '/' + query, function(data){
                 console.log(data);
                 data = JSON.parse(data);
                 process(data.lista);
@@ -2445,7 +2446,7 @@ function p_desplegar_campos(campos, padre_id) {
 
                     var contenido_nodo = '';
                     var punto = ''+
-                        '<div class="col-sm-' + (col2 - 2) + '">' +
+                        '<div class="col-sm-' + (col2 ) + '">' +
                             '<input type="text" '+campo['cae_validacion']+' class="form-control typeahead-nodo" id="campo_extra_typeahead_'+campo['cae_id']+'" xxxname="campo_extra_typeahead_'+campo['cae_id']+'" data-provide="typeahead" autocomplete="off" placeholder="Ingrese código del punto" value="' + valor + '" onblur="p_validar(this)">' +
                         '</div>' +
                         '<div class="col-sm-1">' +
@@ -2455,7 +2456,7 @@ function p_desplegar_campos(campos, padre_id) {
 
                     if (campo['cae_validacion'] == 'concentrador' || campo['cae_validacion'] == 'extremo') {
                         var servicio_activo = ''+
-                            '<div class="col-sm-' + (col2 - 2) + '">' +
+                            '<div class="col-sm-' + (col2 ) + '">' +
                                 '<input type="text" '+campo['cae_validacion']+' class="form-control typeahead-servicio-activo" id="campo_extra_typeahead_'+campo['cae_id']+'" xxxname="campo_extra_typeahead_'+campo['cae_id']+'" data-provide="typeahead" autocomplete="off" placeholder="Ingrese ID del servicio activo" value="' + valor + '" onblur="p_validar(this)">' +
                             '</div>' +
 
@@ -2482,7 +2483,9 @@ function p_desplegar_campos(campos, padre_id) {
                         '<div class="form-group" '+grupo_style+' id="campo_extra_grupo_'+campo['cae_id']+'">' +
                             '<label for="campo_extra_typeahead_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
                             '<input type="hidden" id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="' + valor + '">' +
-                            contenido_nodo +
+                            '<div class="col-sm-' + col2 + '">'+
+                                contenido_nodo +
+                            '</div>'+
                         '</div>'+
                         '<div class="form-group" '+detalle_style+' id="campo_extra_detalle_'+campo['cae_id']+'">' +
                             '<label class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
