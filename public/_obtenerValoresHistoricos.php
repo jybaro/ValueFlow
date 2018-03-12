@@ -14,6 +14,14 @@ if (!empty($ate_id)) {
 
     //SELECT concat(ate_secuencial, '. ', COALESCE(ate_codigo, '(sin ID)'))
     //trae los pasos 
+    /*
+     *
+                WHEN nod_no_diferencia_puntos = 1 AND nod_atencion <> nod_atencion_referenciada
+                THEN trim(concat('Servicio activo ', ate_secuencial, ' ', COALESCE(ate_codigo, '')))
+
+                WHEN nod_no_diferencia_puntos = 0 AND nod_atencion <> nod_atencion_referenciada
+                THEN concat(trim(concat('Servicio activo ', ate_secuencial, ' ', COALESCE(ate_codigo, ''))), ', punto ', nod_codigo)
+     * */
     $result = q("
         SELECT *
         , concat(
@@ -24,10 +32,7 @@ if (!empty($ate_id)) {
         , (
             SELECT 
             CASE 
-                WHEN nod_no_diferencia_puntos = 1 AND nod_atencion <> nod_atencion_referenciada
-                THEN trim(concat('Servicio activo ', ate_secuencial, ' ', COALESCE(ate_codigo, '')))
-
-                WHEN nod_no_diferencia_puntos = 0 AND nod_atencion <> nod_atencion_referenciada
+                WHEN nod_atencion <> nod_atencion_referenciada
                 THEN concat(trim(concat('Servicio activo ', ate_secuencial, ' ', COALESCE(ate_codigo, ''))), ', punto ', nod_codigo)
 
                 ELSE concat('Punto ', nod_codigo)

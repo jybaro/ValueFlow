@@ -1543,7 +1543,7 @@ function p_abrir_detalle_nodo(nod_id){
             //var titulo = 'de atención ' + nodo['ate_secuencial'] +'. '+(nodo['ate_codigo'] == null ? '(sin ID)' : nodo['ate_codigo']);
             //var titulo = 'de servicio ' + nodo['ate_secuencial'] +' '+(nodo['ate_codigo'] == null ? '(sin ID)' : nodo['ate_codigo']) + ', punto ' + nodo['nod_codigo'];
             var titulo = '';
-            if (nodo['nod_no_diferencia_puntos'] == 1 && nodo['nod_atencion'] != nodo['nod_atencion_referenciada']) {
+            if (false && nodo['nod_no_diferencia_puntos'] == 1 && nodo['nod_atencion'] != nodo['nod_atencion_referenciada']) {
                 titulo = 'Servicio activo '+ nodo['ate_secuencial'] +' '+ nodo['ate_codigo'];
             } else if (nodo['nod_no_diferencia_puntos'] == 0 && nodo['nod_atencion'] != nodo['nod_atencion_referenciada']) {
                 titulo = 'Servicio activo '+ nodo['ate_secuencial'] +' '+ nodo['ate_codigo']  + ', punto ' + nodo['nod_codigo'];
@@ -1551,7 +1551,7 @@ function p_abrir_detalle_nodo(nod_id){
                 titulo = 'Punto ' + nodo['nod_codigo'];
             }
 
-            if (nodo['nod_no_diferencia_puntos'] == 1 && nodo['nod_atencion'] != nodo['nod_atencion_referenciada']) {
+            if (false && nodo['nod_no_diferencia_puntos'] == 1 && nodo['nod_atencion'] != nodo['nod_atencion_referenciada']) {
                 var url = '/proceso/0/' + nodo['ate_codigo'] + '#atencion_' + nodo['ate_secuencial'];
                 var win = window.open(url, '_blank');
                 win.focus();
@@ -2262,10 +2262,13 @@ function p_abrir(tea_id, ate_id) {
 
                         $('#campo_extra_grupo_'+cae_id).removeClass('has-warning');
                         if (nodo_completo) {
+                            $('#campo_extra_grupo_'+cae_id).show();
                             if (nodo_completo['nod_atencion_referenciada'] != null && nodo_completo['nod_atencion_referenciada'] != nodo_completo['nod_atencion']) {
-                                $('#campo_extra_grupo_'+cae_id).remove();
-                            } else if (nodo_completo['nod_no_diferencia_puntos'] == 1) {
-                                $('#campo_extra_grupo_'+cae_id).remove();
+                                $('#campo_extra_grupo_'+cae_id).hide();
+                                $('#campo_extra_'+cae_id).val(nodo_completo['nod_codigo']);
+                            } else if (false && nodo_completo['nod_no_diferencia_puntos'] == 1) {
+                                $('#campo_extra_grupo_'+cae_id).hide();
+                                $('#campo_extra_'+cae_id).val(nodo_completo['nod_codigo']);
                             } else {
                                 $('#campo_extra_'+cae_id).val(nodo_completo['nod_codigo']).blur();
                             }

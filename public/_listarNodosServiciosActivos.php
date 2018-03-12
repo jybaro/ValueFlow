@@ -84,11 +84,12 @@ if (strlen($query) >= $extension_minima) {
      * */
     if ($result) {
         foreach($result as $r){
-            $tipo = ($r['ate_concentrador'] == $r['nod_id']) ? 'concentrador' : (($r['ate_extremo'] == $r['nod_id']) ? 'extremo' : '');
+            $tipo = ($r['ate_concentrador'] == $r['nod_id']) ? 'concentrador' : (($r['ate_extremo'] == $r['nod_id']) ? 'extremo' : 'punto');
 
             //$respuesta = array('id' => $r['nod_id'], 'name' => ($r['nod_codigo'] . ': ' . $r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')'));
             if ($no_diferencia_puntos) {
                 $respuesta = array('id' => $r['nod_id'], 'name' => 'Servicio activo '. trim($r['ate_secuencial'] . ' ' .$r['ate_codigo'] ));
+                /*
                 $encuentra = false;
                 foreach($respuestas as $respuesta_no_diferencia_puntos) {
                     if ($respuesta_no_diferencia_puntos['name'] == $respuesta['name']) {
@@ -96,6 +97,10 @@ if (strlen($query) >= $extension_minima) {
                     }
                 }
                 if (!$encuentra) {
+                    $respuestas[] = $respuesta; 
+                }
+                 */
+                if ($tipo == 'concentrador' || $tipo == 'punto') {
                     $respuestas[] = $respuesta; 
                 }
             } else {
