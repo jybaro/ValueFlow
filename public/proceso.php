@@ -2249,6 +2249,30 @@ function p_abrir(tea_id, ate_id) {
                 var cae_id = $(this).attr('id').replace('cambiar_nodo_existe_', '');
                 p_cambiar_nodo_existe(this, cae_id);
             });
+            //inicializar codigos de nodos (login):
+            nodos_codigos.forEach(function(campo){
+                var cae_id = campo['cae_id'];
+                $.get('/_obtenerNodoDeAtencion/' + cae_id + '/' + ate_id, function(nodo_completo){
+                    console.log('/_obtenerNodoDeAtencion/' + cae_id + '/' + ate_id, nodo_completo);
+                    nodo_completo = JSON.parse(nodo_completo);
+                    if (nodo_completo) {
+                        nodo_completo = nodo_completo[0];
+                        console.log('nodo_completo', nodo_completo);
+
+
+                        $('#campo_extra_grupo_'+cae_id).removeClass('has-warning');
+                        if (nodo_completo) {
+                            if (nodo_completo['nod_atencion_referenciada'] != null && nodo_completo['nod_atencion_referenciada'] != nodo_completo['nod_atencion']) {
+                                $('#campo_extra_grupo_'+cae_id).remove();
+                            } else if (nodo_completo['nod_no_diferencia_puntos'] == 1) {
+                                $('#campo_extra_grupo_'+cae_id).remove();
+                            } else {
+                                $('#campo_extra_'+cae_id).val(nodo_completo['nod_codigo']).blur();
+                            }
+                        }
+                    }
+                });
+            });
             //inicializar nodos completos:
             nodos_completos.forEach(function(campo){
                 var cae_id = campo['cae_id'];
@@ -2532,7 +2556,7 @@ function p_desplegar_campos(campos, padre_id) {
                     nodos_codigos.push(campo);
 
                     contenido += ''+
-                        '<div class="form-group" id="campo_extra_grupo_'+campo['cae_id']+'">' +
+                        '<div class="form-group has-warning" id="campo_extra_grupo_'+campo['cae_id']+'">' +
                         '<label for="campo_extra_typeahead_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
                         '<div class="col-sm-' + col2 + '">' +
                         '<input type="text" class="form-control" required id="campo_extra_' + campo['cae_id'] + '" name="campo_extra_' + campo['cae_id'] + '" value="' + valor + '" onblur="p_validar_nodo_codigo(this)">' +
@@ -2607,6 +2631,7 @@ function p_validar_nodo_codigo(target){
     var nod_codigo = $(target).val();
     $(target).parent().parent().removeClass('has-error');
     $(target).parent().parent().removeClass('has-success');
+    $(target).parent().parent().removeClass('has-warning');
     if (nod_codigo != '') {
         $(target).val('');
         $.get('/_validarNodoCodigo/' + ate_id + '/' + cae_id + '/' + nod_codigo, function(data){
