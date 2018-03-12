@@ -151,6 +151,16 @@ foreach ($_POST as $k => $v){
                         $campo_nodo = $cae[cae_validacion];
                     }
                     //verifica si es nuevo nodo, o si es referencia a uno existente y se lo debe duplicar:
+                    $no_diferencia_puntos = q("
+                        SELECT pep_no_diferencia_puntos
+                        FROM sai_atencion
+                        ,sai_pertinencia_proveedor
+                        WHERE ate_borrado IS NULL
+                        AND pep_borrado IS NULL
+                        AND ate_pertinencia_proveedor = pep_id
+                        AND ate_id = $ate_id
+                    ")[0]['pep_no_diferencia_puntos'];
+
                     $result_nodo = q("
                         SELECT *
                         FROM sai_nodo
@@ -210,6 +220,7 @@ foreach ($_POST as $k => $v){
                                     ,nod_nodo 
                                     ,nod_duplicado_desde
                                     ,nod_atencion_referenciada
+                                    ,nod_no_diferencia_puntos
                                 ) SELECT
                                     nod_codigo
                                     ,nod_descripcion
@@ -225,6 +236,7 @@ foreach ($_POST as $k => $v){
                                     ,nod_nodo 
                                     ,{$nodo[nod_id]}
                                     ,$atencion_referenciada
+                                    ,$no_diferencia_puntos
                                 FROM sai_nodo
                                 WHERE nod_borrado IS NULL
                                 AND nod_id = {$nodo[nod_id]} 
@@ -236,10 +248,24 @@ foreach ($_POST as $k => $v){
                             if ($result_nuevo_nodo) {
                                 $nuevo_nodo = $result_nuevo_nodo[0];
                                 $vae_nodo = $nuevo_nodo['nod_id'];
+
+                                //se borran los nodos de anteriores selecciones que pudieran existir:
+                                q("
+                                    UPDATE sai_nodo
+                                    SET nod_borrado = now()
+                                    WHERE nod_borrado IS NULL
+                                    AND nod_id = (
+                                        SELECT ate_$campo_nodo
+                                        FROM sai_atencion
+                                        WHERE ate_borrado IS NULL
+                                        AND ate_id = $ate_id
+                                    )
+                                ");
                             }
                         }
                     }
 
+                    
                     //actualiza la atencion con el nodo
 
                     $sql = ("

@@ -9,6 +9,16 @@ $extension_minima = 2;
 
 if (strlen($query) >= $extension_minima) {
 
+    $no_diferencia_puntos = q("
+        SELECT pep_no_diferencia_puntos
+        FROM sai_atencion
+        ,sai_pertinencia_proveedor
+        WHERE ate_borrado IS NULL
+        AND pep_borrado IS NULL
+        AND ate_pertinencia_proveedor = pep_id
+        AND ate_id = $ate_id
+    ")[0]['pep_no_diferencia_puntos'];
+
     /*
     $result = q("
         SELECT *
@@ -77,8 +87,22 @@ if (strlen($query) >= $extension_minima) {
             $tipo = ($r['ate_concentrador'] == $r['nod_id']) ? 'concentrador' : (($r['ate_extremo'] == $r['nod_id']) ? 'extremo' : '');
 
             //$respuesta = array('id' => $r['nod_id'], 'name' => ($r['nod_codigo'] . ': ' . $r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')'));
-            $respuesta = array('id' => $r['nod_id'], 'name' => 'Servicio activo '. ($r['ate_secuencial'] . ' ' .$r['ate_codigo'] . ', ' . $tipo . ' ' . $r['nod_codigo'] . ', ' .$r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')'));
-            $respuestas[] = $respuesta; 
+            if ($no_diferencia_puntos) {
+                $respuesta = array('id' => $r['nod_id'], 'name' => 'Servicio activo '. trim($r['ate_secuencial'] . ' ' .$r['ate_codigo'] ));
+                $encuentra = false;
+                foreach($respuestas as $respuesta_no_diferencia_puntos) {
+                    if ($respuesta_no_diferencia_puntos['name'] == $respuesta['name']) {
+                        $encuentra = true;
+                    }
+                }
+                if (!$encuentra) {
+                    $respuestas[] = $respuesta; 
+                }
+            } else {
+                $respuesta = array('id' => $r['nod_id'], 'name' => 'Servicio activo '. trim($r['ate_secuencial'] . ' ' .$r['ate_codigo']) . ', ' . $tipo . ' ' . $r['nod_codigo'] . ', ' .$r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')');
+                $respuestas[] = $respuesta; 
+            }
+
         }
     } else {
         $error[] = array('sinresultados' => 'No hay resultados para la consulta -'.$query.'-.');

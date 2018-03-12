@@ -217,7 +217,7 @@ FROM
         }
     }
     //var_dump($campos);
-    echo "<script>var tabla='".substr($tabla, 4)."';var campos = ".json_encode($campos_js).";var campos_unicos=".json_encode($campos_unicos).";</script>";
+    echo "<script>var tabla='".substr($tabla, 4)."';var campos = ".json_encode($campos_js).";var campos_unicos=".json_encode($campos_unicos).";var catalogo_campos=".json_encode($campos).";</script>";
     //echo "<a href='/autoadmin'><< Regresar al listado de tablas</a>";
     echo "<h1>$nombre_tabla</h1>";
 
@@ -262,6 +262,10 @@ FROM
                     $valor = $r[$campo['column_name']];
                     if(isset($fkeys[$campo['nombre']])) {
                         $etiqueta = $fkeys[$campo['nombre']]['__opciones'][$valor];
+                    } else if ($campo['tipo'] == 'fecha') {
+                        $etiqueta = date('Y-m-d', strtotime($valor));
+                    } else if ($campo['tipo'] == 'si-no') {
+                        $etiqueta = $valor == 1 ? 'Sí': 'No';
                     } else {
                         $etiqueta = $valor;
                     }
@@ -349,6 +353,15 @@ FROM
 
       <input class="form-control multiemail" id="<?=$c?>" name="<?=$c?>" placeholder="" <?=$campo['validacion']?> onblur="p_validar(this)" >
 
+      <?php elseif($tipo == 'fecha'): ?>
+
+      <input type="text" class="form-control datetimepicker" id="<?=$c?>" name="<?=$c?>" placeholder="" <?=$campo['validacion']?> onblur="p_validar(this)" >
+
+      <?php elseif($tipo == 'si-no'): ?>
+
+      <input type="checkbox" value="1" class="form-control checkbox-toggle" id="<?=$c?>_checkbox" <?=$campo['validacion']?> onchange="p_cambiar_checkbox(this)" >
+      <input type="hidden" id="<?=$c?>" name="<?=$c?>"  >
+
       <?php else: ?>
 
       <input class="form-control" id="<?=$c?>" name="<?=$c?>" placeholder="" <?=$campo['validacion']?> onblur="p_validar(this)" >
@@ -382,12 +395,22 @@ FROM
 <script src="/js/html2canvas.min.js"></script>
 <script src="/js/html2pdf.js"></script>
 
+  <link rel="stylesheet" href="/css/bootstrap-toggle.min.css">
+  <script src="/js/bootstrap-toggle.min.js"></script>
 
 <script>
 
 $(document).ready(function() {
     $('.combo-select2').select2({
         language: "es"
+    });
+    $('.checkbox-toggle').bootstrapToggle({
+        on: 'Sí'
+        ,off: 'No'
+    });
+    $('.datetimepicker').datetimepicker({
+        locale: 'es',
+        format: 'YYYY-MM-DD'
     });
     $('.multiemail').multiple_emails({position: "bottom"});
     //refresh_emails
@@ -418,6 +441,10 @@ $(document).ready(function() {
     }});
 });
 
+function p_cambiar_checkbox(target) {
+    var id = $(target).attr('id').replace('_checkbox', '');
+    $('#' + id).val($(target).is(":checked") ? '1' : '0');
+}
 
 function p_validar(target) {
     console.log('validando', target);
@@ -531,6 +558,12 @@ function p_abrir(id, target){
         for (key in data){
             $('#' + key).val(data[key]).trigger('change');;
         }
+        //reinicializa los checkbox
+        $('.checkbox-toggle').each(function(){
+            var id = $(this).attr('id').replace('_checkbox', '');
+            console.log('aqui checkbox', id, $('#' + id).val());
+            $(this).prop('checked', $('#' + id).val() == 1).change();
+        });
         //reinicializa los multi-email:
         $('.multiple_emails-container').remove();
         $('.multiemail').multiple_emails({position: "bottom"});
@@ -687,6 +720,15 @@ function p_guardar() {
                             texto = $('#'+key + ' option:selected').text(); 
                         } else {
                             texto = data[key];
+                            catalogo_campos.forEach(function(catalogo_campo){
+                                if (catalogo_campo['nombre'] == key) {
+                                    if (catalogo_campo['tipo'] == 'si-no') {
+                                        texto = (texto == 1) ? 'Sí' : 'No';
+                                    } else if (catalogo_campo['tipo'] == 'fecha') {
+                                        texto = moment(texto).format('YYYY-MM-DD');
+                                    }
+                                }
+                            });
                         }
                         var valor = texto;
                         var isValidJSON = true;
@@ -721,7 +763,22 @@ function p_guardar() {
                     var option_label = '';
                     var key = '';
                     campos.forEach(function(campo){
-                        valor = (data[campo] == null) ? '' : (($('#'+campo + ' option:selected').length > 0) ? $('#'+campo+' option:selected').text() : data[campo]);
+                        valor = '';
+                        if (data[campo] != null && $('#'+campo + ' option:selected').length > 0) {
+                            valor = $('#'+campo+' option:selected').text();
+                        } else {
+                            valor = data[campo];
+                            catalogo_campos.forEach(function(catalogo_campo){
+                                if (catalogo_campo['nombre'] == campo) {
+                                    if (catalogo_campo['tipo'] == 'si-no') {
+                                        valor = (valor == 1) ? 'Sí' : 'No';
+                                    } else if (catalogo_campo['tipo'] == 'fecha') {
+                                        valor = moment(valor).format('YYYY-MM-DD');
+                                    }
+                                }
+                            });
+                        }
+                        //valor = (data[campo] == null) ? '' : (($('#'+campo + ' option:selected').length > 0) ? $('#'+campo+' option:selected').text() : data[campo]);
                         var isValidJSON = true;
                         try { JSON.parse(valor); } catch(e) { isValidJSON = false; }
                         console.log('isValidJSON', isValidJSON);
@@ -792,6 +849,12 @@ function p_nuevo(){
             this.checked = false;
             break;
         }
+    });
+    //inicializa los checkbox
+    $('.checkbox-toggle').each(function(){
+        var id = $(this).attr('id').replace('_checkbox', '');
+        $('#' + id).val('0');
+        $(this).prop('checked', false).change();
     });
     //inicializa los multi-email:
     $('.multiple_emails-container').remove();

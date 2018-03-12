@@ -22,7 +22,16 @@ if (!empty($ate_id)) {
             ,to_char(vae_fecha, 'YYYY-MM-DD HH24:MI')
         ) AS valor
         , (
-            SELECT concat(trim(concat('', ate_secuencial, ' ', COALESCE(ate_codigo, ''))), ', punto ', nod_codigo)
+            SELECT 
+            CASE 
+                WHEN nod_no_diferencia_puntos = 1 AND nod_atencion <> nod_atencion_referenciada
+                THEN trim(concat('Servicio activo ', ate_secuencial, ' ', COALESCE(ate_codigo, '')))
+
+                WHEN nod_no_diferencia_puntos = 0 AND nod_atencion <> nod_atencion_referenciada
+                THEN concat(trim(concat('Servicio activo ', ate_secuencial, ' ', COALESCE(ate_codigo, ''))), ', punto ', nod_codigo)
+
+                ELSE concat('Punto ', nod_codigo)
+            END
             FROM 
              sai_nodo
             , sai_ubicacion
@@ -96,7 +105,9 @@ if (!empty($ate_id)) {
 
     //var_dump($result);
 
-    $resultado = array_values($result);
+    if ($result) {
+        $resultado = array_values($result);
+    }
 }
 
 if ($json) {

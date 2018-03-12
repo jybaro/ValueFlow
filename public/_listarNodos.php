@@ -27,9 +27,22 @@ if (strlen($query) >= $extension_minima) {
         SELECT *
         FROM sai_nodo
         ,sai_ubicacion
+        ,sai_atencion
+        ,sai_estado_atencion
         WHERE nod_borrado IS NULL
         AND ubi_borrado IS NULL
+        AND ate_borrado IS NULL
+        AND esa_borrado IS NULL
         AND nod_ubicacion = ubi_id
+        AND nod_atencion = ate_id
+        AND ate_estado_atencion = esa_id
+        AND NOT (
+            esa_nombre ILIKE '%servicio activo%'
+            OR esa_nombre ILIKE '%servicio suspendido%'
+            OR esa_nombre ILIKE '%incremento%'
+            OR esa_nombre ILIKE '%decremento%'
+            OR esa_nombre ILIKE '%suspensión%'
+        )
         AND (
             ubi_direccion ILIKE '%$query%'
             OR nod_codigo ILIKE '%$query%'

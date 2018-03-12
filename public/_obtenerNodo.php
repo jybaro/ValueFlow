@@ -23,28 +23,32 @@ if (!empty($nod_id)) {
             AND nod_tipo_ultima_milla = tum_id 
         ) AS tum_nombre
         FROM sai_nodo
-        ,sai_ubicacion
-        ,sai_provincia
-        ,sai_canton
-        ,sai_parroquia
-        ,sai_ciudad
-        ,sai_atencion
+
+        LEFT OUTER JOIN sai_ubicacion
+          ON ubi_borrado IS NULL
+          AND nod_ubicacion = ubi_id
+
+        LEFT OUTER JOIN sai_provincia
+          ON prv_borrado IS NULL
+          AND ubi_provincia = prv_id
+
+        LEFT OUTER JOIN sai_canton
+          ON can_borrado IS NULL
+          AND ubi_canton = can_id
+
+        LEFT OUTER JOIN sai_parroquia
+          ON par_borrado IS NULL
+          AND ubi_parroquia = par_id
+
+        LEFT OUTER JOIN sai_ciudad
+          ON ciu_borrado IS NULL
+          AND ubi_ciudad = ciu_id
+
+        LEFT OUTER JOIN sai_atencion
+          ON ate_borrado IS NULL
+          AND nod_atencion_referenciada = ate_id
 
         WHERE nod_borrado IS NULL
-        AND ubi_borrado IS NULL
-        AND prv_borrado IS NULL
-        AND can_borrado IS NULL
-        AND par_borrado IS NULL
-        AND ciu_borrado IS NULL
-        AND ate_borrado IS NULL
-        
-        AND nod_ubicacion = ubi_id
-        AND ubi_provincia = prv_id
-        AND ubi_canton = can_id
-        AND ubi_parroquia = par_id
-        AND ubi_ciudad = ciu_id
-        AND nod_atencion = ate_id
-
         AND nod_id = $nod_id
     ");
 }

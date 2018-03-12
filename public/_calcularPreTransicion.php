@@ -342,6 +342,18 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     WHERE tum_borrado IS NULL
                     AND nod_tipo_ultima_milla = tum_id
                 )
+                ,(
+                    SELECT pep_no_diferencia_puntos
+                    FROM sai_pertinencia_proveedor
+                    WHERE pep_borrado IS NULL
+                    AND pep_id = ate_pertinencia_proveedor
+                )
+                ,(
+                    SELECT ate_codigo
+                    FROM sai_atencion
+                    WHERE ate_borrado IS NULL
+                    AND ate_id = nod_atencion_referenciada
+                ) AS ate_codigo_referenciada
                 FROM sai_atencion
                 ,sai_nodo
                 ,sai_ubicacion
@@ -373,6 +385,18 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     WHERE tum_borrado IS NULL
                     AND nod_tipo_ultima_milla = tum_id
                 )
+                ,(
+                    SELECT pep_no_diferencia_puntos
+                    FROM sai_pertinencia_proveedor
+                    WHERE pep_borrado IS NULL
+                    AND pep_id = ate_pertinencia_proveedor
+                )
+                ,(
+                    SELECT ate_codigo
+                    FROM sai_atencion
+                    WHERE ate_borrado IS NULL
+                    AND ate_id = nod_atencion_referenciada
+                ) AS ate_codigo_referenciada
                 FROM sai_atencion
                 ,sai_nodo
                 ,sai_ubicacion
@@ -468,12 +492,52 @@ EOT;
                         $campos_valores['CONCENTRADOR_' . strtoupper($k)] = $v;
                     }
                 }
+
+                //if (isset($campos_valores['CONCENTRADOR_PEP_NO_DIFERENCIA_PUNTOS']) && $campos_valores['CONCENTRADOR_PEP_NO_DIFERENCIA_PUNTOS'] == 1 && $campos_valores['CONCENTRADOR_ATE_CODIGO_REFERENCIADA'] != $campos_valores['CONCENTRADOR_ATE_CODIGO']) {
+                if (!empty($campos_valores['CONCENTRADOR_ATE_CODIGO_REFERENCIADA']) && $campos_valores['CONCENTRADOR_ATE_CODIGO_REFERENCIADA'] != $campos_valores['CONCENTRADOR_ATE_CODIGO']) {
+                    $campos_valores['CONCENTRADOR_NOD_CODIGO'] = $campos_valores['CONCENTRADOR_ATE_CODIGO_REFERENCIADA'];
+                    $campos_valores['CONCENTRADOR_UBI_DIRECCION'] = $campos_valores['CONCENTRADOR_ATE_CODIGO_REFERENCIADA'];
+                    $campos_valores['CONCENTRADOR_UBI_SECTOR'] = '';
+                    $campos_valores['CONCENTRADOR_UBI_LONGITUD'] = '';
+                    $campos_valores['CONCENTRADOR_UBI_LATITUD'] = '';
+                    $campos_valores['CONCENTRADOR_CIU_NOMBRE'] = '';
+                    $campos_valores['CONCENTRADOR_CAN_NOMBRE'] = '';
+                    $campos_valores['CONCENTRADOR_PRV_NOMBRE'] = '';
+                    $campos_valores['CONCENTRADOR_PAR_NOMBRE'] = '';
+                }
+
                 if ($result_extremo) {
                     foreach($result_extremo[0] as $k => $v) {
                         $campos_valores['EXTREMO_' . strtoupper($k)] = $v;
                         $campos_valores['NODO_' . strtoupper($k)] = $v;
                     }
                 }
+
+                //if (isset($campos_valores['EXTREMO_PEP_NO_DIFERENCIA_PUNTOS']) && $campos_valores['EXTREMO_PEP_NO_DIFERENCIA_PUNTOS'] == 1 && $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'] != $campos_valores['EXTREMO_ATE_CODIGO']) {
+                if (!empty($campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA']) && $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'] != $campos_valores['EXTREMO_ATE_CODIGO']) {
+                    $campos_valores['EXTREMO_NOD_CODIGO'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'];
+                    $campos_valores['EXTREMO_UBI_DIRECCION'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'];
+                    $campos_valores['EXTREMO_UBI_SECTOR'] = '';
+                    $campos_valores['EXTREMO_UBI_LONGITUD'] = '';
+                    $campos_valores['EXTREMO_UBI_LATITUD'] = '';
+                    $campos_valores['EXTREMO_CIU_NOMBRE'] = '';
+                    $campos_valores['EXTREMO_CAN_NOMBRE'] = '';
+                    $campos_valores['EXTREMO_PRV_NOMBRE'] = '';
+                    $campos_valores['EXTREMO_PAR_NOMBRE'] = '';
+
+                    $campos_valores['NODO_NOD_CODIGO'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'];
+                    $campos_valores['NODO_UBI_DIRECCION'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'];
+                    $campos_valores['NODO_UBI_SECTOR'] = '';
+                    $campos_valores['NODO_UBI_LONGITUD'] = '';
+                    $campos_valores['NODO_UBI_LATITUD'] = '';
+                    $campos_valores['NODO_CIU_NOMBRE'] = '';
+                    $campos_valores['NODO_CAN_NOMBRE'] = '';
+                    $campos_valores['NODO_PRV_NOMBRE'] = '';
+                    $campos_valores['NODO_PAR_NOMBRE'] = '';
+                }
+
+
+
                 //Agregando campos automaticos:
                 $campos_valores['FECHA'] = p_formatear_fecha(null, true);
                 $campos_valores['NOW'] = p_formatear_fecha();
