@@ -184,6 +184,7 @@ FROM
             $fk = $fkeys[$c];
 
             $campo_etiqueta_fk = '';
+            $campo_etiqueta2_fk = '';
             $listado_campos_fk[$campo['column_name']] = array();
             $campos_fk = q("SELECT *
                 FROM information_schema.columns
@@ -196,11 +197,15 @@ FROM
                 $etiqueta_fk = substr($campo_fk['column_name'], 4);
                 $listado_campos_fk[$campo['column_name']][$etiqueta_fk] = $campo_fk;
             }
-            $campos_posibles = array('nombre', 'razon_social', 'username', 'cedula', 'ruc', 'correo_electronico', 'apellidos', 'texto', 'codigo', 'etiqueta', 'descripcion', 'direccion', 'secuencial', 'creado', 'id');
+            $campos_posibles = array('nombre', 'razon_social',  'nombres', 'apellidos', 'username', 'cedula', 'ruc', 'correo_electronico','texto',  'secuencial','codigo', 'etiqueta', 'descripcion', 'direccion', 'sector', 'creado', 'id');
             foreach($campos_posibles as $campo_posible) {
                 if (isset($listado_campos_fk[$campo['column_name']][$campo_posible])) {
-                    $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
-                    break;
+                    if (!empty($campo_etiqueta_fk) && empty($campo_etiqueta2_fk)) {
+                        $campo_etiqueta2_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
+                    }
+                    if (empty($campo_etiqueta_fk)) {
+                        $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
+                    }
                 }
             }
 
@@ -209,7 +214,9 @@ FROM
             if ($opciones) {
                 foreach($opciones as $opcion){
                     $valor = $opcion[$fk['foreign_column_name']];
-                    $etiqueta = $opcion[$campo_etiqueta_fk];
+                    $etiqueta = empty($opcion[$campo_etiqueta_fk]) ? '' : $opcion[$campo_etiqueta_fk];
+                    $etiqueta2 = empty($opcion[$campo_etiqueta2_fk]) ? '' : $opcion[$campo_etiqueta2_fk];
+                    $etiqueta = trim(str_replace('null', '', "$etiqueta $etiqueta2"));
                     $etiqueta = empty($etiqueta) ? '<i>(id:'.$opcion[substr($campo_etiqueta_fk, 0, 4) . 'id'] . ')</i>' : $etiqueta;
                     $fkeys[$c]['__opciones'][$valor] = $etiqueta;
                 }
