@@ -551,6 +551,8 @@ EOT;
                 $campos_valores['ID_SERVICIO'] = $campos_valores['ATE_CODIGO'];
                 $campos_valores['LOGIN_SERVICIO'] = $campos_valores['ATE_CODIGO'];
                 //$campos_valores['ID_ORDEN_SERVICIO'] = $campos_valores['ATE_CODIGO'];
+                $campos_valores['ID_ORDEN_SERVICIO_LETRAS'] = is_numeric($campos_valores['ID_ORDEN_SERVICIO']) ? n2t($campos_valores['ID_ORDEN_SERVICIO']) : $campos_valores['ID_ORDEN_SERVICIO'];
+
 
                 $campos_valores['IDENTIFICADOR_LETRAS'] = n2t($campos_valores['IDENTIFICADOR']);
 
