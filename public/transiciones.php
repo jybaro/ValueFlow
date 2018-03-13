@@ -465,19 +465,19 @@ $num_formulario = 0;
     </div>
   </div>
   <div class="form-group">
-    <label for="adjunto_nombre" class="col-sm-2 control-label">Nombre del archivo adjunto:</label>
+    <label for="adjunto_nombre" class="col-sm-2 control-label">Nombre del PDF adjunto:</label>
     <div class="col-sm-10">
       <input type="text" class="form-control" id="adjunto_nombre_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="adjunto_nombre" placeholder="Nombre del archivo adjunto">
     </div>
   </div>
   <div class="form-group">
-    <label for="adjunto_texto" class="col-sm-2 control-label">Plantilla adjunto:</label>
+    <label for="adjunto_texto" class="col-sm-2 control-label">Plantilla del PDF adjunto:</label>
     <div class="col-sm-10">
       <textarea type="text" class="form-control" id="adjunto_texto_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="adjunto_texto" placeholder="Plantilla de adjunto"></textarea>
     </div>
   </div>
   <div class="form-group">
-    <label for="archivo_adjunto" class="col-sm-2 control-label">Adjunto:</label>
+    <label for="archivo_adjunto" class="col-sm-2 control-label">Plantilla de archivo adjunto:</label>
     <div class="col-sm-10">
       <input type="file" class="form-control" id="archivo_adjunto_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="archivo_adjunto" placeholder="Archivo adjunto">
       <div id="archivos_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="archivos col-sm-10">
