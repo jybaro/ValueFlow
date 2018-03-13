@@ -605,6 +605,7 @@ EOT;
                 $campos_valores['NUEVA_CAPACIDAD'] = $campos_valores['CAPACIDAD_SOLICITADA'];
                 $campos_valores['CAPACIDAD_CONTRATADA_KBPS'] = $campos_valores['CAPACIDAD_CONTRATADA'] * 1024;
                 $campos_valores['CAPACIDAD_FACTURADA_KBPS'] = $campos_valores['CAPACIDAD_FACTURADA'] * 1024;
+                $campos_valores['CAPACIDAD_SOLICITADA_KBPS'] = $campos_valores['CAPACIDAD_SOLICITADA'] * 1024;
 
                 //$campos_valores['FALTANTE_CAPACIDAD_CONTRATADA'] = ($campos_valores['CAPACIDAD_CONTRATADA'] < $campos_valores['CAPACIDAD_FACTURADA']) ? ($campos_valores['CAPACIDAD_FACTURADA'] - $campos_valores['CAPACIDAD_CONTRATADA']) : 0;
                 $campos_valores['FALTANTE_CAPACIDAD_CONTRATADA'] = ($campos_valores['CAPACIDAD_CONTRATADA'] < $campos_valores['CAPACIDAD_SOLICITADA']) ? ($campos_valores['CAPACIDAD_SOLICITADA'] - $campos_valores['CAPACIDAD_CONTRATADA']) : 0;
