@@ -500,10 +500,10 @@ EOT;
                     //$campos_valores['CONCENTRADOR_NOD_CODIGO'] = $campos_valores['CONCENTRADOR_ATE_CODIGO_REFERENCIADA'];
                     //$campos_valores['CONCENTRADOR_UBI_DIRECCION'] = $campos_valores['CONCENTRADOR_ATE_CODIGO_REFERENCIADA'];
                     if ($campos_valores['CONCENTRADOR_PEP_NO_DIFERENCIA_PUNTOS'] == 1) {
-                        $campos_valores['CONCENTRADOR_LOGIN'] = $campos_valores['CONCENTRADOR_ATE_CODIGO_REFERENCIADA']; 
-                    } else {
-                        $campos_valores['CONCENTRADOR_LOGIN'] = $campos_valores['CONCENTRADOR_NOD_CODIGO'];
+                        $campos_valores['CONCENTRADOR_NOD_CODIGO'] = $campos_valores['CONCENTRADOR_ATE_CODIGO_REFERENCIADA']; 
                     }
+                    $campos_valores['CONCENTRADOR_LOGIN'] = $campos_valores['CONCENTRADOR_NOD_CODIGO'];
+
                     //$campos_valores['CONCENTRADOR_NOD_CODIGO'] = ''; 
                     $campos_valores['CONCENTRADOR_UBI_DIRECCION'] = ''; 
                     $campos_valores['CONCENTRADOR_UBI_SECTOR'] = '';
@@ -528,11 +528,12 @@ EOT;
                 if (!empty($campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA']) && $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'] != $campos_valores['EXTREMO_ATE_CODIGO']) {
                     //$campos_valores['EXTREMO_NOD_CODIGO'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'];
                     //$campos_valores['EXTREMO_UBI_DIRECCION'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'];
+                    //
                     if ($campos_valores['EXTREMO_PEP_NO_DIFERENCIA_PUNTOS'] == 1) {
-                        $campos_valores['EXTREMO_LOGIN'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA']; 
-                    } else {
-                        $campos_valores['EXTREMO_LOGIN'] = $campos_valores['EXTREMO_NOD_CODIGO'];
+                        $campos_valores['EXTREMO_NOD_CODIGO'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'];
                     }
+                    $campos_valores['EXTREMO_LOGIN'] = $campos_valores['EXTREMO_NOD_CODIGO'];
+
                     //$campos_valores['EXTREMO_NOD_CODIGO'] = ''; 
                     $campos_valores['EXTREMO_UBI_DIRECCION'] = ''; 
                     $campos_valores['EXTREMO_UBI_SECTOR'] = '';
@@ -545,11 +546,8 @@ EOT;
 
                     //$campos_valores['NODO_NOD_CODIGO'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'];
                     //$campos_valores['NODO_UBI_DIRECCION'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'];
-                    if ($campos_valores['EXTREMO_PEP_NO_DIFERENCIA_PUNTOS'] == 1) {
-                        $campos_valores['NODO_LOGIN'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA']; 
-                    } else {
-                        $campos_valores['NODO_LOGIN'] = $campos_valores['EXTREMO_NOD_CODIGO'];
-                    }
+                    $campos_valores['NODO_LOGIN'] = $campos_valores['EXTREMO_NOD_CODIGO'];
+
                     $campos_valores['NODO_NOD_CODIGO'] = ''; 
                     $campos_valores['NODO_UBI_DIRECCION'] = '';
                     $campos_valores['NODO_UBI_SECTOR'] = '';
