@@ -197,7 +197,27 @@ FROM
                 $etiqueta_fk = substr($campo_fk['column_name'], 4);
                 $listado_campos_fk[$campo['column_name']][$etiqueta_fk] = $campo_fk;
             }
-            $campos_posibles = array('nombre', 'razon_social',  'nombres', 'apellidos', 'username', 'cedula', 'ruc', 'correo_electronico','texto',  'secuencial','codigo', 'etiqueta', 'descripcion', 'direccion', 'sector', 'creado', 'id');
+            $campos_posibles = array(
+                  'nombre'
+                , 'razon_social'
+                , 'nombres'
+                , 'apellidos'
+                , 'username'
+                , 'cedula'
+                , 'ruc'
+                , 'correo_electronico'
+                , 'texto'
+                , 'secuencial'
+                , 'codigo'
+                , 'etiqueta'
+                , 'descripcion'
+                , 'direccion'
+                , 'sector'
+            );
+            $campos_desesperados = array(
+                  'creado'
+                , 'id'
+            );
             foreach($campos_posibles as $campo_posible) {
                 if (isset($listado_campos_fk[$campo['column_name']][$campo_posible])) {
                     if (!empty($campo_etiqueta_fk) && empty($campo_etiqueta2_fk)) {
@@ -205,6 +225,18 @@ FROM
                     }
                     if (empty($campo_etiqueta_fk)) {
                         $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
+                    }
+                }
+            }
+            if (empty($campo_etiqueta_fk)) {
+                foreach($campos_desesperados as $campo_desesperado) {
+                    if (isset($listado_campos_fk[$campo['column_name']][$campo_desesperado])) {
+                        if (!empty($campo_etiqueta_fk) && empty($campo_etiqueta2_fk)) {
+                            $campo_etiqueta2_fk = $listado_campos_fk[$campo['column_name']][$campo_desesperado]['column_name'];
+                        }
+                        if (empty($campo_etiqueta_fk)) {
+                            $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_desesperado]['column_name'];
+                        }
                     }
                 }
             }

@@ -108,7 +108,8 @@ function p_formatear_valor_sql($raw, $tipo = 'text'){
     $raw = trim($raw);
     if ($raw === null || $raw === '' || strtolower($raw) === 'null') {
         $result = 'null';
-    } else if (strpos($raw, '(') !== false && substr($raw, -1) == ')') {
+    //} else if (strpos($raw, '(') !== false && substr($raw, -1) == ')') {
+    } else if (substr($raw, 0, 1) == '(' && substr($raw, -1) == ')' && strpos($raw, 'SELECT') !== false) {
         //es funcion
         $result = $raw;
     } else if (strpos($tipo, 'time') !== false || strpos($tipo, 'date') !== false  || strpos($tipo, 'fecha') !== false) {
