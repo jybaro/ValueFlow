@@ -5,7 +5,7 @@ $result = array();
 //var_dump($_POST);
 foreach($_POST as $k => $v){
     $v = pg_escape_string($v);
-    $v = (empty($v) ? 'null' : $v);
+    $v = ((empty($v) && $v != '0') ? 'null' : $v);
     //$k = substr($k, 4);
     $$k = $v;
 }

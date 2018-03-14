@@ -1884,7 +1884,9 @@ function p_abrir_nodo_completo(id) {
                 $('#nod_tipo_ultima_milla').val(data['nod_tipo_ultima_milla']);
                 $('#nod_tipo_ultima_milla').trigger('change');
                 $('#nod_responsable_ultima_milla').val(data['nod_responsable_ultima_milla']);
+
                 $('#nod_distancia').val(data['nod_distancia']);
+
                 $('#nod_fecha_termino').val(data['nod_fecha_termino']);
                 $('#nod_nodo').val(data['nod_nodo']);
 
