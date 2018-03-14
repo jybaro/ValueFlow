@@ -44,11 +44,13 @@ if ($result_ubi) {
             ,nod_ubicacion
             ,nod_creado_por
             ,nod_atencion
+            ,nod_atencion_referenciada
         ) VALUES (
             '$codigo'
             ,'$descripcion'
             ,$ubi_id
             ,{$_SESSION['usu_id']}
+            ,$atencion
             ,$atencion
         ) RETURNING *
     ");
