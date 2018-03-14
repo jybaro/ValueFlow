@@ -507,12 +507,12 @@ EOT;
                     //$campos_valores['CONCENTRADOR_NOD_CODIGO'] = ''; 
                     $campos_valores['CONCENTRADOR_UBI_DIRECCION'] = ''; 
                     $campos_valores['CONCENTRADOR_UBI_SECTOR'] = '';
-                    $campos_valores['CONCENTRADOR_UBI_LONGITUD'] = '';
-                    $campos_valores['CONCENTRADOR_UBI_LATITUD'] = '';
-                    $campos_valores['CONCENTRADOR_CIU_NOMBRE'] = '';
-                    $campos_valores['CONCENTRADOR_CAN_NOMBRE'] = '';
-                    $campos_valores['CONCENTRADOR_PRV_NOMBRE'] = '';
-                    $campos_valores['CONCENTRADOR_PAR_NOMBRE'] = '';
+                    //$campos_valores['CONCENTRADOR_UBI_LONGITUD'] = '';
+                    //$campos_valores['CONCENTRADOR_UBI_LATITUD'] = '';
+                    //$campos_valores['CONCENTRADOR_CIU_NOMBRE'] = '';
+                    //$campos_valores['CONCENTRADOR_CAN_NOMBRE'] = '';
+                    //$campos_valores['CONCENTRADOR_PRV_NOMBRE'] = '';
+                    //$campos_valores['CONCENTRADOR_PAR_NOMBRE'] = '';
                 }
 
                 if ($result_extremo) {
@@ -537,26 +537,26 @@ EOT;
                     //$campos_valores['EXTREMO_NOD_CODIGO'] = ''; 
                     $campos_valores['EXTREMO_UBI_DIRECCION'] = ''; 
                     $campos_valores['EXTREMO_UBI_SECTOR'] = '';
-                    $campos_valores['EXTREMO_UBI_LONGITUD'] = '';
-                    $campos_valores['EXTREMO_UBI_LATITUD'] = '';
-                    $campos_valores['EXTREMO_CIU_NOMBRE'] = '';
-                    $campos_valores['EXTREMO_CAN_NOMBRE'] = '';
-                    $campos_valores['EXTREMO_PRV_NOMBRE'] = '';
-                    $campos_valores['EXTREMO_PAR_NOMBRE'] = '';
+                    //$campos_valores['EXTREMO_UBI_LONGITUD'] = '';
+                    //$campos_valores['EXTREMO_UBI_LATITUD'] = '';
+                    //$campos_valores['EXTREMO_CIU_NOMBRE'] = '';
+                    //$campos_valores['EXTREMO_CAN_NOMBRE'] = '';
+                    //$campos_valores['EXTREMO_PRV_NOMBRE'] = '';
+                    //$campos_valores['EXTREMO_PAR_NOMBRE'] = '';
 
                     //$campos_valores['NODO_NOD_CODIGO'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'];
                     //$campos_valores['NODO_UBI_DIRECCION'] = $campos_valores['EXTREMO_ATE_CODIGO_REFERENCIADA'];
                     $campos_valores['NODO_LOGIN'] = $campos_valores['EXTREMO_NOD_CODIGO'];
 
-                    $campos_valores['NODO_NOD_CODIGO'] = ''; 
+                    $campos_valores['NODO_NOD_CODIGO'] = $campos_valores['EXTREMO_NOD_CODIGO']; 
                     $campos_valores['NODO_UBI_DIRECCION'] = '';
                     $campos_valores['NODO_UBI_SECTOR'] = '';
-                    $campos_valores['NODO_UBI_LONGITUD'] = '';
-                    $campos_valores['NODO_UBI_LATITUD'] = '';
-                    $campos_valores['NODO_CIU_NOMBRE'] = '';
-                    $campos_valores['NODO_CAN_NOMBRE'] = '';
-                    $campos_valores['NODO_PRV_NOMBRE'] = '';
-                    $campos_valores['NODO_PAR_NOMBRE'] = '';
+                    //$campos_valores['NODO_UBI_LONGITUD'] = '';
+                    //$campos_valores['NODO_UBI_LATITUD'] = '';
+                    //$campos_valores['NODO_CIU_NOMBRE'] = '';
+                    //$campos_valores['NODO_CAN_NOMBRE'] = '';
+                    //$campos_valores['NODO_PRV_NOMBRE'] = '';
+                    //$campos_valores['NODO_PAR_NOMBRE'] = '';
                 }
 
 
