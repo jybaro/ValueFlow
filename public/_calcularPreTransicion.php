@@ -505,8 +505,8 @@ EOT;
                     $campos_valores['CONCENTRADOR_LOGIN'] = $campos_valores['CONCENTRADOR_NOD_CODIGO'];
 
                     //$campos_valores['CONCENTRADOR_NOD_CODIGO'] = ''; 
-                    $campos_valores['CONCENTRADOR_UBI_DIRECCION'] = ''; 
-                    $campos_valores['CONCENTRADOR_UBI_SECTOR'] = '';
+                    //$campos_valores['CONCENTRADOR_UBI_DIRECCION'] = ''; 
+                    //$campos_valores['CONCENTRADOR_UBI_SECTOR'] = '';
                     //$campos_valores['CONCENTRADOR_UBI_LONGITUD'] = '';
                     //$campos_valores['CONCENTRADOR_UBI_LATITUD'] = '';
                     //$campos_valores['CONCENTRADOR_CIU_NOMBRE'] = '';
@@ -535,8 +535,8 @@ EOT;
                     $campos_valores['EXTREMO_LOGIN'] = $campos_valores['EXTREMO_NOD_CODIGO'];
 
                     //$campos_valores['EXTREMO_NOD_CODIGO'] = ''; 
-                    $campos_valores['EXTREMO_UBI_DIRECCION'] = ''; 
-                    $campos_valores['EXTREMO_UBI_SECTOR'] = '';
+                    //$campos_valores['EXTREMO_UBI_DIRECCION'] = ''; 
+                    //$campos_valores['EXTREMO_UBI_SECTOR'] = '';
                     //$campos_valores['EXTREMO_UBI_LONGITUD'] = '';
                     //$campos_valores['EXTREMO_UBI_LATITUD'] = '';
                     //$campos_valores['EXTREMO_CIU_NOMBRE'] = '';
@@ -549,8 +549,8 @@ EOT;
                     $campos_valores['NODO_LOGIN'] = $campos_valores['EXTREMO_NOD_CODIGO'];
 
                     $campos_valores['NODO_NOD_CODIGO'] = $campos_valores['EXTREMO_NOD_CODIGO']; 
-                    $campos_valores['NODO_UBI_DIRECCION'] = '';
-                    $campos_valores['NODO_UBI_SECTOR'] = '';
+                    //$campos_valores['NODO_UBI_DIRECCION'] = '';
+                    //$campos_valores['NODO_UBI_SECTOR'] = '';
                     //$campos_valores['NODO_UBI_LONGITUD'] = '';
                     //$campos_valores['NODO_UBI_LATITUD'] = '';
                     //$campos_valores['NODO_CIU_NOMBRE'] = '';
