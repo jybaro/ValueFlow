@@ -264,6 +264,7 @@ function p_guardar(){
 
     if (p_validar($('#formulario'))) {
         if ($('#codigo').val() !== '' && $('#peso').val() !== '' && $('#cuenta_padre').val() !== '' && $('#cliente').val() !== '' && $('#responsable_cobranzas').val() !== '' && $('#usuario_tecnico').val() !== '' && $('#contacto').val() !== '') {
+            $('#formulario_guardar').prop('disabled', true);
                 var respuestas_json = $('#formulario').serializeArray();
                 console.log('respuestas json', respuestas_json);
                 dataset_json = {};
@@ -291,6 +292,7 @@ function p_guardar(){
                     console.log('eval data:', data);
                     if (data['ERROR']) {
                         alert(data['ERROR']);
+                        $('#formulario_guardar').prop('disabled', false);
                     } else {
 
                         if ($("#nombre_" + data['id']).length) { // 0 == false; >0 == true
@@ -307,6 +309,7 @@ function p_guardar(){
                     console.error('ERROR AL GUARDAR', xhr, err);
                     alert('Hubo un error al guardar, verifique que cuenta con Internet y vuelva a intentarlo en unos momentos.');
                     //$('#modal').modal('hide');
+    $('#formulario_guardar').prop('disabled', false);
                 });
         } else {
             alert ('Ingrese los datos del formulario'); 
@@ -329,6 +332,7 @@ function p_abrir(id){
         if (data['borrado'] == null) {
             $('#formulario_eliminar').show();
             $('#formulario_guardar').show();
+            $('#formulario_guardar').prop('disabled', false);
             $('#formulario_recuperar').hide();
             disabled = false;
             //p_abrir_permiso_ingreso(data['id']);
@@ -336,6 +340,7 @@ function p_abrir(id){
             badge = '<span class="badge">ELIMINADO</span>';
             $('#formulario_eliminar').hide();
             $('#formulario_guardar').hide();
+            $('#formulario_guardar').prop('disabled', true);
             $('#formulario_recuperar').show();
             disabled = true;
         }
@@ -369,6 +374,7 @@ function p_nuevo(){
     $('#formulario_eliminar').hide();
     $('#formulario_recuperar').hide();
     $('#formulario_guardar').show();
+    $('#formulario_guardar').prop('disabled', false);
  
     $('#codigo').prop('disabled', false);
 

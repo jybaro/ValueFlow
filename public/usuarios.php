@@ -191,6 +191,7 @@ function p_abrir(id){
             }
             $('#formulario_eliminar').show();
             $('#formulario_guardar').show();
+            $('#formulario_guardar').prop('disabled', false);
             $('#formulario_recuperar').hide();
             disabled = false;
             //p_abrir_permiso_ingreso(usu['id']);
@@ -199,6 +200,7 @@ function p_abrir(id){
             $('#formulario_eliminar').hide();
             $('#formulario_reiniciar').hide();
             $('#formulario_guardar').hide();
+            $('#formulario_guardar').prop('disabled', true);
             $('#formulario_recuperar').show();
             disabled = true;
         }
@@ -333,6 +335,7 @@ function p_nuevo(){
     $('#formulario_reiniciar').hide();
     $('#formulario_recuperar').hide();
     $('#formulario_guardar').show();
+    $('#formulario_guardar').prop('disabled', false);
  
     $('#cedula').prop('disabled', false);
 
@@ -477,6 +480,7 @@ function p_guardar(){
     if (p_validar($('#formulario'))) {
         if ($('#username').val() !== '' && $('#nombres').val() !== '' && $('#apellidos').val() !== '' && $('#cedula').val() !== '' && $('#correo_electronico').val() !== '') {
             if (verificarCedula($('#cedula').val())) {
+                $('#formulario_guardar').prop('disabled', true);
                 var respuestas_json = $('#formulario').serializeArray();
                 console.log('respuestas json', respuestas_json);
                 dataset_json = {};
@@ -504,6 +508,7 @@ function p_guardar(){
                     console.log('eval data:', data);
                     if (data['ERROR']) {
                         alert(data['ERROR']);
+                        $('#formulario_guardar').prop('disabled', false);
                     } else {
 
                         if ($("#nombre_" + data['id']).length) { // 0 == false; >0 == true
@@ -524,6 +529,7 @@ function p_guardar(){
                 }).fail(function(xhr, err){
                     console.error('ERROR AL GUARDAR', xhr, err);
                     alert('Hubo un error al guardar, verifique que cuenta con Internet y vuelva a intentarlo en unos momentos.');
+                    $('#formulario_guardar').prop('disabled', false);
                     //$('#modal').modal('hide');
                 });
             } else {

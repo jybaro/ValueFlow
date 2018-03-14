@@ -553,11 +553,13 @@ function p_abrir(id, target){
         if (!data['borrado']) {
             $('#formulario_eliminar').show();
             $('#formulario_guardar').show();
+            $('#formulario_guardar').prop('disabled', false);
             $('#formulario_recuperar').hide();
         } else {
             //ya esta con borrado suave
             $('#formulario_eliminar').hide();
             $('#formulario_guardar').hide();
+            $('#formulario_guardar').prop('disabled', true);
             $('#formulario_recuperar').show();
         }
         //$('#formulario_titulo').html(data['id'] );
@@ -683,7 +685,9 @@ function array2ul($array) {
   return $output + '</ul>';
 }
 function p_guardar() {
+
     if (p_validar($('#formulario'))) {
+        $('#formulario_guardar').prop('disabled', true);
         var respuestas_json = $('#formulario').serializeArray();
         console.log(respuestas_json);
         dataset_json = [];
@@ -711,6 +715,7 @@ function p_guardar() {
 
             if (data['ERROR']) {
                 alert(data['ERROR']);
+                $('#formulario_guardar').prop('disabled', false);
             } else {
                 if ($("#fila_" + data['id']).length) { // 0 == false; >0 == true
 
@@ -815,7 +820,7 @@ function p_guardar() {
                     //$('#lista_registros').append('<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
                     var jRow = $('<tr id="fila_'+data['id']+'" class="alert alert-success">').append('<th>'+numero+'.</th>' + celdas);
                     $('#tabla').DataTable().row.add(jRow).draw();
-                    $('#lista_registros').prepend('<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
+                    //$('#lista_registros').prepend('<tr id="fila_'+data['id']+'" class="alert alert-success"><th>'+numero+'.</th>' + celdas + '</tr>');
                     
                 }
                 $('#fila_' + data['id']).removeClass('alert alert-danger alert-success alert-info');
@@ -825,6 +830,7 @@ function p_guardar() {
         }).fail(function(aaa, bbb){
             console.log('ERROR AL GUARDAR', aaa, bbb);
             alert('No se pudieron guardar los datos.');
+            $('#formulario_guardar').prop('disabled', false);
         });
     }
 }
@@ -837,6 +843,7 @@ function p_nuevo(){
     $('#formulario_eliminar').hide();
     $('#formulario_recuperar').hide();
     $('#formulario_guardar').show();
+    $('#formulario_guardar').prop('disabled', false);
     $('#formulario').find(':input').each(function() {
         switch(this.type) {
         case 'password':
