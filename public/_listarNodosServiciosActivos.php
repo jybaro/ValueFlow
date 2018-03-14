@@ -3,11 +3,20 @@
 $respuestas = array();
 $error = array();
 $ate_id = $args[0];
-$query = $args[1];
+$cae_id = $args[1];
+$query = $args[2];
 
 $extension_minima = 2;
 
 if (strlen($query) >= $extension_minima) {
+
+    $cae_validacion = q("
+        SELECT cae_validacion
+        FROM sai_campo_extra
+        WHERE cae_borrado IS NULL
+        AND cae_id = $cae_id
+    ")[0]['cae_validacion'];
+    $cae_validacion = empty($cae_validacion) ? 'punto' : $cae_validacion;
 
     $no_diferencia_puntos = q("
         SELECT pep_no_diferencia_puntos
@@ -100,7 +109,9 @@ if (strlen($query) >= $extension_minima) {
                     $respuestas[] = $respuesta; 
                 }
                  */
-                if ($tipo == 'concentrador' || $tipo == 'punto') {
+                //if ($tipo == 'concentrador' || $tipo == 'punto') {
+                if ($tipo == $cae_validacion) {
+                    //Si el campo es de concentrador, ingresa el concentrador, caso contrario si la validacion del campo es extremo, ingresa el extremo:
                     $respuestas[] = $respuesta; 
                 }
             } else {

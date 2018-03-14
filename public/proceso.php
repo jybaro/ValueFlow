@@ -1706,35 +1706,39 @@ function p_inicializar_autocompletar(id){
             return item.name;
         }
     });
-    $('.typeahead-servicio-activo').typeahead({
-        source:function(query, process){
-            var ate_id = $('#ate_id').val();
-            $.get('/_listarNodosServiciosActivos/' + ate_id + '/' + query, function(data){
-                console.log(data);
-                data = JSON.parse(data);
-                process(data.lista);
-            });
-        },
-        displayField:'name',
-        valueField:'id',
-        highlighter:function(name){
-            var ficha = '';
-            ficha +='<div>';
-            ficha +='<h4>'+name+'</h4>';
-            ficha +='</div>';
-            return ficha;
-        },
-        updater:function(item){
-            var id = $(this.$element[0]).prop('id').split('_').pop();
+    $('.typeahead-servicio-activo').each(function() {
+        var $this = $(this);
+        $this.typeahead({
+            source:function(query, process){
+                var ate_id = $('#ate_id').val();
+                var cae_id = $this.attr('id').replace('campo_extra_typeahead_sa_', '');
+                $.get('/_listarNodosServiciosActivos/' + ate_id + '/' + cae_id + '/' + query, function(data){
+                    console.log(data);
+                    data = JSON.parse(data);
+                    process(data.lista);
+                });
+            },
+            displayField:'name',
+            valueField:'id',
+            highlighter:function(name){
+                var ficha = '';
+                ficha +='<div>';
+                ficha +='<h4>'+name+'</h4>';
+                ficha +='</div>';
+                return ficha;
+            },
+            updater:function(item){
+                var id = $(this.$element[0]).prop('id').split('_').pop();
 
-            console.log('typeahead ID:' , id);
+                console.log('typeahead ID:' , id);
 
-            $('#campo_extra_'+id).val(item.id);
-            $('#campo_extra_detalle_valor_'+id).text(item.name);
-            $('#campo_extra_grupo_'+id).hide();
-            $('#campo_extra_detalle_'+id).show();
-            return item.name;
-        }
+                $('#campo_extra_'+id).val(item.id);
+                $('#campo_extra_detalle_valor_'+id).text(item.name);
+                $('#campo_extra_grupo_'+id).hide();
+                $('#campo_extra_detalle_'+id).show();
+                return item.name;
+            }
+        });
     });
     $('.typeahead-nodo').typeahead({
         source:function(query, process){

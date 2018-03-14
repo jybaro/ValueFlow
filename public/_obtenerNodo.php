@@ -9,7 +9,7 @@ if (!empty($nod_id)) {
     $result = q("
         SELECT *
         ,(
-            SELECT concat(usu_nombres, usu_apellidos)
+            SELECT concat(usu_nombres, ' ', usu_apellidos)
             FROM sai_usuario
             WHERE usu_borrado IS NULL
             AND usu_id = nod_creado_por
