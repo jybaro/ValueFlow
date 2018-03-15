@@ -283,7 +283,7 @@ $servicios = q("
 //Pertinencias provedor:
 //
 /*
-$proveedor_generico = array(array('pep_servicio' => '0', 'ser_nombre' => 'Servicio General', 'pro_razon_social'=>'Para todos los proveedores', 'pro_id' => 0));
+$proveedor_generico = array(array('pep_servicio' => '0', 'ser_nombre' => 'Servicio General', 'pro_nombre_comercial'=>'Para todos los proveedores', 'pro_id' => 0));
 
 $pertinencias_proveedor = array(0=>$proveedor_generico);
  */
@@ -380,7 +380,7 @@ $num_formulario = 0;
   <div class="panel-heading" role="tab" id="panelHeading_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>">
     <h4 class="panel-title">
       <a <?=$kp==0?'':'class="collapsed"'?> role="button" data-toggle="collapse" data-parent="#accordion_<?=$k?>" onclick="p_cargar_detalle_transicion(<?=$servicio['ser_id']?>, <?=$proveedor['pro_id']?>)" href="#panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>" aria-expanded="<?=$kp==0?'true':'false'?>" aria-controls="#panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>"> 
-        <?=$proveedor['pro_razon_social']?>
+        <?=$proveedor['pro_nombre_comercial']?>
         <?=$proveedor['pep_servicio']==0?' de '.$servicio['ser_nombre']:''?>
         <span class="badge-proveedor" id="badge_proveedor_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>"></span>
       </a>
@@ -411,7 +411,7 @@ $num_formulario = 0;
   <div class="tab-content">
   <?php $first=true;foreach($destinatarios as $des_id => $destinatario): ?>
   <div role="tabpanel" class="tab-pane fade <?php if($first): ?>in active<?php endif; ?>" id="tab_destinatario_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>">
-  <h3>Acciones para <?=$destinatario?> (<?=$proveedor['pro_razon_social']?>)</h3>
+  <h3>Acciones para <?=$destinatario?> (<?=$proveedor['pro_nombre_comercial']?>)</h3>
 <form id="formulario" class="form-horizontal" onsubmit="p_guardar(this);return false;" enctype="multipart/form-data">
 <input type="hidden" id="desde_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="desde" value="">
 <input type="hidden" id="hacia_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="hacia" value="">
