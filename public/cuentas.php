@@ -257,6 +257,9 @@ function p_validar(target) {
         $('<input type="submit">').hide().appendTo('#formulario').click().remove();
         resultado = false;
     }
+    if ($(target).prop("tagName") == 'FORM') {
+        $(target)[0].reportValidity();
+    }
     return resultado;
 }
 

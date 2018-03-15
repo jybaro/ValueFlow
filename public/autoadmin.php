@@ -549,7 +549,7 @@ function p_validar(target) {
     }
     console.log('RESULTADO DE VALIDACION:', resultado, ($(target).prop("tagName") == 'INPUT'));
     if ($(target).prop("tagName") == 'FORM') {
-        $('#formulario')[0].reportValidity();
+        $(target)[0].reportValidity();
     }
     return resultado;
 }
