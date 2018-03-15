@@ -199,7 +199,7 @@ FROM
             }
             $campos_posibles = array(
                   'nombre'
-                , 'razon_social'
+                , 'nombre_comercial'
                 , 'nombres'
                 , 'apellidos'
                 , 'username'
