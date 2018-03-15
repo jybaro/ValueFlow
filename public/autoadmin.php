@@ -486,7 +486,7 @@ function p_cambiar_checkbox(target) {
 }
 
 function p_validar(target) {
-    console.log('validando', target);
+    console.log('validando', target, target.type, $(target).prop("tagName"));
     var resultado = true;
     var id = $(target).prop('id');
     var value = $(target).val();
@@ -497,7 +497,7 @@ function p_validar(target) {
         //$('<input type="submit">').hide().appendTo('#formulario').click().remove();
         //$('#formulario').submit();
         //$(target)[0].reportValidity();
-        $('#formulario')[0].reportValidity();
+        //$('#formulario')[0].reportValidity();
         $(target).popover('hide');
         $(target).popover('destroy');
         $(target).popover({
@@ -546,6 +546,10 @@ function p_validar(target) {
                 $(target).parent().parent().addClass('has-success');
             }
         });
+    }
+    console.log('RESULTADO DE VALIDACION:', resultado, ($(target).prop("tagName") == 'INPUT'));
+    if ($(target).prop("tagName") == 'FORM') {
+        $('#formulario')[0].reportValidity();
     }
     return resultado;
 }
