@@ -214,31 +214,52 @@ FROM
                 , 'direccion'
                 , 'sector'
             );
+            $result_plantilla_fk = q("SELECT cat_texto FROM sai_catalogo WHERE cat_codigo='autoadmin_{$fk[foreign_table_name]}'");
+            $campo_plantilla = '';
+            if ($result_plantilla_fk) {
+                $plantilla_fk = $result_plantilla_fk[0]['cat_texto'];
+                $plantilla_fk = str_replace("\n", "", $plantilla_fk);
+                $plantilla_fk = str_replace("\r", "", $plantilla_fk);
+                $plantilla_fk = json_decode($plantilla_fk, true);
+                if ($plantilla_fk) {
+                    foreach ($plantilla_fk as $campo_plantilla_fk) {
+                        if (isset($campo_plantilla_fk['prefijo'])) {
+                            $campo_plantilla = $campo_plantilla_fk['prefijo'] . '_'. $campo_plantilla_fk['nombre'];
+                        }
+                    }
+                }
+            }
+
             $campos_desesperados = array(
                   'creado'
                 , 'id'
             );
-            foreach($campos_posibles as $campo_posible) {
-                if (isset($listado_campos_fk[$campo['column_name']][$campo_posible])) {
-                    if (!empty($campo_etiqueta_fk) && empty($campo_etiqueta2_fk)) {
-                        $campo_etiqueta2_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
-                    }
-                    if (empty($campo_etiqueta_fk)) {
-                        $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
-                    }
-                }
-            }
-            if (empty($campo_etiqueta_fk)) {
-                foreach($campos_desesperados as $campo_desesperado) {
-                    if (isset($listado_campos_fk[$campo['column_name']][$campo_desesperado])) {
+
+            if (empty($campo_plantilla)) {
+                foreach($campos_posibles as $campo_posible) {
+                    if (isset($listado_campos_fk[$campo['column_name']][$campo_posible])) {
                         if (!empty($campo_etiqueta_fk) && empty($campo_etiqueta2_fk)) {
-                            $campo_etiqueta2_fk = $listado_campos_fk[$campo['column_name']][$campo_desesperado]['column_name'];
+                            $campo_etiqueta2_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
                         }
                         if (empty($campo_etiqueta_fk)) {
-                            $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_desesperado]['column_name'];
+                            $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_posible]['column_name'];
                         }
                     }
                 }
+                if (empty($campo_etiqueta_fk)) {
+                    foreach($campos_desesperados as $campo_desesperado) {
+                        if (isset($listado_campos_fk[$campo['column_name']][$campo_desesperado])) {
+                            if (!empty($campo_etiqueta_fk) && empty($campo_etiqueta2_fk)) {
+                                $campo_etiqueta2_fk = $listado_campos_fk[$campo['column_name']][$campo_desesperado]['column_name'];
+                            }
+                            if (empty($campo_etiqueta_fk)) {
+                                $campo_etiqueta_fk = $listado_campos_fk[$campo['column_name']][$campo_desesperado]['column_name'];
+                            }
+                        }
+                    }
+                }
+            } else {
+                $campo_etiqueta_fk = $campo_plantilla;
             }
 
             $fkeys[$c]['__opciones'] = array();
