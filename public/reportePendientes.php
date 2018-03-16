@@ -33,7 +33,7 @@ if ($result) {
     foreach ($result as $r) {
         echo <<<EOT
 <div class="alert alert-info">
-  {$r[esa_nombre]} de servicio de {$r[ser_nombre]} ({$r[pro_razon_social]}) a {$r[cli_razon_social]}
+  {$r[esa_nombre]} de servicio de {$r[ser_nombre]} ({$r[pro_nombre_comercial]}) a {$r[cli_razon_social]}
 </div>
 EOT;
     }

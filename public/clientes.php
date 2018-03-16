@@ -404,7 +404,7 @@ $result = q("
 if ($result) {
     foreach($result as $r) {
         $value = $r['pro_id'];
-        $label = $r['pro_razon_social']; 
+        $label = $r['pro_nombre_comercial']; 
         echo "<option value='$value'>$label</option>";
     }
 }

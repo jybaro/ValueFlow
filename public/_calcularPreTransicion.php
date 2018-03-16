@@ -590,6 +590,10 @@ EOT;
 
                 $campos_valores['INICIALES_CLIENTE'] = $iniciales;
                 $campos_valores['ROUTER'] = 'Cisco';
+                //$campos_valores['PROVEEDOR'] = $campos_valores['PRO_RAZON_SOCIAL'];
+                $campos_valores['PROVEEDOR'] = $campos_valores['PRO_NOMBRE_COMERCIAL'];
+                $campos_valores['CLIENTE'] = $campos_valores['CLI_RAZON_SOCIAL'];
+
 
 
 

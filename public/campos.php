@@ -12,7 +12,7 @@ $result = q("
         WHERE cae_tipo_dato = tid_id
     )
     ,(
-        SELECT concat(esa_actual.esa_nombre , ' >> ' , esa_siguiente.esa_nombre , ', ', ser_nombre , ' (' , pro_razon_social , ')')
+        SELECT concat(esa_actual.esa_nombre , ' >> ' , esa_siguiente.esa_nombre , ', ', ser_nombre , ' (' , pro_nombre_comercial , ')')
         FROM sai_transicion_estado_atencion
         ,sai_estado_atencion AS esa_actual
         ,sai_estado_atencion AS esa_siguiente

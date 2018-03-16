@@ -236,7 +236,7 @@ if (isset($_POST['empresa']) && !empty($_POST['empresa'])) {
         ,array(
             'titulo' => 'Proveedor'
             ,'plantilla'=>'%s'
-            ,'campos' => array('pro_razon_social')
+            ,'campos' => array('pro_nombre_comercial')
         )
         ,array(
             'titulo' => 'Fecha de creacion'

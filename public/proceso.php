@@ -351,7 +351,7 @@ if ($result) {
     </div>
     <h3 class="panel-title">
       <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_{$r[ate_secuencial]}" aria-expanded="false" aria-controls="collapse_{$r[ate_secuencial]}" >
-        {$r[ate_secuencial]}. <strong>{$estado_actual}</strong> para servicio de {$r[ser_nombre]} ({$r[pro_razon_social]}) a {$r[cli_razon_social]} $codigo
+        {$r[ate_secuencial]}. <strong>{$estado_actual}</strong> para servicio de {$r[ser_nombre]} ({$r[pro_nombre_comercial]}) a {$r[cli_razon_social]} $codigo
       </a>
     </h3>
   </div>
@@ -1302,7 +1302,7 @@ $result = q("
 if ($result) {
     foreach($result as $r) {
         $value = $r['pro_id'];
-        $label = $r['pro_razon_social']; 
+        $label = $r['pro_nombre_comercial']; 
         echo "<option value='$value'>$label</option>";
     }
 }
@@ -2822,7 +2822,7 @@ function p_cargar_proveedores(target) {
             if (data) {
                 var count = 0;
                 Array.from(data).forEach(function(proveedor){
-                    opciones += '<option value="'+proveedor['pro_id']+'">'+proveedor['pro_razon_social']+'</option>';
+                    opciones += '<option value="'+proveedor['pro_id']+'">'+proveedor['pro_nombre_comercial']+'</option>';
                     count++;
                 });
                 

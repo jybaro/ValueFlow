@@ -19,7 +19,7 @@ $sql = ("
         AND cli_id = ate_cliente
     )
     ,(
-        SELECT pro_razon_social
+        SELECT pro_nombre_comercial
         FROM sai_proveedor
         WHERE pro_borrado IS NULL
         AND pro_id = pep_proveedor
@@ -80,7 +80,7 @@ if ($result) {
     <div class="list-group" style="margin:0 5% 1% 5%;">
 
       <a class="list-group-item" href="/$estado#atencion_{$r[ate_secuencial]}">
-        {$r[ate_secuencial]}. <strong>{$r[esa_nombre]}</strong> de servicio de $ser_nombre ({$r[pro_razon_social]}) a $cli_razon_social
+        {$r[ate_secuencial]}. <strong>{$r[esa_nombre]}</strong> de servicio de $ser_nombre ({$r[pro_nombre_comercial]}) a $cli_razon_social
         <small class="text-muted">- $fecha_formateada</small> 
       </a>
     </div>

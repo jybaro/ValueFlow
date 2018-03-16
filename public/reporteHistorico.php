@@ -268,7 +268,7 @@ if (isset($_POST['estados']) && !empty($_POST['estados'])) {
         ,array(
             'titulo' => 'Proveedor'
             ,'plantilla'=>'%s'
-            ,'campos' => array('pro_razon_social')
+            ,'campos' => array('pro_nombre_comercial')
         )
         ,array(
             'titulo' => 'Fecha de creacion'
@@ -595,7 +595,7 @@ EOT;
         ,array(
             'titulo' => 'Proveedor'
             ,'plantilla'=>'%s'
-            ,'campos' => array('pro_razon_social')
+            ,'campos' => array('pro_nombre_comercial')
         )
         ,array(
             'titulo' => 'Fecha de creacion'
