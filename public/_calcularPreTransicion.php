@@ -492,6 +492,9 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 //var_dump($campos_valores);
                 //CAMPOS DEL CONTRATO:
 
+                $campos_valores['CLI_PERSONA_JURIDICA_REPRESENTANTE_LEGAL_NOMBRE'] = '';
+                $campos_valores['CLI_PERSONA_JURIDICA_REPRESENTANTE_LEGAL_CARGO'] = '';
+
                 if ($campos_valores['CLI_ES_PERSONA_JURIDICA'] == 1) {
                     $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
                     $nombre = $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'];
@@ -503,6 +506,8 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     $campos_valores['CLIENTE_CONTRATO'] = <<<EOT
 $razon_social, representada por $nombre, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
 EOT;
+                    $campos_valores['CLI_PERSONA_JURIDICA_REPRESENTANTE_LEGAL_NOMBRE'] = $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'];
+                    $campos_valores['CLI_PERSONA_JURIDICA_REPRESENTANTE_LEGAL_CARGO'] = $campos_valores['CLI_REPRESENTANTE_LEGAL_CARGO'];
                 } else {
                     $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
                     $ruc = $campos_valores['CLI_RUC'];
@@ -513,9 +518,9 @@ EOT;
                         $campos_valores['CLI_REPRESENTANTE_LEGAL_CEDULA'] = $campos_valores['CLI_RUC'];
                     }
 
-                    if ($campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'] == $campos_valores['CLI_RAZON_SOCIAL']) {
-                        $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'] = '';
-                    }
+                    //if ($campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'] == $campos_valores['CLI_RAZON_SOCIAL']) {
+                    //    $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'] = '';
+                    //}
                 }
 
                 //CAMPOS DE LOS PUNTOS:
