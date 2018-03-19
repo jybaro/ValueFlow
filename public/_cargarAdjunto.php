@@ -18,7 +18,7 @@ $paa_id = q("
     WHERE paa_borrado IS NULL
     AND NOT paa_confirmado IS NULL
     AND paa_atencion = $ate_id
-")[0]['paa_id'];
+")[0]['max'];
 
 $ate_dirname = md5($ate_id . 'ate_SAIT');
 $paa_dirname = md5($paa_id . 'paa_SAIT');

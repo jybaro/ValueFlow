@@ -28,7 +28,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
         WHERE paa_borrado IS NULL
         AND NOT paa_confirmado IS NULL
         AND paa_atencion = $ate_id
-    ")[0]['paa_id'];
+    ")[0]['max'];
 
     if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         $estado = $_POST['estado'];
