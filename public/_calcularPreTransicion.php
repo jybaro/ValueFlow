@@ -748,6 +748,9 @@ EOT;
                 $campos_valores['COSTO_TOTAL'] = (isset($campos_valores['CAPACIDAD_CONTRATADA'])?$campos_valores['CAPACIDAD_CONTRATADA'] : 0) * (isset($campos_valores['COSTO_MB'])?$campos_valores['COSTO_MB'] : 0);
 
                 //var_dump($campos_valores);
+                //foreach($campos_valores as $k => $v){
+                //    echo "$k|";
+                //}
 
                 foreach ($result_contenido as $rc) {
                     //$tea_id = $rc['tea_id'];

@@ -208,7 +208,6 @@ FROM
                 , 'correo_electronico'
                 , 'texto'
                 , 'secuencial'
-                , 'codigo'
                 , 'etiqueta'
                 , 'descripcion'
                 , 'direccion'
@@ -231,7 +230,8 @@ FROM
             }
 
             $campos_desesperados = array(
-                  'creado'
+                 'codigo'
+                , 'creado'
                 , 'id'
             );
 
