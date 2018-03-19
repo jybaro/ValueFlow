@@ -112,10 +112,9 @@ foreach($estados as $estado) {
         while (!empty($nodo['padre'])) {
             $estados[$nodo['padre']['esa_id']]['num_hojas'] ++;
             if (!empty($primera_hoja)) {
-                //if (empty($estados[$nodo['padre']['esa _id']]['primera_hoja'])) {
-                //    $estados[$nodo['padre']['esa_id']]['primera_hoja'] = $primera_hoja;
-                //}
-                $estados[$nodo['padre']['esa_id']]['primera_hoja'] = $primera_hoja;
+                if (empty($estados[$nodo['padre']['esa _id']]['primera_hoja'])) {
+                    $estados[$nodo['padre']['esa_id']]['primera_hoja'] = $primera_hoja;
+                }
             }
             $nodo = $nodo['padre'];
         }
@@ -144,8 +143,7 @@ function p_cargador(& $nodo, $nivel = 0, $nombre_previo = '') {
 
         $nodo[$k]['nivel'] = $nivel;
         $rowspan = 1;
-        //$colspan = $hijo['num_hojas'];
-        $colspan = ($hijo['num_hojas'] === 0 ? 1 : $hijo['num_hojas']);
+        $colspan = $hijo['num_hojas'];
         $nombre_completo = $nombre_previo . ' >> '. $hijo['esa_nombre'];
 
         $t = 'td';
@@ -285,7 +283,7 @@ $servicios = q("
 //Pertinencias provedor:
 //
 /*
-$proveedor_generico = array(array('pep_servicio' => '0', 'ser_nombre' => 'Servicio General', 'pro_nombre_comercial'=>'Para todos los proveedores', 'pro_id' => 0));
+$proveedor_generico = array(array('pep_servicio' => '0', 'ser_nombre' => 'Servicio General', 'pro_razon_social'=>'Para todos los proveedores', 'pro_id' => 0));
 
 $pertinencias_proveedor = array(0=>$proveedor_generico);
  */
@@ -382,7 +380,7 @@ $num_formulario = 0;
   <div class="panel-heading" role="tab" id="panelHeading_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>">
     <h4 class="panel-title">
       <a <?=$kp==0?'':'class="collapsed"'?> role="button" data-toggle="collapse" data-parent="#accordion_<?=$k?>" onclick="p_cargar_detalle_transicion(<?=$servicio['ser_id']?>, <?=$proveedor['pro_id']?>)" href="#panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>" aria-expanded="<?=$kp==0?'true':'false'?>" aria-controls="#panelCollapse_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>"> 
-        <?=$proveedor['pro_nombre_comercial']?>
+        <?=$proveedor['pro_razon_social']?>
         <?=$proveedor['pep_servicio']==0?' de '.$servicio['ser_nombre']:''?>
         <span class="badge-proveedor" id="badge_proveedor_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>"></span>
       </a>
@@ -413,7 +411,7 @@ $num_formulario = 0;
   <div class="tab-content">
   <?php $first=true;foreach($destinatarios as $des_id => $destinatario): ?>
   <div role="tabpanel" class="tab-pane fade <?php if($first): ?>in active<?php endif; ?>" id="tab_destinatario_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>">
-  <h3>Acciones para <?=$destinatario?> (<?=$proveedor['pro_nombre_comercial']?>)</h3>
+  <h3>Acciones para <?=$destinatario?> (<?=$proveedor['pro_razon_social']?>)</h3>
 <form id="formulario" class="form-horizontal" onsubmit="p_guardar(this);return false;" enctype="multipart/form-data">
 <input type="hidden" id="desde_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="desde" value="">
 <input type="hidden" id="hacia_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="hacia" value="">
@@ -467,19 +465,19 @@ $num_formulario = 0;
     </div>
   </div>
   <div class="form-group">
-    <label for="adjunto_nombre" class="col-sm-2 control-label">Nombre del PDF adjunto:</label>
+    <label for="adjunto_nombre" class="col-sm-2 control-label">Nombre del archivo adjunto:</label>
     <div class="col-sm-10">
       <input type="text" class="form-control" id="adjunto_nombre_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="adjunto_nombre" placeholder="Nombre del archivo adjunto">
     </div>
   </div>
   <div class="form-group">
-    <label for="adjunto_texto" class="col-sm-2 control-label">Plantilla del PDF adjunto:</label>
+    <label for="adjunto_texto" class="col-sm-2 control-label">Plantilla adjunto:</label>
     <div class="col-sm-10">
       <textarea type="text" class="form-control" id="adjunto_texto_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="adjunto_texto" placeholder="Plantilla de adjunto"></textarea>
     </div>
   </div>
   <div class="form-group">
-    <label for="archivo_adjunto" class="col-sm-2 control-label">Plantilla de archivo adjunto:</label>
+    <label for="archivo_adjunto" class="col-sm-2 control-label">Adjunto:</label>
     <div class="col-sm-10">
       <input type="file" class="form-control" id="archivo_adjunto_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" name="archivo_adjunto" placeholder="Archivo adjunto">
       <div id="archivos_<?=$servicio['ser_id']?>_<?=$proveedor['pro_id']?>_<?=$des_id?>" class="archivos col-sm-10">

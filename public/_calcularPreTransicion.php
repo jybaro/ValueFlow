@@ -464,6 +464,32 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     }
                 }
                 //var_dump($campos_valores);
+                //CONTACTOS DEL CLIENTE:
+                $result_contactos_cliente = q("
+                    SELECT *
+                    FROM sai_contacto
+                    ,sai_tipo_contacto
+                    WHERE con_borrado IS NULL
+                    AND tco_borrado IS NULL
+                    AND con_tipo_contacto = tco_id
+                    AND con_cliente = (
+                        SELECT ate_cliente
+                        FROM sai_atencion
+                        WHERE ate_borrado IS NULL
+                        AND ate_id = $ate_id
+                    )
+                ");
+                if ($result_contactos_cliente) {
+                    foreach ($result_contactos_cliente as $result_contacto_cliente) {
+                        $cli_contacto = 'CLI_CONTACTO_' . strtoupper($_r['tco_nombre']) . '_';
+                        foreach ($result_contacto_cliente as $k => $v) {
+                            if (substr($k, 0, 4) == 'con_') {
+                                $campos_valores[$cli_contacto . strtoupper(substr($k, 4))] = $v;
+                            }
+                        }
+                    }
+                }
+                //CAMPOS DEL CONTRATO:
 
                 if ($campos_valores['CLI_ES_PERSONA_JURIDICA'] == 1) {
                     $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
@@ -482,6 +508,7 @@ EOT;
                     $campos_valores['CLIENTE_CONTRATO'] = "$razon_social, con número de cédula/RUC $ruc";
                 }
 
+                //CAMPOS DE LOS PUNTOS:
                 if ($result_nodo) {
                     foreach($result_nodo[0] as $k => $v) {
                         $campos_valores['NODO_'.strtoupper($k)] = $v;
@@ -646,7 +673,7 @@ EOT;
                 }
                 $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'] = $campos_valores['EXTREMO_NOD_COSTO_INSTALACION_CLIENTE'];
 
-                $campos_valores['PRECIO_INSTALACION'] = isset($campos_valores['PRECIO_INSTALACION']) ? $campos_valores['PRECIO_INSTALACION'] : $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
+                $campos_valores['PRECIO_INSTALACION'] = isset($campos_valores['PRECIO_INSTALACION']) ? $campos_valores['PRECIO_INSTALACION'] : ($campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'] + $campos_valores['CONCENTRADOR_NOD_COSTO_INSTALACION_CLIENTE']);
                 //$campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
                 $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD_FACTURADA'] + $campos_valores['PRECIO_INSTALACION'];
                 $campos_valores['IVA_SERVICIO'] = round($campos_valores['SUBTOTAL_SERVICIO'] * $iva, 2);
@@ -687,7 +714,7 @@ EOT;
                 }
                 $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'] = $campos_valores['EXTREMO_NOD_COSTO_INSTALACION_CLIENTE'];
 
-                $campos_valores['COSTO_INSTALACION'] = isset($campos_valores['COSTO_INSTALACION']) ? $campos_valores['COSTO_INSTALACION'] : $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
+                $campos_valores['COSTO_INSTALACION'] = isset($campos_valores['COSTO_INSTALACION']) ? $campos_valores['COSTO_INSTALACION'] : ($campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'] + $campos_valores['CONCENTRADOR_NOD_COSTO_INSTALACION_CLIENTE']);
                 //$campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['COSTO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
                 $campos_valores['SUBTOTAL_SERVICIO_COSTO'] = $campos_valores['COSTO_CAPACIDAD_CONTRATADA'] + $campos_valores['COSTO_INSTALACION'];
                 $campos_valores['IVA_SERVICIO_COSTO'] = round($campos_valores['SUBTOTAL_SERVICIO_COSTO'] * $iva, 2);
