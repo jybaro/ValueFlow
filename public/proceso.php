@@ -2120,8 +2120,9 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
 
                     var hidden = '<input type="hidden" name="adjunto_' + destinatario + '[]" value="' + archivo + '">';
                     var boton_borrar = '<button class="btn btn-danger" onclick="p_quitar_adjunto(this)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
+                    var nombre_archivo = archivo.split('/').pop();
                     //$('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + plantilla.textos[2] + '">' + icono + plantilla.textos[2] + '</a></div>');
-                    $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + archivo + '">' + icono + archivo + '</a> '+boton_borrar+'</div>');
+                    $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + archivo + '">' + icono + nombre_archivo + '</a> '+boton_borrar+'</div>');
                 });
             }
         });
@@ -2140,10 +2141,12 @@ function p_quitar_adjunto (target) {
 function p_cargar_adjunto(target, destinatario) {
     console.log('En p_cargar_adjunto', target.files[0]);
     var formData = new FormData();
+    var ate_id = $('#ate_id_accion').val();
     formData.append('adjunto', target.files[0]);
+    formData.append('ate_id', ate_id);
 
     $.ajax({
-           url : '/_cargarAdjunto',
+           url : '/_cargarAdjunto/',
            type : 'POST',
            data : formData,
            processData: false,  // tell jQuery not to process the data
@@ -2154,12 +2157,13 @@ function p_cargar_adjunto(target, destinatario) {
                if (data && data['message'] == 'OK') {
                    console.log('OK');
                    var archivo = data['nombre'];
+                   var ruta = data['ruta'];
 
                    var icono = '<span class="glyphicon glyphicon-download" aria-hidden="true"></span> ';
-                   var hidden = '<input type="hidden" name="adjunto_' + destinatario + '[]" value="' + archivo + '">';
+                   var hidden = '<input type="hidden" name="adjunto_' + destinatario + '[]" value="' + ruta + '">';
                    var boton_borrar = '<button class="btn btn-danger" onclick="p_quitar_adjunto(this)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>';
                    //$('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + plantilla.textos[2] + '">' + icono + plantilla.textos[2] + '</a></div>');
-                   $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + archivo + '">' + icono + archivo + '</a> '+boton_borrar+'</div>');
+                   $('#adjuntos_lista_'+destinatario).append(hidden + '<div><a class="btn btn-default" href="/' + ruta + '">' + icono + archivo + '</a> '+boton_borrar+'</div>');
                    $(target).val('');
                }
            }

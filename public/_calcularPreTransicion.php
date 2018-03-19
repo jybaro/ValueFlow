@@ -22,6 +22,14 @@ $respuesta = array();
 if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
     $ate_id = $args[0];
 
+    $paa_id = q("
+        SELECT max(paa_id)
+        FROM sai_paso_atencion
+        WHERE paa_borrado IS NULL
+        AND NOT paa_confirmado IS NULL
+        AND paa_atencion = $ate_id
+    ")[0]['paa_id'];
+
     if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         $estado = $_POST['estado'];
         $id = $_POST['id'];
@@ -823,6 +831,25 @@ EOT;
 
                     $respuesta['plantillas'][$pla_id]['adjuntos_generados'] = array(); 
                     $xls_generado = false;
+
+                    $ate_dirname = md5($ate_id . 'ate_SAIT');
+                    $paa_dirname = md5($paa_id . 'paa_SAIT');
+
+                    if (!file_exists('archivos/')) {
+                        mkdir('archivos', 0777);
+                    }
+
+                    if (!file_exists('archivos/' . $ate_dirname . '/')) {
+                        mkdir('archivos/' . $ate_dirname, 0777);
+                    }
+
+
+                    if (!file_exists('archivos/' . $ate_dirname . '/' . $paa_dirname . '/')) {
+                        mkdir('archivos/' . $ate_dirname . '/' . $paa_dirname, 0777);
+                    }
+
+                    $dirname = 'archivos/' . $ate_dirname . '/' . $paa_dirname . '/';
+
                     if ($adjuntos_plantilla) {
                         foreach ($adjuntos_plantilla as $adjunto_plantilla) {
                             try {
@@ -835,7 +862,8 @@ EOT;
                                 $nombre = p_reemplazar_campos_valores($nombre);
                                 $nombre = (empty($nombre)) ? 'adjunto' : $nombre;
                                 $nombre = limpiar_nombre_archivo($nombre);
-                                $nombre = pathinfo($nombre, PATHINFO_FILENAME) . '-' . random_int(100000, 999999);
+                                //$nombre = pathinfo($nombre, PATHINFO_FILENAME) . '-' . random_int(100000, 999999);
+                                $nombre = pathinfo($nombre, PATHINFO_FILENAME);
 
                                 $ext = strtolower(pathinfo($adjunto_plantilla['arc_nombre'], PATHINFO_EXTENSION));
                                 $ruta_plantilla = 'uploads/' . $adjunto_plantilla['arc_nombre'];
@@ -885,7 +913,7 @@ EOT;
                                         //echo " [[NOMBRE: $nombre]]";
                                         $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
                                         $writer->setPreCalculateFormulas(true); 
-                                        $writer->save($nombre);
+                                        $writer->save($dirname . $nombre);
                                         $xls_generado = true;
 
                                         //} else if ($ext == 'doc' || $ext == 'docx' || $ext == 'odt') { //no funciona con .doc, sale este error:  
@@ -916,17 +944,17 @@ EOT;
 
                                         // $writer = \PhpOffice\PhpWord\IOFactory::createWriter($doc, 'Word2007');
                                         // $writer->save($pla_adjunto_nombre);
-                                        $templateProcessor->saveAs($nombre);
+                                        $templateProcessor->saveAs($dirname . $nombre);
                                         $xls_generado = true;
                                     } else {
                                         //cualquier otro tipo de archivo se pasa como está, sin ninguna modificación
                                         $nombre = $nombre . '.' . $ext;
-                                        $result_copy = copy($ruta_plantilla, $nombre);
+                                        $result_copy = copy($ruta_plantilla, $dirname.$nombre);
                                         if ($result_copy) {
                                             l('no se pudo copiar el archivo ' . $ruta_plantilla);
                                         }
                                     }
-                                    $respuesta['plantillas'][$pla_id]['adjuntos_generados'][] = $nombre;
+                                    $respuesta['plantillas'][$pla_id]['adjuntos_generados'][] = $dirname . $nombre;
                                 } else {
                                     l('No existe el archivo plantilla: ' . $ruta_plantilla);
                                 }
@@ -947,7 +975,7 @@ EOT;
                             //    unlink('adjunto.html');
                             //}
                             $nombre = $pla_adjunto_nombre;
-                            $nombre = $nombre . '-' . random_int(100000, 999999);
+                            //$nombre = $nombre . '-' . random_int(100000, 999999);
                             $nombre = $nombre . '.pdf';
 
                             if (file_exists($nombre)) {
@@ -959,8 +987,8 @@ EOT;
                             //file_put_contents( 'adjunto.html', $msg);
                             //$msg = file_get_contents('adjunto.html');
                             //$msg = utf8_decode($msg);
-                            $snappy->generateFromHtml($msg, $nombre, array('encoding' => 'utf-8'));
-                            $respuesta['plantillas'][$pla_id]['adjuntos_generados'][] = $nombre;
+                            $snappy->generateFromHtml($msg, $dirname . $nombre, array('encoding' => 'utf-8'));
+                            $respuesta['plantillas'][$pla_id]['adjuntos_generados'][] = $dirname . $nombre;
                         }
                         $respuesta['plantillas'][$pla_id]['pdf_generado'] = $nombre;
 
