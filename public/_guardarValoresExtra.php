@@ -115,7 +115,7 @@ foreach ($_POST as $k => $v){
         $vae_fecha = 'null';
         $vae_nodo = 'null';
         $vae_ciudad = 'null';
-        $vae_conexion = 'null';
+        //$vae_conexion = 'null';
 
         if ($v === '0' || (!empty($v) && $v != 'null')) {
             $result_cae = q("
@@ -278,6 +278,7 @@ foreach ($_POST as $k => $v){
                     //echo $sql;
                     q($sql);
                     break;
+                    /*
                 case 'conexion':
                     $vae_conexion = p_formatear_valor_sql($v, 'nodo');
                     q("
@@ -290,10 +291,13 @@ foreach ($_POST as $k => $v){
                 case 'conexion_completar':
                     $vae_conexion = p_formatear_valor_sql($v, 'nodo');
                     break;
+                     */
                 }
             }
         }
         
+
+            /*
         $return = q("
             INSERT INTO sai_valor_extra (
                 vae_campo_extra
@@ -313,6 +317,28 @@ foreach ($_POST as $k => $v){
                 , $vae_fecha
                 , $vae_nodo
                 , $vae_conexion
+                , $vae_ciudad
+                , {$_SESSION['usu_id']}
+            ) RETURNING *
+        ");
+             */
+        $return = q("
+            INSERT INTO sai_valor_extra (
+                vae_campo_extra
+                , vae_paso_atencion
+                , vae_texto
+                , vae_numero
+                , vae_fecha
+                , vae_nodo
+                , vae_ciudad
+                , vae_creado_por
+            ) VALUES (
+                $cae_id
+                , $paa_id
+                , $vae_texto
+                , $vae_numero
+                , $vae_fecha
+                , $vae_nodo
                 , $vae_ciudad
                 , {$_SESSION['usu_id']}
             ) RETURNING *

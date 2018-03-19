@@ -481,7 +481,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                 ");
                 if ($result_contactos_cliente) {
                     foreach ($result_contactos_cliente as $result_contacto_cliente) {
-                        $cli_contacto = 'CLI_CONTACTO_' . strtoupper($_r['tco_nombre']) . '_';
+                        $cli_contacto = 'CLI_CONTACTO_' . strtoupper($result_contacto_cliente['tco_codigo']) . '_';
                         foreach ($result_contacto_cliente as $k => $v) {
                             if (substr($k, 0, 4) == 'con_') {
                                 $campos_valores[$cli_contacto . strtoupper(substr($k, 4))] = $v;
@@ -489,6 +489,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                         }
                     }
                 }
+                //var_dump($campos_valores);
                 //CAMPOS DEL CONTRATO:
 
                 if ($campos_valores['CLI_ES_PERSONA_JURIDICA'] == 1) {
@@ -506,6 +507,15 @@ EOT;
                     $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
                     $ruc = $campos_valores['CLI_RUC'];
                     $campos_valores['CLIENTE_CONTRATO'] = "$razon_social, con número de cédula/RUC $ruc";
+
+                    //para orden de servicio CNT, Autorizacion Central de Riesgo y Costo de Implementacion:
+                    if (empty($campos_valores['CLI_REPRESENTANTE_LEGAL_CEDULA'])) {
+                        $campos_valores['CLI_REPRESENTANTE_LEGAL_CEDULA'] = $campos_valores['CLI_RUC'];
+                    }
+
+                    if ($campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'] == $campos_valores['CLI_RAZON_SOCIAL']) {
+                        $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'] = '';
+                    }
                 }
 
                 //CAMPOS DE LOS PUNTOS:
