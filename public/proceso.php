@@ -1614,6 +1614,7 @@ function p_toggle_historico(ate_id, ate_secuencial){
                 '<th>Fecha</th>'+
                 '<th>Usuario</th>'+
                 '<th>Estado</th>'+
+                '<th>Destinatario</th>'+
                 '<th>Campo</th>'+
                 '<th>Valor</th>'+
                 '</tr></thead>'+
@@ -1635,6 +1636,7 @@ function p_toggle_historico(ate_id, ate_secuencial){
                     '<td style="text-align:center;">'+d['fecha']+'</td>'+
                     '<td style="text-align:center;">'+d['usuario']+'</td>'+
                     '<td style="text-align:center;">'+d['esa_nombre']+'</td>'+
+                    '<td style="text-align:center;">'+d['des_nombre']+'</td>'+
                     '<td style="text-align:center;">'+label+'</td>'+
                     '<td style="text-align:center;">'+dato+'</td>'+
                     '</tr>'+
@@ -2343,8 +2345,8 @@ function p_abrir(tea_id, ate_id) {
                         });
                         $('#campo_extra_' + cae_id_anterior).on("dp.change", function (e) {
                             (function(cae_id){
-                            $('#campo_extra_' + cae_id).data("DateTimePicker").minDate(e.date);
-                            console.log('dp.change->#campo_extra_' + cae_id, 'minDate', e.date );
+                                $('#campo_extra_' + cae_id).data("DateTimePicker").minDate(e.date);
+                                console.log('dp.change->#campo_extra_' + cae_id, 'minDate', e.date );
                             })(cae_id);
                         });
                     }
@@ -2414,33 +2416,33 @@ function p_desplegar_campos(campos, padre_id) {
                 //if (campo['padre'] != null) {
                 if (campo['tipo_dato'] == 'fecha') {
                     contenido += ''+
-'            <div class="form-group">'+
-                        '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
-                        '<div class="col-sm-' + col2 + '">' +
-'                <div class="input-group date" id="datetimepicker2-'+campo['cae_id']+'">'+
-'                    <input type="text" class="form-control datetimepicker" name="campo_extra_'+campo['cae_id']+'" id="campo_extra_'+campo['cae_id']+'" value="'+valor+'" />'+
-'                    <span class="input-group-addon">'+
-'                        <span class="glyphicon glyphicon-calendar"></span>'+
-'                    </span>'+
-'                </div>'+
-'              </div>'+
-'            </div>'+
-'';
+                        '<div class="form-group">'+
+                            '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+                            '<div class="col-sm-' + col2 + '">' +
+                                '<div class="input-group date" id="datetimepicker2-'+campo['cae_id']+'">'+
+                                    '<input type="text" class="form-control datetimepicker" name="campo_extra_'+campo['cae_id']+'" id="campo_extra_'+campo['cae_id']+'" value="'+valor+'" />'+
+                                    '<span class="input-group-addon">'+
+                                        '<span class="glyphicon glyphicon-calendar"></span>'+
+                                    '</span>'+
+                                '</div>'+
+                            '</div>'+
+                        '</div>'+
+                        '';
                 } else if (campo['tipo_dato'] == 'fecha_enlazada') {
                     fechas_enlazadas[fechas_enlazadas.length] = campo['cae_id'];
                     contenido += ''+
-'            <div class="form-group">'+
-                        '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
-                        '<div class="col-sm-' + col2 + '">' +
-'                <div class="input-group date" id="datetimepicker2-'+campo['cae_id']+'">'+
-'                    <input type="text" class="form-control" name="campo_extra_'+campo['cae_id']+'" id="campo_extra_'+campo['cae_id']+'" value="'+valor+'" />'+
-'                    <span class="input-group-addon">'+
-'                        <span class="glyphicon glyphicon-calendar"></span>'+
-'                    </span>'+
-'                </div>'+
-'              </div>'+
-'            </div>'+
-'';
+        '<div class="form-group">'+
+        '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
+        '<div class="col-sm-' + col2 + '">' +
+        '<div class="input-group date" id="datetimepicker2-'+campo['cae_id']+'">'+
+        '<input type="text" class="form-control" name="campo_extra_'+campo['cae_id']+'" id="campo_extra_'+campo['cae_id']+'" value="'+valor+'" />'+
+        '<span class="input-group-addon">'+
+        '<span class="glyphicon glyphicon-calendar"></span>'+
+        '</span>'+
+        '</div>'+
+        '</div>'+
+        '</div>'+
+        '';
 
 
                 } else if (campo['tipo_dato'] == 'numero') {

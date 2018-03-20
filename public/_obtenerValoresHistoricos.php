@@ -74,6 +74,9 @@ if (!empty($ate_id)) {
             ON esa_borrado IS NULL
             AND esa_id = tea_estado_atencion_actual
 
+        LEFT OUTER JOIN sai_destinatario
+            ON des_id = tea_destinatario
+
         LEFT OUTER JOIN sai_valor_extra
             ON vae_borrado IS NULL
             AND vae_paso_atencion = paa_id
@@ -88,10 +91,12 @@ if (!empty($ate_id)) {
         ORDER BY paa_creado DESC, cae_orden
     ");
 
+    /*
+    // se comentó esta parte ya que quitaba los repetidos por distintos destinatarios, en su lugar se agregó el destinatario en el histórico de la atención
     if ($result) {
         $count_null = 0;
         //var_dump($result);
-        //quita los valores vacios repetidos:
+        //quita los valores vacios repetidos: es por pasos de transiciones de un mismo estado pero de distintos destinatarios
         $quiebre = null;
         foreach($result as $k => $r) {
             if ($quiebre != $r['esa_nombre']) {
@@ -107,6 +112,7 @@ if (!empty($ate_id)) {
             }
         }
     }
+     */
 
     //var_dump($result);
 
