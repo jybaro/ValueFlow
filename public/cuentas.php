@@ -234,8 +234,10 @@ function p_cargar_cuentas(target) {
             if (data) {
                 var count = 0;
                 Array.from(data).forEach(function(padre){
-                    opciones += '<option value="'+padre['cue_id']+'">'+padre['cue_codigo']+'</option>';
-                    count++;
+                    if ($('#id').val() != padre['cue_id']) {
+                        opciones += '<option value="'+padre['cue_id']+'">'+padre['cue_codigo']+'</option>';
+                        count++;
+                    }
                 });
                 
                 $('#padre').html(opciones);

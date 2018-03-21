@@ -68,31 +68,38 @@ if (!empty($dataset_json)) {
                     $result = q("INSERT INTO sai_cuenta($sql_insert_campos) VALUES($sql_insert_valores) RETURNING *");
             } else if (!empty($id) && $count_cuentas_codigo == 1) {
                 //actualiza cuenta
-                $campos = 'codigo,peso,padre,cliente,responsable_cobranzas,usuario_tecnico,contacto';
-                $campos_array = explode(',', $campos);
-                $sql_update = '';
-                $glue = '';
-                foreach ($campos_array as $campo){
+                if (empty($dataset->padre) || $dataset->padre != $id) {
+                    //si no hay padre, o si el padre es distinto al propio hijo (para filtrar casos que una cuenta sea su propia padre):
+                    $campos = 'codigo,peso,padre,cliente,responsable_cobranzas,usuario_tecnico,contacto';
+                    $campos_array = explode(',', $campos);
+                    $sql_update = '';
+                    $glue = '';
+                    foreach ($campos_array as $campo){
 
-                    if (isset($dataset->$campo) && !empty($dataset->$campo)) {
-                        $_ = '';
+                        if (isset($dataset->$campo) && !empty($dataset->$campo)) {
+                            $_ = '';
 
-                        switch ($campo){
-                        case 'codigo':
-                            $_ = "'";
-                            break;
-                        case 'peso': default:
-                            break;
+                            switch ($campo){
+                            case 'codigo':
+                                $_ = "'";
+                                break;
+                            case 'peso': default:
+                                break;
+                            }
+
+                            $sql_update .= "$glue cue_$campo = ". $_ . $dataset->$campo . $_;
+                            $glue = ',';
                         }
 
-                        $sql_update .= "$glue cue_$campo = ". $_ . $dataset->$campo . $_;
-                        $glue = ',';
                     }
+                    $sql = ("UPDATE sai_cuenta SET $sql_update WHERE cue_id=$id RETURNING *");
+                    //echo $sql;
+                    $result = q($sql);
 
+                } else {
+                    //no permite que una misma cuenta sea su propia cuenta padre
+                    $result = array(array('ERROR' => "La cuenta con id $id no puede ser su propia cuenta padre."));
                 }
-                $sql = ("UPDATE sai_cuenta SET $sql_update WHERE cue_id=$id RETURNING *");
-                //echo $sql;
-                $result = q($sql);
             } else {
                 //borra cuentas con codigo repetida
                 $result = array(array('ERROR' => "Ya existe una cuenta con descripcion $codigo"));

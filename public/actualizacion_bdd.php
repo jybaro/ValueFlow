@@ -26,3 +26,13 @@ OR pla_cuerpo LIKE '%ID\_SERVICIO%'
 RETURNING *
 ");
 var_dump($result);
+
+$result = q("
+UPDATE sai_cuenta
+SET cue_codigo = concat('Cuenta ', cue_cliente)
+WHERE cue_borrado IS NULL
+AND cue_codigo LIKE '%Cuenta de la empresa%'
+RETURNING *
+");
+
+var_dump($result);

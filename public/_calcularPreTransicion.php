@@ -675,7 +675,7 @@ EOT;
                 $iva = q("SELECT cat_texto FROM sai_catalogo WHERE cat_codigo='iva'")[0]['cat_texto']; 
 
                 ///////////
-                // Precios:
+                // Precios (cliente):
                 //
                 $campos_valores['PRECIO_CAPACIDAD_CONTRATADA'] = $campos_valores['CAPACIDAD_CONTRATADA'] * $campos_valores['PRECIO_MB'];
                 $campos_valores['PRECIO_CAPACIDAD_FACTURADA']  = $campos_valores['CAPACIDAD_FACTURADA']  * $campos_valores['PRECIO_MB'];
@@ -716,7 +716,7 @@ EOT;
 
 
                 ///////////
-                // Costos:
+                // Costos (proveedor):
                 //
                 $campos_valores['COSTO_CAPACIDAD_CONTRATADA'] = $campos_valores['CAPACIDAD_CONTRATADA'] * $campos_valores['COSTO_MB'];
                 $campos_valores['COSTO_CAPACIDAD_FACTURADA']  = $campos_valores['CAPACIDAD_FACTURADA']  * $campos_valores['COSTO_MB'];

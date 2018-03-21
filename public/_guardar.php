@@ -85,6 +85,7 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
                         INSERT INTO sai_cuenta(
                             cue_codigo
                             ,cue_cliente
+                            ,cue_peso
                         ) VALUES (
                     ");
                 }
@@ -100,9 +101,11 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
                 $respuesta[substr($k, 4)] = $v;
             }
             if (isset($sql_sai_cuenta) && !empty($sql_sai_cuenta)) {
+                //'Cuenta de la empresa {$respuesta[razon_social]}, con ID {$respuesta[id]}'
                 $sql_sai_cuenta .= "
-                        'Cuenta de la empresa {$respuesta[razon_social]}, con ID {$respuesta[id]}'
+                        'Cuenta {$respuesta[id]}'
                         ,{$respuesta[id]}
+                        ,100
                     )
                 ";
                 q($sql_sai_cuenta);
