@@ -22,20 +22,40 @@ $respuesta = array();
 if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
     $ate_id = $args[0];
 
-    $paa_id = q("
-        SELECT max(paa_id)
-        FROM sai_paso_atencion
-        WHERE paa_borrado IS NULL
-        AND NOT paa_confirmado IS NULL
-        AND paa_atencion = $ate_id
-    ")[0]['max'];
-
     if (isset($_POST['estado']) && !empty($_POST['estado'])) {
         $estado = $_POST['estado'];
         $id = $_POST['id'];
         $ate_id = $id;
         //$tea_id = $_POST['tea_id'];
         $tea_id = $_POST['tea_id'];
+
+        /*
+        // Obtiene el paso_atencion en base a la atencion y a la transicion, pero en caso de no tener campos no habría paso en este punto...
+        $paa_id = q("
+            SELECT max(paa_id)
+            FROM sai_paso_atencion
+            WHERE paa_borrado IS NULL
+            AND paa_atencion = $ate_id
+            AND paa_transicion_estado_atencion = $tea_id
+        ")[0]['max'];
+         * */
+
+        $paa_id = q("
+            SELECT max(paa_id)
+            FROM sai_paso_atencion
+            WHERE paa_borrado IS NULL
+            AND NOT paa_confirmado IS NULL
+            AND paa_atencion = $ate_id
+            
+        ")[0]['max'];
+
+        $paa_secuencial = q("
+            SELECT paa_secuencial
+            FROM sai_paso_atencion
+            WHERE paa_borrado IS NULL
+            AND paa_id = $paa_id
+        ")[0]['paa_secuencial'];
+
 
 //echo "[[1]]";
         $traer_campos_asociados = 1;
@@ -643,6 +663,10 @@ EOT;
                 //$campos_valores['PROVEEDOR'] = $campos_valores['PRO_RAZON_SOCIAL'];
                 $campos_valores['PROVEEDOR'] = $campos_valores['PRO_NOMBRE_COMERCIAL'];
                 $campos_valores['CLIENTE'] = $campos_valores['CLI_RAZON_SOCIAL'];
+
+                $campos_valores['PAA_SECUENCIAL'] = $paa_secuencial;
+                $campos_valores['PAA_SECUENCIAL_LETRAS'] = n2t($paa_secuencial);
+
 
 
 
