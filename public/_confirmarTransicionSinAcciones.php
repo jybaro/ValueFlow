@@ -4,8 +4,9 @@
 //return;
 
 function p_confirmar_transicion_sin_acciones($ate_id, $tea_id, $estado_siguiente_id){
+    
 
-    //echo "EN p_confirmar_transicion_sin_acciones: $ate_id, $tea_id, $estado_siguiente_id";
+    //echo "[[EN p_confirmar_transicion_sin_acciones: $ate_id, $tea_id, $estado_siguiente_id]]";
     $respuesta = array();
 
     //$ate_id = $_POST['ate_id'];
@@ -85,8 +86,55 @@ function p_confirmar_transicion_sin_acciones($ate_id, $tea_id, $estado_siguiente
     //}
 
     if (!empty($paa_id_lista)) {
+        require('_obtenerValoresVigentes.php');
+        $valores_vigentes = $resultado;
+        $campos_valores = array();
+        foreach($valores_vigentes as $valor_vigente){
+            $campos_valores[$valor_vigente['codigo']] = $valor_vigente['valor'];
+        }
+
+        $capacidad_contratada = isset($campos_valores['CAPACIDAD_CONTRATADA']) ? $campos_valores['CAPACIDAD_CONTRATADA'] : 0;
+        $capacidad_facturada = isset($campos_valores['CAPACIDAD_FACTURADA']) ? $campos_valores['CAPACIDAD_FACTURADA'] : 0;
+        $capacidad_solicitada = isset($campos_valores['CAPACIDAD_SOLICITADA']) ? $campos_valores['CAPACIDAD_SOLICITADA'] : 0;
+        $precio_mb = isset($campos_valores['PRECIO_MB']) ? $campos_valores['PRECIO_MB'] : 0;
+        $costo_mb = isset($campos_valores['COSTO_MB']) ? $campos_valores['COSTO_MB'] : 0;
+
+        $servicio_activado = "NULL";
+        $sql = ("
+            SELECT count(*)
+            FROM sai_estado_atencion
+            WHERE esa_borrado IS NULL
+            AND (
+                esa_nombre ILIKE '%servicio activo%'
+                OR esa_nombre ILIKE '%incremento%'
+                OR esa_nombre ILIKE '%decremento%'
+            )
+            AND esa_id = $estado_siguiente_id
+        ");
+        //echo "[[Sin Acciones]]";
+        //echo $sql;
+        $result_estado = q($sql);
+
+        if ($result_estado) {
+            if ($result_estado[0]['count'] == 1) {
+                $servicio_activado = "now()";
+            }
+        }
+
         $respuesta['pasos_nuevos'] = $paa_lista;
         $paa_id_lista = implode(',', $paa_id_lista);
+        $result = q("
+            UPDATE sai_paso_atencion 
+            SET 
+            paa_capacidad_contratada = $capacidad_contratada
+            ,paa_capacidad_facturada = $capacidad_facturada
+            ,paa_precio_mb = $precio_mb
+            ,paa_costo_mb = $costo_mb
+            ,paa_servicio_activado = $servicio_activado
+            WHERE paa_borrado IS NULL
+            AND paa_id IN ($paa_id_lista)
+            RETURNING *
+        ");
         $result = q("
             UPDATE sai_paso_atencion 
             SET paa_paso_anterior = now()
@@ -99,6 +147,7 @@ function p_confirmar_transicion_sin_acciones($ate_id, $tea_id, $estado_siguiente
         $sql = ("
             UPDATE sai_atencion 
             SET ate_estado_atencion = $estado_siguiente_id 
+            ,ate_servicio_activado = $servicio_activado
             WHERE ate_borrado IS NULL
             AND ate_id = $ate_id 
             RETURNING *
@@ -134,9 +183,9 @@ function p_confirmar_transicion_sin_acciones($ate_id, $tea_id, $estado_siguiente
             
             $tea_id_next = $tea_next['tea_id'];
             $tea_automatico_next = $tea_next['tea_automatico'];
-            $tea_estado_atencion_siguente_next = $tea_next['tea_estado_atencion_siguente'];
+            $tea_estado_atencion_siguiente_next = $tea_next['tea_estado_atencion_siguiente'];
             if ($tea_automatico_next == 1) {
-                $respuesta['automatico'] = p_confirmar_transicion_sin_acciones($ate_id, $tea_id_next, $tea_estado_atencion_siguente_next);
+                $respuesta['automatico'] = p_confirmar_transicion_sin_acciones($ate_id, $tea_id_next, $tea_estado_atencion_siguiente_next);
             }
         }
     //}
