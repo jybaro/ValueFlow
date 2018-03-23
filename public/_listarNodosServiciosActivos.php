@@ -43,7 +43,7 @@ if (strlen($query) >= $extension_minima) {
 
     $int_query = is_numeric($query) ? intval($query) : -1;
 
-    $result = q("
+    $sql = ("
         SELECT *
         FROM sai_nodo
         ,sai_ubicacion
@@ -85,6 +85,8 @@ if (strlen($query) >= $extension_minima) {
         ORDER BY ate_codigo
     ");
 
+    //echo $sql;
+    $result = q($sql);
     /*
         AND (
             ate_nodo = nod_id
@@ -94,9 +96,11 @@ if (strlen($query) >= $extension_minima) {
     if ($result) {
         foreach($result as $r){
             $tipo = ($r['ate_concentrador'] == $r['nod_id']) ? 'concentrador' : (($r['ate_extremo'] == $r['nod_id']) ? 'extremo' : 'punto');
+            //echo "[[{$r['nod_id']}]]";
 
             //$respuesta = array('id' => $r['nod_id'], 'name' => ($r['nod_codigo'] . ': ' . $r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')'));
             if ($no_diferencia_puntos) {
+                //echo "[[NO {$tipo} {$cae_validacion}]]";
                 $respuesta = array('id' => $r['nod_id'], 'name' => 'Servicio activo '. trim($r['ate_secuencial'] . ' ' .$r['ate_codigo'] ));
                 /*
                 $encuentra = false;
@@ -110,11 +114,13 @@ if (strlen($query) >= $extension_minima) {
                 }
                  */
                 //if ($tipo == 'concentrador' || $tipo == 'punto') {
-                if ($tipo == $cae_validacion) {
+                //if ($tipo == $cae_validacion) {
+                if ($tipo == $cae_validacion || $tipo == 'punto') {
                     //Si el campo es de concentrador, ingresa el concentrador, caso contrario si la validacion del campo es extremo, ingresa el extremo:
                     $respuestas[] = $respuesta; 
                 }
             } else {
+                //echo "[[SI]]";
                 $respuesta = array('id' => $r['nod_id'], 'name' => 'Servicio activo '. trim($r['ate_secuencial'] . ' ' .$r['ate_codigo']) . ', ' . $tipo . ' ' . $r['nod_codigo'] . ', ' .$r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')');
                 $respuestas[] = $respuesta; 
             }
