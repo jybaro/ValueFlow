@@ -2846,8 +2846,12 @@ function p_validar(target){
             $(target).popover('destroy');
         }, 4000);
 
-        $('<input type="submit">').hide().appendTo('#' + id).click().remove();
+        //$('<input type="submit">').hide().appendTo('#' + id).click().remove();
         resultado = false;
+    }
+
+    if ($(target).prop("tagName") == 'FORM') {
+        $(target)[0].reportValidity();
     }
     return resultado;
 }
