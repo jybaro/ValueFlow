@@ -213,6 +213,7 @@ if ($result) {
 $(document).ready(function() {
     $('.combo-select2').select2({
         language: "es"
+        ,width: '100%'
     });
 });
 
