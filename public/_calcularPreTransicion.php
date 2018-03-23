@@ -49,12 +49,16 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             
         ")[0]['max'];
 
-        $paa_secuencial = q("
-            SELECT paa_secuencial
-            FROM sai_paso_atencion
-            WHERE paa_borrado IS NULL
-            AND paa_id = $paa_id
-        ")[0]['paa_secuencial'];
+        if ($paa_id) {
+            $paa_secuencial = q("
+                SELECT paa_secuencial
+                FROM sai_paso_atencion
+                WHERE paa_borrado IS NULL
+                AND paa_id = $paa_id
+            ")[0]['paa_secuencial'];
+        } else {
+            $paa_secuencial = 0;
+        }
 
 
 //echo "[[1]]";

@@ -463,6 +463,7 @@ FROM
 $(document).ready(function() {
     $('.combo-select2').select2({
         language: "es"
+        ,width: '100%'
     });
     $('.checkbox-toggle').bootstrapToggle({
         on: 'Sí'
@@ -707,7 +708,10 @@ function p_borrarSuave(){
                         option_label = data[campo_etiqueta];
                         console.log('RECURSIVO YA EXISTE:', '#recursivo_' + campo, 'value '+option_value, 'label '+option_label);
                         $('#'+campo).find('option[value='+option_value+']').remove();
-                        $('#'+campo).select2();
+                        $('#'+campo).select2({
+                            language: "es"
+                            ,width: '100%'
+                        });
                     }
                 }
                 $('#fila_' + data['id']).removeClass('alert alert-danger alert-success alert-info');
@@ -817,7 +821,10 @@ function p_guardar() {
                             option_label = data[campo_etiqueta];
                             console.log('RECURSIVO YA EXISTE:', '#recursivo_' + campo, 'value '+option_value, 'label '+option_label);
                             $('#'+campo).find('option[value='+option_value+']').text(option_label);
-                            $('#'+campo).select2();
+                            $('#'+campo).select2({
+                                language: "es"
+                                ,width: '100%'
+                            });
                         }
                     }
                 } else {

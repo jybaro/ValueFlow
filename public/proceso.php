@@ -13,18 +13,6 @@
             $destinatarios[] = $r['des_nombre'];
         }
     }
-    $result_provincias = q("
-        SELECT *
-        FROM sai_provincia
-        WHERE prv_borrado IS NULL
-        ORDER BY prv_nombre
-    ");
-    $provincias = array();
-    if ($result_provincias) {
-        foreach ($result_provincias as $r) {
-            $provincias[] = $r;
-        }
-    }
     $tipos_contactos = array();
     $result_tipos_contactos = q("
         SELECT *
@@ -646,24 +634,8 @@ $cae_validacion = ' required ';
 $col1 = 3;
 $col2 = 8;
 
-$result_provincias = q("
-    SELECT *
-    FROM sai_provincia
-    ORDER BY prv_nombre
-");
-$provincias = array();
-if ($result_provincias) {
-    foreach ($result_provincias as $r) {
-        $provincias[] = $r;
-    }
-}
 $opciones = '<option value="">&nbsp;</option>';
 
-foreach($provincias as $provincia) {
-    $codigo = $provincia['prv_id'];
-    $nombre = $provincia['prv_nombre'];
-    $opciones .= '<option value="'. $codigo . '">'.$nombre.' </option>';
-}
 
 ?>
     <div class="form-group">
@@ -691,7 +663,6 @@ foreach($provincias as $provincia) {
     <label for="nod_provincia" class="col-sm-<?=$col1?>  control-label">Provincia:</label>
       <div class="col-sm-<?=$col2?>">
         <select <?=$cae_validacion?> class="form-control combo-select2" id="nod_provincia" name="nod_provincia" placeholder="" value="" onblur="p_validar(this)" onchange="p_cargar_cantones_ciudades(this, <?=$cae_id?>)">
-    <?=$opciones?> 
         </select>
       </div>
     </div>
@@ -770,7 +741,8 @@ foreach($provincias as $provincia) {
         $('#nod_parroquia').prop('disabled', true);
         $('#nod_parroquia').html('<option value="">Escoja primero el cantón</option>');
 
-        if (prv_id != '') {
+        if (prv_id) {
+            /*
             $.ajax({
                 'url':'/_listar/canton/provincia/' + prv_id
             }).done(function(data){
@@ -787,6 +759,37 @@ foreach($provincias as $provincia) {
 
             });
 
+             */
+            $('#nod_canton').prop('disabled', false);
+            $('#nod_canton').html('<option value="">&nbsp;</option>');
+            $('#nod_canton').select2({
+                language: "es"
+                ,width: '100%'
+                ,ajax: {
+                    url: function (params) {
+                        console.log('SELECT2 URL params:', params);
+                        var busqueda = (params.term) ? params.term : '';
+                        return '/_listar/canton/borrado/null/provincia/'+ prv_id +'/nombre/ilike-' + busqueda + '/';
+                    }
+                    ,data:function(){return '';}
+                    ,processResults: function (data) {
+                        console.log('Respuesta /_listar/canton/provincia/' + prv_id, data);
+                        data = JSON.parse(data);
+                        console.log('data',data);
+                        var opciones = [];
+                        data.forEach(function(opcion){
+                            opciones.push( {
+                                "id": opcion['id']
+                                ,"text":opcion['nombre']
+                            });
+                        });
+                        return {
+                            results: opciones
+                        };
+                    }
+                }
+            });
+            /*
             $.ajax({
                 'url':'/_listar/ciudad/provincia/' + prv_id
             }).done(function(ciudades){
@@ -801,6 +804,36 @@ foreach($provincias as $provincia) {
                 $('#nod_ciudad').prop('disabled', false);
                 $('#nod_ciudad').html('<option value="">&nbsp;</option>' + opciones);
             });
+             */
+            $('#nod_ciudad').prop('disabled', false);
+            $('#nod_ciudad').html('<option value="">&nbsp;</option>');
+            $('#nod_ciudad').select2({
+                language: "es"
+                ,width: '100%'
+                ,ajax: {
+                    url: function (params) {
+                        console.log('SELECT2 URL params:', params);
+                        var busqueda = (params.term) ? params.term : '';
+                        return '/_listar/ciudad/borrado/null/provincia/'+ prv_id +'/nombre/ilike-' + busqueda + '/';
+                    }
+                    ,data:function(){return '';}
+                    ,processResults: function (data) {
+                        console.log('Respuesta /_listar/ciudad/provincia/' + prv_id, data);
+                        data = JSON.parse(data);
+                        console.log('data',data);
+                        var opciones = [];
+                        data.forEach(function(opcion){
+                            opciones.push( {
+                                "id": opcion['id']
+                                ,"text":opcion['nombre']
+                            });
+                        });
+                        return {
+                            results: opciones
+                        };
+                    }
+                }
+            });
         }
     }
 
@@ -809,7 +842,8 @@ foreach($provincias as $provincia) {
         var can_id = $(target).val();
         $('#nod_parroquia').prop('disabled', true);
         $('#nod_parroquia').html('<option value="">Escoja primero el cantón</option>');
-        if (can_id != '') {
+        if (can_id) {
+            /*
             $.ajax({
                 'url':'/_listar/parroquia/canton/' + can_id
             }).done(function(data){
@@ -823,6 +857,36 @@ foreach($provincias as $provincia) {
 
                 $('#nod_parroquia').prop('disabled', false);
                 $('#nod_parroquia').html('<option value="">&nbsp;</option>' + opciones);
+            });
+             */
+            $('#nod_parroquia').prop('disabled', false);
+            $('#nod_parroquia').html('<option value="">&nbsp;</option>');
+            $('#nod_parroquia').select2({
+                language: "es"
+                ,width: '100%'
+                ,ajax: {
+                    url: function (params) {
+                        console.log('SELECT2 URL params:', params);
+                        var busqueda = (params.term) ? params.term : '';
+                        return '/_listar/parroquia/borrado/null/canton/'+ can_id +'/nombre/ilike-' + busqueda + '/';
+                    }
+                    ,data:function(){return '';}
+                    ,processResults: function (data) {
+                        console.log('Respuesta /_listar/parroquia/canton/' + can_id +'/nombre/', data);
+                        data = JSON.parse(data);
+                        console.log('data',data);
+                        var opciones = [];
+                        data.forEach(function(opcion){
+                            opciones.push( {
+                                "id": opcion['id']
+                                ,"text":opcion['nombre']
+                            });
+                        });
+                        return {
+                            results: opciones
+                        };
+                    }
+                }
             });
         }
     }
@@ -1199,21 +1263,6 @@ if ($result_tum) {
     <label for="cliente" class="col-sm-4 control-label">Empresa:</label>
     <div class="col-sm-8">
       <select required class="form-control combo-select2" style="width: 50%" id="cliente" name="cliente" tabindex="-1" aria-hidden="true" onchange="p_cargar_contactos_cuentas(this)">
-        <option value="">&nbsp;</option>
-      <?php
-$result = q("
-    SELECT *
-    FROM sai_cliente
-    WHERE cli_borrado IS NULL
-");
-if ($result) {
-    foreach($result as $r) {
-        $value = $r['cli_id'];
-        $label = $r['cli_razon_social'];
-        echo "<option value='$value'>$label</option>";
-    }
-}
-        ?>
       </select>
     </div>
   </div>
@@ -1273,6 +1322,7 @@ if ($result) {
 
         <option value="">&nbsp;</option>
       <?php
+/*
 $result = q("
     SELECT *
     FROM sai_servicio
@@ -1285,6 +1335,7 @@ if ($result) {
         echo "<option value='$value'>$label</option>";
     }
 }
+ */
         ?>
       </select> 
     </div>
@@ -1328,6 +1379,7 @@ if ($result) {
       <select required class="form-control combo-select2" style="width: 50%" id="usuario_tecnico" name="usuario_tecnico" tabindex="-1" aria-hidden="true">
         <option value="">&nbsp;</option>
       <?php
+/*
 $result = q("
     SELECT *
     ,(usu_nombres || ' ' || usu_apellidos) AS nombre
@@ -1349,6 +1401,7 @@ if ($result) {
         }
     }
 }
+ */
         ?>
 
       </select> 
@@ -1366,6 +1419,7 @@ if ($result) {
       <select required class="form-control combo-select2" style="width: 50%" id="usuario_comercial" name="usuario_comercial" tabindex="-1" aria-hidden="true">
         <option value="">&nbsp;</option>
       <?php
+/*
 $result = q("
     SELECT *
     FROM sai_usuario
@@ -1382,6 +1436,7 @@ if ($result) {
         echo "<option value='$value'>$label</option>";
     }
 }
+ */
         ?>
 
       </select> 
@@ -1492,7 +1547,7 @@ $(document).ready(function() {
     var hash = window.location.hash.substr(1);
 
     console.log('HASH:', "["+hash+"]");
-    if (hash != '') {
+    if (hash) {
         //hace el scroll hasta el elemento:
         var $anchor = $(':target'),
             fixedElementHeight = 50;
@@ -1941,6 +1996,44 @@ function p_abrir_nuevo_nodo(id){
         });
         $('#nod_cae_id').val(id);
         $('#nod_atencion').val($('#ate_id').val());
+
+
+        $('#nod_canton').prop('disabled', true);
+        $('#nod_canton').html('<option value="">Escoja primero la provincia</option>');
+        $('#nod_ciudad').prop('disabled', true);
+        $('#nod_ciudad').html('<option value="">Escoja primero la provincia</option>');
+        $('#nod_parroquia').prop('disabled', true);
+        $('#nod_parroquia').html('<option value="">Escoja primero el cantón</option>');
+        $('#nod_provincia').prop('disabled', false);
+        $('#nod_provincia').html('<option value="">&nbsp;</option>');
+        $('#nod_provincia').select2({
+            language: "es"
+            ,width: '100%'
+            ,ajax: {
+                url: function (params) {
+                    console.log('SELECT2 URL params:', params);
+                    var busqueda = (params.term) ? params.term : '';
+                    return '/_listar/provincia/borrado/null/nombre/ilike-' + busqueda + '/';
+                }
+                ,data:function(){return '';}
+                ,processResults: function (data) {
+                    console.log('Respuesta /_listar/provincia/', data);
+                    data = JSON.parse(data);
+                    console.log('data',data);
+                    var opciones = [];
+                    data.forEach(function(opcion){
+                        opciones.push( {
+                            "id": opcion['id']
+                            ,"text":opcion['nombre']
+                        });
+                    });
+                    return {
+                        results: opciones
+                    };
+                }
+            }
+        });
+
         $('#modal_nodo').modal('show');
         $('#modal').off('hidden.bs.modal');
     });
@@ -1959,7 +2052,6 @@ function p_quitar_opcion_typeahead(id){
 }
 
 
-var provincias = <?=json_encode($provincias)?>;
 
 var destinatarios = <?=json_encode($destinatarios)?>;
 var marker = null;
@@ -1974,7 +2066,7 @@ function initMap() {
     });
     google.maps.event.addListener(map, 'click', function(e) {
         console.log(e);
-        if (marker != null) {
+        if (marker) {
             marker.setMap(null);
         }
 
@@ -2093,7 +2185,7 @@ function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
         console.log('Respuesta _calcularPreTransicion', data);
         data = JSON.parse(data);
         console.log('data', data);
-        if (data != '' && data != null && typeof(data['ERROR']) === 'undefined') {
+        if (data && typeof(data['ERROR']) === 'undefined') {
         $('#ate_id_accion').val(ate_id);
         $('#estado_siguiente_id_accion').val(estado_siguiente_id);
 
@@ -2181,13 +2273,13 @@ function p_abrir_campos_llenos() {
     destinatarios.forEach(function(destinatario){
         tea_id_destinatario = $('#tea_id_accion_' + destinatario).val();
         console.log('Buscando valor en ', '#tea_id_accion_' + destinatario, $('#tea_id_accion_' + destinatario).val());
-        if (tea_id_destinatario != '' && tea_id_destinatario != null && !isNaN(tea_id_destinatario)) {
+        if (tea_id_destinatario  && !isNaN(tea_id_destinatario)) {
         //if (Number.isInteger(tea_id_destinatario)) {
             tea_id = tea_id_destinatario;
             console.log('Encontrado tea_id:', '['+tea_id+']');
         }
     });
-    if (tea_id != null) {
+    if (tea_id ) {
         console.log('tea_id:', tea_id,'ate_id:', ate_id);
         $('#modal_confirmacion').modal('hide');
         $('#modal_confirmacion').on('hidden.bs.modal', function () {
@@ -2281,7 +2373,7 @@ function p_abrir(tea_id, ate_id) {
                         $('#campo_extra_grupo_'+cae_id).removeClass('has-warning');
                         if (nodo_completo) {
                             $('#campo_extra_grupo_'+cae_id).show();
-                            if (nodo_completo['nod_atencion_referenciada'] != null && nodo_completo['nod_atencion_referenciada'] != nodo_completo['nod_atencion']) {
+                            if (nodo_completo['nod_atencion_referenciada'] && nodo_completo['nod_atencion_referenciada'] != nodo_completo['nod_atencion']) {
                                 $('#campo_extra_grupo_'+cae_id).hide();
                                 $('#campo_extra_'+cae_id).val(nodo_completo['nod_codigo']);
                             } else if (false && nodo_completo['nod_no_diferencia_puntos'] == 1) {
@@ -2304,7 +2396,15 @@ function p_abrir(tea_id, ate_id) {
                         nodo_completo = nodo_completo[0];
                         console.log('nodo_completo', nodo_completo);
                         $('#boton_nodo_completo_'+cae_id).removeClass('btn-default');
-                        if (nodo_completo && nodo_completo['nod_fecha_termino'] !== null && nodo_completo['nod_nodo'] !== null && nodo_completo['nod_tipo_ultima_milla'] !== null && nodo_completo['nod_responsable_ultima_milla'] !== null && nodo_completo['nod_distancia'] !== null && nodo_completo['nod_id'] != null) {
+                        if (nodo_completo 
+                            && nodo_completo['nod_fecha_termino'] 
+                            && nodo_completo['nod_nodo'] 
+                            && nodo_completo['nod_tipo_ultima_milla'] 
+                            && nodo_completo['nod_responsable_ultima_milla'] 
+                            && nodo_completo['nod_distancia'] 
+                            && nodo_completo['nod_id'] 
+                        ) {
+
                             console.log('el nodo parece completo...', '#campo_extra_'+cae_id, nodo_completo['nod_id']);
                             $('#campo_extra_'+cae_id).val(nodo_completo['nod_id']);
                             //if (nodo_completo['nod_atencion'] == $('#ate_id').val()) {
@@ -2452,13 +2552,13 @@ function p_desplegar_campos(campos, padre_id) {
                     var validacion_html5 = campo['cae_validacion'];
                     var funcion_validar = 'p_validar(this)';
 
-                    if (campo['cae_validacion'] !== null && campo['cae_validacion'].indexOf('capacidad')  !== -1) {
+                    if (campo['cae_validacion'] && campo['cae_validacion'].indexOf('capacidad')  !== -1) {
                         //el numero es capacidad
                         //validacion_html5 = 'required';
                         //funcion_validar = 'p_validar_capacidad(this, \'' + campo['cae_validacion'] + '\')';
                     }
 
-                    valor = ((valor == null || valor == '') && (campo['cae_codigo'] !== null && campo['cae_codigo'].indexOf('COSTO_INSTALACION')  !== -1)) ? '0' : valor;
+                    valor = ((valor == null || valor == '') && (campo['cae_codigo'] && campo['cae_codigo'].indexOf('COSTO_INSTALACION')  !== -1)) ? '0' : valor;
                     contenido += ''+
                         '<div class="form-group">' +
                         '<label for="campo_extra_'+campo['cae_id']+'" class="col-sm-' + col1 + ' control-label">'+campo['cae_texto']+ ':</label>' +
@@ -2653,7 +2753,7 @@ function p_validar_nodo_codigo(target){
     $(target).parent().parent().removeClass('has-error');
     $(target).parent().parent().removeClass('has-success');
     $(target).parent().parent().removeClass('has-warning');
-    if (nod_codigo != '') {
+    if (nod_codigo) {
         $(target).val('');
         $.get('/_validarNodoCodigo/' + ate_id + '/' + cae_id + '/' + nod_codigo, function(data){
             console.log('/_validarNodoCodigo/' + ate_id + '/' + cae_id + '/' + nod_codigo, data);
@@ -2692,7 +2792,7 @@ function p_validar_codigo_atencion(target){
     var ate_codigo = $(target).val();
     $(target).parent().parent().removeClass('has-error');
     $(target).parent().parent().removeClass('has-success');
-    if (ate_codigo != '') {
+    if (ate_codigo ) {
         $(target).val('');
         $.get('/_validarCodigoAtencion/' + ate_id + '/' + ate_codigo, function(data){
             console.log('/_validarCodigoAtencion/' + ate_id + '/' + ate_codigo, data);
@@ -2797,6 +2897,97 @@ function p_nuevo(){
         $(this).trigger('change');
     });
 
+    $('#servicio').select2({
+        language: "es"
+        ,width: '100%'
+        ,ajax: {
+            url: function (params) {
+                console.log('SELECT2 URL params:', params);
+                var busqueda = (params.term) ? params.term : '';
+                return '/_listar/servicio/borrado/null/nombre/ilike-' + busqueda + '/';
+            }
+            ,data:function(){return '';}
+            ,processResults: function (data) {
+                console.log('Respuesta /_listar/servicio/borrado/null/nombre/ilike-', data);
+                data = JSON.parse(data);
+                console.log('data',data);
+                var opciones = [];
+                data.forEach(function(opcion){
+                    opciones.push( {
+                        "id": opcion['id']
+                        ,"text":opcion['nombre']
+                    });
+                });
+                return {
+                    results: opciones
+                };
+            }
+        }
+    });
+    $('#cliente').select2({
+        language: "es"
+        ,width: '100%'
+        ,ajax: {
+            url: function (params) {
+                console.log('SELECT2 URL params:', params);
+                var busqueda = (params.term) ? params.term : '';
+                return '/_listar/cliente/borrado/null/razon_social/ilike-' + busqueda + '/';
+            }
+            ,data:function(){return '';}
+            ,processResults: function (data) {
+                console.log('Respuesta /_listar/cliente/borrado/null/razon_social/ilike-', data);
+                data = JSON.parse(data);
+                console.log('data',data);
+                var opciones = [];
+                data.forEach(function(opcion){
+                    opciones.push( {
+                        "id": opcion['id']
+                        ,"text":opcion['razon_social']
+                    });
+                });
+                return {
+                    results: opciones
+                };
+            }
+        }
+    });
+
+    $('#usuario_tecnico').select2({
+        language: "es"
+        ,width: '100%'
+        ,ajax: {
+            url: function (params) {
+                console.log('SELECT2 URL params:', params);
+                var busqueda = (params.term) ? params.term : '';
+                return '/_listarUsuarios/tecnico/' + busqueda + '/';
+            }
+            ,data:function(){return '';}
+            ,processResults: function (data) {
+                console.log('Respuesta /_listarUsuarios/tecnico/', data);
+                data = JSON.parse(data);
+                console.log('data',data);
+                return data;
+            }
+        }
+    });
+    $('#usuario_comercial').select2({
+        language: "es"
+        ,width: '100%'
+        ,ajax: {
+            url: function (params) {
+                console.log('SELECT2 URL params:', params);
+                var busqueda = (params.term) ? params.term : '';
+                return '/_listarUsuarios/comercial/' + busqueda + '/';
+            }
+            ,data:function(){return '';}
+            ,processResults: function (data) {
+                console.log('Respuesta /_listarUsuarios/comercial/', data);
+                data = JSON.parse(data);
+                console.log('data',data);
+                return data;
+            }
+        }
+    });
     $('#cuenta').html('<option value="">Seleccione el cliente primero</option>');
     $('#cuenta').prop('disabled', true);
     $('#contacto').html('<option value="">Seleccione el cliente primero</option>');
@@ -2806,6 +2997,7 @@ function p_nuevo(){
     $('#proveedor').html('<option value="">Seleccione el servicio primero</option>');
     $('#proveedor').prop('disabled', true);
     $('#proveedor').prop('multiple', false);
+
 
     $('#cantidad_extremos').prop('disabled', true);
     $('#cantidad_extremos').parent().parent().hide();
@@ -2825,7 +3017,7 @@ function p_cargar_proveedores(target) {
     $('#proveedor').trigger('change');
 
     var ser_id = $(target).val();
-    if (ser_id != '') {
+    if (ser_id ) {
         $.get('/_listarProveedores/' + ser_id, function(data){
             console.log('/_listarProveedores/'+ser_id, data);
             data = JSON.parse(data);
@@ -2874,7 +3066,7 @@ function p_cargar_contactos_cuentas(target) {
     $('#contacto_en_sitio').prop('disabled', true);
 
     var cli_id = $(target).val();
-    if (cli_id != '') {
+    if (cli_id) {
         $.get('/_listar/contacto/cliente/' + cli_id, function(data){
             console.log('/_listar/contacto/cliente/'+cli_id, data);
             data = JSON.parse(data);
