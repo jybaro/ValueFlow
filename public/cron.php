@@ -74,12 +74,12 @@ if ($result) {
         //$asunto = 'Recordatorio';
         //$asunto = $r[paa_asunto];
         //$asunto = 'Recordatorio: ' . $asunto;
-        $ate_codigo = empty($r['ate_codigo']) ? '' : ", con ID de servicio {$r['ate_codigo']}";
-        $asunto = "Recordatorio: {$r['esa_nombre']} {$r['ate_secuencial']}{$ate_codigo}";
-
         //$mensaje = 'Hola, tienes pendientes en SAIT, por favor revísalos.';
         //$mensaje = $r[paa_cuerpo];
         //$mensaje = empty($mensaje) ? $asunto : $mensaje;
+
+        $ate_codigo = empty($r['ate_codigo']) ? '' : ", con ID de servicio {$r['ate_codigo']}";
+        $asunto = "Recordatorio: {$r['esa_nombre']} {$r['ate_secuencial']}{$ate_codigo}";
         $mensaje = "Se le recuerda dar seguimiento a {$r['esa_nombre']} de {$r['ser_nombre']} {$r['pro_nombre_comercial']} número {$r['ate_secuencial']}$ate_codigo";
 
         //$emails = $r[paa_destinatarios];
