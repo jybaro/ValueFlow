@@ -30,6 +30,21 @@ $result = q("
         WHERE usu_borrado IS NULL
         AND usu_id = tea_usuario
     ) AS email_extra
+    ,(
+        SELECT ser_nombre
+        FROM sai_servicio
+        WHERE ser_borrado IS NULL
+        AND ser_id = ate_servicio
+    )
+    ,(
+        SELECT pro_nombre_comercial
+        FROM sai_proveedor
+        ,sai_pertinencia_proveedor
+        WHERE pro_borrado IS NULL
+        AND pep_borrado IS NULL
+        AND pep_proveedor = pro_id
+        AND pep_id = ate_pertinencia_proveedor
+    )
     FROM sai_transicion_estado_atencion
     ,sai_paso_atencion
     ,sai_atencion
@@ -65,7 +80,7 @@ if ($result) {
         //$mensaje = 'Hola, tienes pendientes en SAIT, por favor revísalos.';
         //$mensaje = $r[paa_cuerpo];
         //$mensaje = empty($mensaje) ? $asunto : $mensaje;
-        $mensaje = "Se le recuerda dar seguimiento a {$r['esa_nombre']} {$r['ate_secuencial']}$ate_codigo";
+        $mensaje = "Se le recuerda dar seguimiento a {$r['esa_nombre']} de {$r['ser_nombre']} {$r['pro_nombre_comercial']} número {$r['ate_secuencial']}$ate_codigo";
 
         //$emails = $r[paa_destinatarios];
         //$emails = $r['email_comercial'] . ',' . $r['email_tecnico'];

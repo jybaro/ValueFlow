@@ -263,14 +263,17 @@ FROM
             }
 
             $fkeys[$c]['__opciones'] = array();
-            $opciones = q("SELECT * FROM {$fk[foreign_table_name]} ORDER BY $campo_etiqueta_fk");
+            $fkeys[$c]['__campo_etiqueta_fk'] = $campo_etiqueta_fk;
+            $fkeys[$c]['__campo_etiqueta2_fk'] = $campo_etiqueta2_fk;
+            $prefijo_fk = substr($campo_etiqueta_fk, 0, 4);
+            $opciones = q("SELECT * FROM {$fk[foreign_table_name]} WHERE {$prefijo_fk}borrado IS NULL ORDER BY $campo_etiqueta_fk");
             if ($opciones) {
                 foreach($opciones as $opcion){
                     $valor = $opcion[$fk['foreign_column_name']];
                     $etiqueta = empty($opcion[$campo_etiqueta_fk]) ? '' : $opcion[$campo_etiqueta_fk];
                     $etiqueta2 = empty($opcion[$campo_etiqueta2_fk]) ? '' : $opcion[$campo_etiqueta2_fk];
                     $etiqueta = trim(str_replace('null', '', "$etiqueta $etiqueta2"));
-                    $etiqueta = empty($etiqueta) ? '<i>(id:'.$opcion[substr($campo_etiqueta_fk, 0, 4) . 'id'] . ')</i>' : $etiqueta;
+                    $etiqueta = empty($etiqueta) ? '<i>(id:'.$opcion[$prefijo_fk . 'id'] . ')</i>' : $etiqueta;
                     $fkeys[$c]['__opciones'][$valor] = $etiqueta;
                 }
             }
@@ -354,6 +357,18 @@ FROM
         }
     }
     echo "</tbody>";
+    echo "<tfoot>";
+    echo "<tr>";
+    echo "<th>&nbsp;</th>";
+    foreach($campos as $campo){
+        if ($campo['validacion'] != 'hidden') {
+            $nombre_columna = $campo['etiqueta'];
+            echo "<th>$nombre_columna</th>";
+        }
+    }
+
+    echo "</tr>";
+    echo "</tfoot>";
     echo "</table>";
 }
 ?>
@@ -394,17 +409,55 @@ FROM
         <?php if($fkeys[$campo['nombre']]['foreign_table_name'] == $tabla): ?>
         <span id="recursivo_<?=$c?>"></span>
         <?php endif; ?>
-      <select <?=$campo['validacion']?> class="form-control combo-select2" style="width: 50%" id="<?=$c?>" name="<?=$c?>" >
+<?php
+$__fk_tabla = substr($fkeys[$campo['nombre']]['foreign_table_name'],4);
+$__campo_etiqueta_fk = substr($fkeys[$campo['nombre']]['__campo_etiqueta_fk'],4); 
+$__campo_etiqueta2_fk = substr($fkeys[$campo['nombre']]['__campo_etiqueta2_fk'],4); 
+?>
+
+      <select <?=$campo['validacion']?> class="form-control combo-select2" style="width: 50%" id="<?=$c?>" name="<?=$c?>" data-campo-etiqueta-fk="<?=$__campo_etiqueta_fk?>" data-campo-etiqueta2-fk="<?=$__campo_etiqueta2_fk?>">
         <option value="">&nbsp;</option>
 <?php
+/*
     $opciones = $fkeys[$campo['nombre']]['__opciones'];
 
 
     foreach($opciones as $valor => $etiqueta){
         echo "<option value='$valor'>$etiqueta</option>";
     }
+ */
 ?>
       </select>
+<script>
+$('#<?=$c?>').select2({
+    language: "es"
+    ,width: '100%'
+    ,ajax: {
+        url: function (params) {
+            console.log('SELECT2 URL params:', params);
+            var busqueda = (params.term) ? params.term : '';
+            return '/_listar/<?=$__fk_tabla?>/borrado/null/<?=$__campo_etiqueta_fk?>/ilike-' + busqueda + '/';
+        }
+        ,data:function(){return '';}
+        ,processResults: function (data) {
+            console.log('Respuesta /_listar/<?=$__fk_tabla?>/borrado/null/<?=$__campo_etiqueta_fk?>/ilike-', data);
+            data = JSON.parse(data);
+            console.log('data',data);
+            var opciones = [];
+            data.forEach(function(opcion){
+                var texto = opcion['<?=$__campo_etiqueta_fk?>'] + (opcion['<?=$__campo_etiqueta2_fk?>'] ? ' ' + opcion['<?=$__campo_etiqueta2_fk?>'] : '');
+                opciones.push( {
+                    "id": opcion['id']
+                    ,"text":texto
+                });
+            });
+            return {
+                results: opciones
+            };
+        }
+    }
+});
+</script>
       <?php elseif($tipo == 'multitexto'): ?>
 
       <textarea class="form-control" id="<?=$c?>" name="<?=$c?>" placeholder="" <?=$campo['validacion']?> onblur="p_validar(this)" ></textarea>
@@ -461,10 +514,12 @@ FROM
 <script>
 
 $(document).ready(function() {
+    /*
     $('.combo-select2').select2({
         language: "es"
         ,width: '100%'
     });
+     */
     $('.checkbox-toggle').bootstrapToggle({
         on: 'Sí'
         ,off: 'No'
@@ -539,7 +594,7 @@ function p_validar(target) {
         console.log('Validando que campo '+id+' sea unico...');
         var candidato_a_valor_unico = $(target).val();
         $(target).val('');
-        $.get('/_listar/'+tabla+'/'+id+'/'+value, function(data){
+        $.get('/_listar/'+tabla+'/borrado/null/'+id+'/'+value, function(data){
             console.log('/_listar/'+tabla+'/'+id+'/'+value, data);
             data = JSON.parse(data);
             console.log('data', data.length, data);
@@ -601,11 +656,12 @@ var campo_etiqueta = '<?=$campo_etiqueta?>';
 function p_abrir(id, target){
     var etiqueta = $(target).text();
     $.ajax({
-        'url':'/_listar/'+tabla+'/'+id
+        'url':'/_listar/'+tabla+'/borrado/null/id/'+id
     }).done(function(data){
         console.log('ABRIENDO ' + tabla, data);
         //data = eval(data);
         data = JSON.parse(data);
+        console.log('data', data);
         data = data[0];
 
         if (!data['borrado']) {
@@ -625,6 +681,20 @@ function p_abrir(id, target){
         for (key in data){
             $('#' + key).val(data[key]).trigger('change');;
         }
+        //setea los combos ajax select2
+        $('.combo-select2').each(function(){
+            var fk_campo = $(this).attr('id');
+            var fk_id = data[fk_campo];
+            var texto = $('#dato_' + id + '_' + fk_campo).text();
+            //var campo_etiqueta_fk = $(this).attr('data-campo-etiqueta-fk');
+            //var campo_etiqueta2_fk = $(this).attr('data-campo-etiqueta2-fk');
+            //console.log('SETEANDO SELECT2: ' , id, data[id], fk_id, data[fk_id], campo_etiqueta_fk, data[campo_etiqueta_fk], campo_etiqueta2_fk, data[campo_etiqueta2_fk]);
+
+            console.log('SETEANDO SELECT2: ' , id, fk_campo, fk_id, texto );
+            $(this).select2("trigger", "select", {
+                data: { id: fk_id, text: texto }
+            });
+        });
         //reinicializa los checkbox
         $('.checkbox-toggle').each(function(){
             var id = $(this).attr('id').replace('_checkbox', '');
