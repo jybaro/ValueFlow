@@ -1039,6 +1039,14 @@ overflow: hidden;
           </div>
 
           <div class="form-group">
+            <label class="col-sm-<?=$col1?> control-label">Nodo:</label>
+            <div class="col-sm-<?=($col2)?>">
+              <span class="form-control" id="detalle_nodo_nodo"></span>
+            </div>
+
+          </div>
+
+          <div class="form-group">
             <label class="col-sm-<?=$col1?> control-label">Creado por:</label>
             <div class="col-sm-<?=$col2?>">
               <span class="form-control" id="detalle_nodo_creado_por"></span>
@@ -1621,6 +1629,7 @@ function p_abrir_detalle_nodo(nod_id){
 
                 $('#detalle_nodo_codigo').text(nodo['nod_codigo']);
                 $('#detalle_nodo_descripcion').text(nodo['nod_descripcion']);
+                $('#detalle_nodo_nodo').text(nodo['nod_nodo']);
 
                 $('#detalle_nodo_tipo_ultima_milla').text(nodo['tum_nombre']);
                 $('#detalle_nodo_responsable_ultima_milla').text(nodo['nod_responsable_ultima_milla']);
