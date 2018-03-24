@@ -24,17 +24,27 @@ $result = q("
         WHERE usu_borrado IS NULL
         AND usu_id = ate_usuario_comercial
     ) AS email_comercial
+    ,(
+        SELECT usu_correo_electronico
+        FROM sai_usuario
+        WHERE usu_borrado IS NULL
+        AND usu_id = tea_usuario
+    ) AS email_extra
     FROM sai_transicion_estado_atencion
     ,sai_paso_atencion
     ,sai_atencion
+    ,sai_estado_atencion
     WHERE tea_borrado IS NULL
     AND paa_borrado IS NULL
     AND ate_borrado IS NULL
+    AND esa_borrado IS NULL
     AND paa_transicion_estado_atencion = tea_id
     AND paa_atencion = ate_id
+    AND ate_estado_atencion = esa_id
     AND paa_paso_anterior IS NULL
+    AND NOT paa_confirmado IS NULL
     AND tea_tiempo_alerta_horas > 0
-    AND paa_contador_alerta >= tea_tiempo_alerta_horas;
+    AND paa_contador_alerta >= tea_tiempo_alerta_horas
 ");
 
 
@@ -47,62 +57,74 @@ if ($result) {
             WHERE paa_id = {$r[paa_id]}
         ");
         //$asunto = 'Recordatorio';
-        $asunto = $r[paa_asunto];
-        $asunto = 'Recordatorio: ' . $asunto;
+        //$asunto = $r[paa_asunto];
+        //$asunto = 'Recordatorio: ' . $asunto;
+        $ate_codigo = empty($r['ate_codigo']) ? '' : ", con ID de servicio {$r['ate_codigo']}";
+        $asunto = "Recordatorio: {$r['esa_nombre']} {$r['ate_secuencial']}{$ate_codigo}";
+
         //$mensaje = 'Hola, tienes pendientes en SAIT, por favor revísalos.';
-        $mensaje = $r[paa_cuerpo];
-        $mensaje = empty($mensaje) ? $asunto : $mensaje;
+        //$mensaje = $r[paa_cuerpo];
+        //$mensaje = empty($mensaje) ? $asunto : $mensaje;
+        $mensaje = "Se le recuerda dar seguimiento a {$r['esa_nombre']} {$r['ate_secuencial']}$ate_codigo";
 
         //$emails = $r[paa_destinatarios];
         //$emails = $r['email_comercial'] . ',' . $r['email_tecnico'];
         $emails = $r['email_tecnico'];
+        if ($r['esa_recordar_comercial']) {
+            $emails .= ',' . $r['email_comercial'];
+        }
+        if (!empty($r['email_extra'])) {
+            $emails .= ',' . $r['email_extra'];
+        }
         $emails = explode(',', $emails);
 
         $adjuntos = $r[paa_adjuntos];
         $adjuntos = explode(',', $adjuntos);
 
-        try {
+        if (!empty($asunto) && !empty($mensaje)) {
+            try {
 
-            $mail = new PHPMailer\PHPMailer\PHPMailer(true);
-            $mail->CharSet = 'UTF-8';
-            $mail->IsSMTP();
-            $mail->SMTPSecure = 'tls';
-            $mail->SMTPAuth = true;
-            $mail->Host = SMTP_SERVER;
-            $mail->Port = SMTP_PORT;
-            $mail->Username = SMTP_USERNAME;
-            $mail->Password = SMTP_PASSWORD;
-            //$mail->SMTPDebug = 2;
-            $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
-            $mail->Subject = $asunto;
-            $mail->MsgHTML($mensaje);
+                $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+                $mail->CharSet = 'UTF-8';
+                $mail->IsSMTP();
+                $mail->SMTPSecure = 'tls';
+                $mail->SMTPAuth = true;
+                $mail->Host = SMTP_SERVER;
+                $mail->Port = SMTP_PORT;
+                $mail->Username = SMTP_USERNAME;
+                $mail->Password = SMTP_PASSWORD;
+                //$mail->SMTPDebug = 2;
+                $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
+                $mail->Subject = $asunto;
+                $mail->MsgHTML($mensaje);
 
-            foreach ($emails as $email) {
-                if (!empty($email)) {
-                    $mail->AddAddress($email);
+                foreach ($emails as $email) {
+                    if (!empty($email)) {
+                        $mail->AddAddress($email);
+                    }
                 }
-            }
 
-            foreach ($adjuntos as $adjunto) {
-                if (!empty($adjunto)) {
-                    $mail->AddAttachment($adjunto);
+                foreach ($adjuntos as $adjunto) {
+                    if (!empty($adjunto)) {
+                        $mail->AddAttachment($adjunto);
+                    }
                 }
+
+                $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
+                $mail->AddBCC(MAIL_COPY_ALL_ADDRESS, MAIL_COPY_ALL_NAME);
+
+
+                //echo '<pre>';
+                //var_dump($r);
+                //echo '</pre><hr>';
+                if (!$mail->Send()) { 
+                    throw new Exception($mail->ErrorInfo);
+                }
+            } catch (Exception $e) {
+                echo $e->getMessage();
+                l('Error en ' . $e->getFile() . ', linea ' . $e->getLine() . ': ' . $e->getMessage());
+                return;
             }
-
-            $mail->AddBCC(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
-            $mail->AddBCC(MAIL_COPY_ALL_ADDRESS, MAIL_COPY_ALL_NAME);
-
-
-            //echo '<pre>';
-            //var_dump($r);
-            //echo '</pre><hr>';
-            if (!$mail->Send()) { 
-                throw new Exception($mail->ErrorInfo);
-            }
-        } catch (Exception $e) {
-            echo $e->getMessage();
-            l('Error en ' . $e->getFile() . ', linea ' . $e->getLine() . ': ' . $e->getMessage());
-            return;
         }
     }
 }
@@ -114,6 +136,7 @@ q("
     SET paa_contador_alerta = paa_contador_alerta + 1
     WHERE paa_borrado IS NULL
     AND paa_paso_anterior IS NULL
+    AND NOT paa_confirmado IS NULL
     AND paa_transicion_estado_atencion IN (
         SELECT tea_id
         FROM sai_transicion_estado_atencion

@@ -88,6 +88,10 @@ foreach ($pro_id_lista as $pro_id) {
             }
         }
         //crea el paso:
+        //no puede ir confirmado ya que el estado sigiente de la transición no es factibilidad nueva, sino factibilidad en proceso. Mientras no exista 
+        //  una transición donde el estado siguiente sea factibilidad nueva, no puede ir como confirmado este primer paso, y por lo tanto se 
+        //  perderá en la siguiente transición, quedando en el histórico como faltante de factibilidad nueva.
+        //  La solución sería agregar un estado inicial, y agregar una primera transición de este estado inicial hacia la factibilidad nueva.
         $paa_id = q("
             INSERT INTO sai_paso_atencion (
                 paa_transicion_estado_atencion
