@@ -40,7 +40,8 @@ function p_tree($cuentas) {
         foreach ($cuentas as $cuenta) {
             $icono = count($cuenta[hijos]) == 0 ? '&nbsp;&nbsp;&nbsp;' : $plus;
 
-            $titulo = !isset($cuenta[cue_codigo]) ? '': "{$cuenta[cue_codigo]} ({$cuenta[cli_razon_social]})";
+            //$titulo = !isset($cuenta[cue_codigo]) ? '': "{$cuenta[cue_codigo]} ({$cuenta[cli_razon_social]})";
+            $titulo = "{$cuenta[cli_razon_social]}";
             if (!$_solo_lectura) {
                 $titulo = <<<EOT
 <a href="#" onclick="p_abrir({$cuenta[cue_id]}); return false;">{$titulo}</a>
@@ -106,10 +107,10 @@ p_tree($cuentas[null][hijos]);
     <div class="col-sm-8">
       <select required id="cliente" name="cliente" class="form-control combo-select2" style="width:50%" onchange="p_cargar_cuentas(this)">
         <option value="">&nbsp;</option>
-        <?php $roles=q("SELECT * FROM sai_cliente ORDER BY cli_razon_social"); ?>
-        <?php foreach($roles as $rol): ?>
-            <option value="<?=$rol['cli_id']?>"><?=$rol['cli_razon_social']?></option>
-        <?php endforeach; ?>
+        <?php //$roles=q("SELECT * FROM sai_cliente ORDER BY cli_razon_social"); ?>
+        <?php //foreach($roles as $rol): ?>
+            <!--option value="<?=$rol['cli_id']?>"><?=$rol['cli_razon_social']?></option-->
+        <?php //endforeach; ?>
       </select>
     </div>
   </div>
@@ -131,6 +132,7 @@ p_tree($cuentas[null][hijos]);
       <select required class="form-control combo-select2" style="width: 50%" id="responsable_cobranzas" name="responsable_cobranzas" tabindex="-1" aria-hidden="true">
         <option value="">&nbsp;</option>
       <?php
+/*
 $result = q("
     SELECT *
     FROM sai_usuario
@@ -147,6 +149,7 @@ if ($result) {
         echo "<option value='$value'>$label</option>";
     }
 }
+ */
         ?>
 
       </select> 
@@ -211,14 +214,44 @@ if ($result) {
 <script src="/js/bootstrap3-typeahead.min.js"></script>
 <script>
 $(document).ready(function() {
+    /*
     $('.combo-select2').select2({
         language: "es"
         ,width: '100%'
+});
+     */
+    $('#padre').select2({
+        language: "es"
+        ,width: '100%'
+        ,ajax: {
+            url: function (params) {
+                console.log('SELECT2 URL params:', params);
+                var busqueda = (params.term) ? params.term : '';
+                return '/_listarCuentas/' + $('#id').val() + '/'+ busqueda + '/';
+            }
+            ,data:function(){return '';}
+            ,processResults: function (data) {
+                console.log('Respuesta /_listarCuentas/', data);
+                data = JSON.parse(data);
+                console.log('data',data);
+                var opciones = [];
+                data.forEach(function(opcion){
+                    opciones.push( {
+                        "id": opcion['id']
+                        ,"text":opcion['nombre']
+                    });
+                });
+                return {
+                    results: opciones
+                };
+            }
+        }
     });
 });
 
 function p_cargar_cuentas(target) {
     console.log('En p_cargar_cuentas', target);
+    return;
 
     $('#padre').html('<option value="">Seleccione el servicio primero</option>');
     $('#padre').prop('disabled', true);
@@ -227,6 +260,7 @@ function p_cargar_cuentas(target) {
 
     var cli_id = $(target).val();
     if (cli_id != '') {
+        /*
         $.get('/_listarCuentas/' + cli_id, function(data){
             console.log('/_listarCuentas/'+cli_id, data);
             data = JSON.parse(data);
@@ -250,6 +284,7 @@ function p_cargar_cuentas(target) {
 
             }
         });
+         */
     }
 }
 function p_validar(target) {

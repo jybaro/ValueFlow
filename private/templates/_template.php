@@ -135,7 +135,6 @@ body {
         <button type="submit" class="btn btn-default">Buscar</button>
       </form-->
       <ul class="nav navbar-nav navbar-right">
-        <?php if ($_nivel <= 2): ?>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Reportes<span class="caret"></span></a>
           <ul class="dropdown-menu">
@@ -144,6 +143,8 @@ body {
             <li role="separator" class="divider"></li>
           </ul>
         </li>
+        <?php //if ($_nivel <= 2): ?>
+        <?php if ($_nivel <= 1): ?>
         <li class="dropdown">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Administración<span class="caret"></span></a>
           <ul class="dropdown-menu">
