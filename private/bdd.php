@@ -3,9 +3,11 @@
 function q($sql, $callback = false) {
     global $conn;
 
+    /*
     if (strpos($sql, 'SELECT') === false) {
-        l('SQL: ' . $sql);
     }
+     */
+    l('SQL: ' . $sql);
     $sql = str_replace("\n", ' ', $sql);
     $sql = str_replace("\r", ' ', $sql);
 

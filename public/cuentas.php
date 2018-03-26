@@ -2,8 +2,27 @@
 <?php
 
 $result = q("
+SELECT *
+    ,concat(
+        CASE WHEN count_hijos > 0 
+            THEN 'padre' 
+            ELSE  (
+                CASE WHEN cue_padre IS NULL 
+                    THEN 'independiente' 
+                    ELSE 'hijo' 
+                END
+            )
+        END
+    ) AS tipo_cuenta
+FROM (
     SELECT *
-    FROM sai_cuenta
+    ,(
+        SELECT count(*)
+        FROM sai_cuenta AS hijos
+        WHERE hijos.cue_borrado IS NULL
+        AND hijos.cue_padre = padre.cue_id
+    ) AS count_hijos
+    FROM sai_cuenta AS padre
 
     INNER JOIN sai_cliente
         ON cli_borrado IS NULL
@@ -14,7 +33,8 @@ $result = q("
         AND con_id = cue_contacto
 
     WHERE cue_borrado IS NULL
-    ORDER BY cue_id DESC
+) AS t
+    ORDER BY cli_razon_social
 ");
 
 $cuentas = array();
@@ -41,7 +61,7 @@ function p_tree($cuentas) {
             $icono = count($cuenta[hijos]) == 0 ? '&nbsp;&nbsp;&nbsp;' : $plus;
 
             //$titulo = !isset($cuenta[cue_codigo]) ? '': "{$cuenta[cue_codigo]} ({$cuenta[cli_razon_social]})";
-            $titulo = "{$cuenta[cli_razon_social]}";
+            $titulo = "Cuenta {$cuenta['tipo_cuenta']} de {$cuenta[cli_razon_social]}";
             if (!$_solo_lectura) {
                 $titulo = <<<EOT
 <a href="#" onclick="p_abrir({$cuenta[cue_id]}); return false;">{$titulo}</a>
@@ -90,12 +110,12 @@ p_tree($cuentas[null][hijos]);
 
 <form id="formulario" class="form-horizontal">
 <input type="hidden" id="id" name="id" value="">
-  <div class="form-group">
+  <!--div class="form-group">
     <label for="codigo" class="col-sm-4 control-label">Descripción:</label>
     <div class="col-sm-8">
       <input type="text" required class="form-control" id="codigo" name="codigo" placeholder="Codigo">
     </div>
-  </div>
+  </div-->
   <div class="form-group">
     <label for="peso" class="col-sm-4 control-label">Peso:</label>
     <div class="col-sm-8">
@@ -220,30 +240,71 @@ $(document).ready(function() {
         ,width: '100%'
 });
      */
-    $('#padre').select2({
+
+    $('#responsable_cobranzas').select2({
         language: "es"
         ,width: '100%'
         ,ajax: {
             url: function (params) {
                 console.log('SELECT2 URL params:', params);
                 var busqueda = (params.term) ? params.term : '';
-                return '/_listarCuentas/' + $('#id').val() + '/'+ busqueda + '/';
+                return '/_listarUsuarios/cobranzas/' + busqueda + '/';
             }
             ,data:function(){return '';}
             ,processResults: function (data) {
-                console.log('Respuesta /_listarCuentas/', data);
+                console.log('Respuesta /_listarUsuarios/cobranzas/', data);
+                data = JSON.parse(data);
+                console.log('data',data);
+                return data;
+            }
+        }
+    });
+    $('#cliente').select2({
+        language: "es"
+        ,width: '100%'
+        ,ajax: {
+            url: function (params) {
+                console.log('SELECT2 URL params:', params);
+                var busqueda = (params.term) ? params.term : '';
+                return '/_listar/cliente/borrado/null/razon_social/ilike-' + busqueda + '/';
+            }
+            ,data:function(){return '';}
+            ,processResults: function (data) {
+                console.log('Respuesta /_listar/cliente/borrado/null/razon_social/ilike-', data);
                 data = JSON.parse(data);
                 console.log('data',data);
                 var opciones = [];
                 data.forEach(function(opcion){
                     opciones.push( {
                         "id": opcion['id']
-                        ,"text":opcion['nombre']
+                        ,"text":opcion['razon_social']
                     });
                 });
                 return {
                     results: opciones
                 };
+            }
+        }
+    });
+    $('#padre').select2({
+        language: "es"
+        ,width: '100%'
+        ,allowClear: true
+        ,placeholder: "Seleccione la cuenta padre, en caso de existir"
+        ,ajax: {
+            url: function (params) {
+                console.log('SELECT2 URL params:', params);
+                var busqueda = (params.term) ? params.term : '';
+                var cue_id_excluido = $('#id').val() ? $('#id').val() : 0;
+                console.log('URL', '/_listarCuentas/' + cue_id_excluido + '/0/'+ busqueda + '/');
+                return '/_listarCuentas/' + cue_id_excluido + '/0/'+ busqueda + '/';
+            }
+            ,data:function(){return '';}
+            ,processResults: function (data) {
+                console.log('Respuesta /_listarCuentas/', data);
+                data = JSON.parse(data);
+                console.log('data',data);
+                return data;
             }
         }
     });
@@ -360,18 +421,19 @@ function p_guardar(){
 
 function p_abrir(id){
     $.ajax({
-        'url':'/_listar/cuenta/'+id
+        'url':'/_obtenerCuenta/'+id
     }).done(function(data){
         //data = eval(data);
-        console.log('/_listar/cuenta/'+id, data);
+        console.log('/_obtenerCuenta/'+id, data);
         data = JSON.parse(data);
         data = data[0];
         console.log('ABRIENDO CUENTA', data);
 
         var badge = '';
         var disabled = false;
-        if (data['borrado'] == null) {
-            $('#formulario_eliminar').show();
+        if (data['cue_borrado'] == null) {
+            //$('#formulario_eliminar').show();
+            $('#formulario_eliminar').hide();
             $('#formulario_guardar').show();
             $('#formulario_guardar').prop('disabled', false);
             $('#formulario_recuperar').hide();
@@ -385,14 +447,46 @@ function p_abrir(id){
             $('#formulario_recuperar').show();
             disabled = true;
         }
-        $('#formulario_titulo').html(data['codigo'] + ' ' + badge);
+        $('#formulario_titulo').html(data['tipo'] + ' de ' + data['cli_razon_social'] + ' ' + badge);
+        /*
         for (key in data){
             $('#' + key).val(data[key]);
             $('#' + key).trigger('change');
             $('#' + key).prop('disabled', disabled);
         }
+         */
+        $('#id').val(data['cue_id']);
+            if (data['cue_peso']) {
+                $('#peso').val(data['cue_peso']);
+            } else {
+                $('#peso').val('');
+            }
 
-        $("#codigo").prop('disabled', true);
+            if (data['cue_cliente']) {
+                $('#cliente').select2("trigger", "select", {
+                    data: { id: data['cue_cliente'], text: data['cli_razon_social'] }
+                });
+            } else {
+                $('#cliente').val('').change();
+            }
+
+            if (data['cue_padre']) {
+                $('#padre').select2("trigger", "select", {
+                    data: { id: data['cue_padre'], text: data['padre'] }
+                });
+            } else {
+                $('#padre').val('').change();
+            }
+
+            if (data['cue_responsable_cobranzas']) {
+                $('#responsable_cobranzas').select2("trigger", "select", {
+                    data: { id: data['cue_responsable_cobranzas'], text: data['usu_nombres'] + ' ' + data['usu_apellidos'] }
+                });
+            } else {
+                $('#responsable_cobranzas').val('').change();
+            }
+
+        //$("#codigo").prop('disabled', true);
         
         $('#modal').modal('show');
     }).fail(function(){
@@ -417,7 +511,7 @@ function p_nuevo(){
     $('#formulario_guardar').show();
     $('#formulario_guardar').prop('disabled', false);
  
-    $('#codigo').prop('disabled', false);
+    //$('#codigo').prop('disabled', false);
 
     $('#formulario').find(':input').each(function() {
         switch(this.type) {
@@ -440,12 +534,13 @@ function p_nuevo(){
             $(this).prop('disabled', false);
             break;
         }
+        $(this).trigger('change');
     });
 
-    $('#padre').html('<option value="">Seleccione el servicio primero</option>');
-    $('#padre').prop('disabled', true);
-    $('#padre').val('');
-    $('#padre').trigger('change');
+    //$('#padre').html('<option value="">Seleccione el servicio primero</option>');
+    //$('#padre').prop('disabled', true);
+    //$('#padre').val('');
+    //$('#padre').trigger('change');
 
     $('#modal').modal('show');
 }

@@ -18,8 +18,10 @@ if (isset($_POST['respaldar']) && !empty($_POST['respaldar'])) {
             echo "<div class='alert alert-success'><h3>Respaldo de la base de datos generado con éxito</h3>";
             echo "<a class='btn btn-warning' href='/$nombre'><span class='glyphicon glyphicon-download-alt' aria-hidden='true'></span> Descargar $nombre ($size MB)</a>";
             echo "</div>";
+            l('Respaldo generado: ' . $nombre);
         } else {
             echo "<div class='alert alert-danger'>Hubo un error al generar el respaldo de la base de datos.</div>";
+            l('ERROR al generar respaldo ' . $nombre);
         }
     }
     echo "<hr>";

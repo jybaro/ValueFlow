@@ -14,7 +14,7 @@ if (isset($_POST['dataset_json']) && !empty($_POST['dataset_json'])) {
 if (!empty($dataset_json)) {
 
     $dataset = json_decode($dataset_json);
-    if (isset($dataset->codigo) && !empty($dataset->codigo)) {
+    //if (isset($dataset->codigo) && !empty($dataset->codigo)) {
         $id = ( (isset($dataset->id) && !empty($dataset->id)) ? $dataset->id : null);
         $codigo = $dataset->codigo;
 
@@ -39,60 +39,43 @@ if (!empty($dataset_json)) {
             $count_cuentas_codigo = $result[0]['count']; 
             //echo "[count_cuentas_codigo: $count_cuentas_codigo]";
 
-            if ($count_cuentas_codigo == 0) {
+            //if ($count_cuentas_codigo == 0) {
+            if (empty($dataset->id)) {
                     //crea cuenta
-                    $campos = 'codigo,peso,padre,cliente,responsable_cobranzas,usuario_tecnico,contacto';
-                    $campos_array = explode(',', $campos);
-                    $sql_insert_campos = '';
-                    $sql_insert_valores = '';
-                    $glue = '';
-                    foreach ($campos_array as $campo){
-
-                        if (isset($dataset->$campo) && !empty($dataset->$campo)) {
-                            $_ = '';
-
-                            switch ($campo){
-                            case 'codigo':
-                                $_ = "'";
-                                break;
-                            case 'peso': default:
-                                break;
-                            }
-
-                            $sql_insert_campos .= $glue . 'cue_' . $campo;
-                            $sql_insert_valores .= $glue . $_ . $dataset->$campo . $_;
-                            $glue = ',';
-                        }
-
-                    }
-                    $result = q("INSERT INTO sai_cuenta($sql_insert_campos) VALUES($sql_insert_valores) RETURNING *");
-            } else if (!empty($id) && $count_cuentas_codigo == 1) {
+                    $padre = empty($dataset->padre) ? 'null' : $dataset->padre;
+                    $sql = ("
+                        INSERT INTO sai_cuenta(
+                            cue_peso
+                            ,cue_padre
+                            ,cue_cliente
+                            ,cue_responsable_cobranzas
+                        ) VALUES(
+                            {$dataset->peso}
+                            ,$padre
+                            ,{$dataset->cliente}
+                            ,{$dataset->responsable_cobranzas}
+                        ) RETURNING *
+                    ");
+                    //echo "[[$sql]]";
+                    $result = q($sql);
+            //} else if (!empty($id) && $count_cuentas_codigo == 1) {
+            } else if (!empty($id)) {
                 //actualiza cuenta
                 if (empty($dataset->padre) || $dataset->padre != $id) {
                     //si no hay padre, o si el padre es distinto al propio hijo (para filtrar casos que una cuenta sea su propia padre):
-                    $campos = 'codigo,peso,padre,cliente,responsable_cobranzas,usuario_tecnico,contacto';
-                    $campos_array = explode(',', $campos);
-                    $sql_update = '';
-                    $glue = '';
-                    foreach ($campos_array as $campo){
-
-                        if (isset($dataset->$campo) && !empty($dataset->$campo)) {
-                            $_ = '';
-
-                            switch ($campo){
-                            case 'codigo':
-                                $_ = "'";
-                                break;
-                            case 'peso': default:
-                                break;
-                            }
-
-                            $sql_update .= "$glue cue_$campo = ". $_ . $dataset->$campo . $_;
-                            $glue = ',';
-                        }
-
-                    }
-                    $sql = ("UPDATE sai_cuenta SET $sql_update WHERE cue_id=$id RETURNING *");
+                    //$campos = 'codigo,peso,padre,cliente,responsable_cobranzas,usuario_tecnico,contacto';
+                    $padre = empty($dataset->padre) ? 'null' : $dataset->padre;
+                    $sql = ("
+                        UPDATE sai_cuenta 
+                        SET  
+                        cue_peso = {$dataset->peso}
+                        ,cue_padre = {$padre}
+                        ,cue_cliente = {$dataset->cliente}
+                        ,cue_responsable_cobranzas = {$dataset->responsable_cobranzas}
+                        WHERE cue_borrado IS NULL
+                        AND cue_id = $id 
+                        RETURNING *
+                    ");
                     //echo $sql;
                     $result = q($sql);
 
@@ -105,9 +88,9 @@ if (!empty($dataset_json)) {
                 $result = array(array('ERROR' => "Ya existe una cuenta con descripcion $codigo"));
             }
         }
-    } else {
-        $result = array(array('ERROR' => 'No se ha enviado el codigo', 'dataset' => $dataset));
-    }
+    //} else {
+    //    $result = array(array('ERROR' => 'No se ha enviado el codigo', 'dataset' => $dataset));
+    // }
 } else {
     $result = array(array('ERROR' => 'No se han enviado datos'));
 }

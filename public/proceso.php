@@ -394,9 +394,10 @@ EOT;
             $glue = ', ';
         }
 
+      //<strong>Dependencia de empresas:</strong> {$r[cue_codigo]}
         echo <<<EOT
     <div class="panel-body">
-      <strong>Dependencia de empresas:</strong> {$r[cue_codigo]}
+      <strong>Dependencia de empresas:</strong> <span data-cue-id="{$r[cue_id]}" id="cuenta_{$r[ate_id]}"></span>
       <br>
       <strong>Contacto de la empresa:</strong> {$r[con_nombres]} {$r[con_apellidos]} ({$contacto_empresa})
       <br>
@@ -1538,6 +1539,14 @@ $(document).ready(function() {
             campos_estado_vigente += '</tbody></table>';
             $('#campos_estado_vigente_'+ate_id).html(campos_estado_vigente);
 
+        });
+        var cue_id = $('#cuenta_' + ate_id).attr('data-cue-id');
+        $.get('/_obtenerCuenta/' + cue_id, function(data){
+            console.log('Resultado /_obtenerCuenta/' + cue_id, data);
+            data = JSON.parse(data);
+            console.log('data', data);
+            data = data[0];
+            $('#cuenta_' + ate_id).text('Cuenta ' + data['tipo'] + ' de ' + data['cli_razon_social']);
         });
     });
 
@@ -3126,23 +3135,24 @@ function p_cargar_contactos_cuentas(target) {
                 $('#contacto_en_sitio').prop('disabled', false);
             }
         });
-        $.get('/_listar/cuenta/cliente/' + cli_id, function(data){
-            console.log('/_listar/cuenta/cliente/'+cli_id, data);
-            data = JSON.parse(data);
-            console.log('data:', data);
-            var opciones = '';
-            if (data) {
-                var count = 0;
-                Array.from(data).forEach(function(cuenta){
-                    opciones += '<option value="'+cuenta['id']+'">'+cuenta['codigo']+'</option>';
-                    count++;
-                });
-                if (count > 1) {
-                    opciones = '<option value="">&nbsp;</option>'+ opciones;
+        $('#cuenta').prop('disabled', false);
+        $('#cuenta').html('');
+        $('#cuenta').select2({
+            language: "es"
+            ,width: '100%'
+            ,ajax: {
+                url: function (params) {
+                    console.log('SELECT2 URL params:', params);
+                    var busqueda = (params.term) ? params.term : '';
+                    return '/_listarCuentas/0/' + cli_id + '/' + busqueda + '/';
                 }
-                $('#cuenta').html(opciones);
-                $('#cuenta').prop('disabled', false);
-
+                ,data:function(){return '';}
+                ,processResults: function (data) {
+                    console.log('Respuesta /_listarCuentas/0/' + cli_id, data);
+                    data = JSON.parse(data);
+                    console.log('data',data);
+                    return data;
+                }
             }
         });
     }
