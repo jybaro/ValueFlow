@@ -690,10 +690,15 @@ function p_abrir(id, target){
             //var campo_etiqueta2_fk = $(this).attr('data-campo-etiqueta2-fk');
             //console.log('SETEANDO SELECT2: ' , id, data[id], fk_id, data[fk_id], campo_etiqueta_fk, data[campo_etiqueta_fk], campo_etiqueta2_fk, data[campo_etiqueta2_fk]);
 
-            console.log('SETEANDO SELECT2: ' , id, fk_campo, fk_id, texto );
-            $(this).select2("trigger", "select", {
-                data: { id: fk_id, text: texto }
-            });
+            if (fk_id) {
+                console.log('SETEANDO SELECT2: ' , id, fk_campo, fk_id, texto );
+                $(this).select2("trigger", "select", {
+                    data: { id: fk_id, text: texto }
+                });
+            } else {
+                console.log('VACIANDO SELECT2');
+                $(this).val('').change();
+            }
         });
         //reinicializa los checkbox
         $('.checkbox-toggle').each(function(){
