@@ -3,7 +3,7 @@
 // cron job:
 // 0 * * * * php /var/www/nedetel/public/cron.php
 
-//$ruta = '/var/www/nedetel/';
+$ruta = '/var/www/nedetel/';
 
 require_once($ruta . 'private/config.php');
 require_once($ruta . 'private/utils.php');
