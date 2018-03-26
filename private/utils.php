@@ -104,6 +104,21 @@ function limpiar_nombre_archivo($cadena){
     return $cadena;
 }
 
+$campos_valores = array();
+function p_reemplazar_campos_valores($celda) {
+    global $campos_valores;
+
+    $nuevo_valor = $celda;
+    if (preg_match_all('/\$\{([a-zA-Z0-9_]+)\}/', $celda, $matches)){
+        foreach ($matches[0] as $k => $match) {
+            $campo_codigo = $matches[1][$k];
+            $valor = $campos_valores[$campo_codigo];
+            $nuevo_valor = str_replace($match, $valor, $nuevo_valor);
+        }
+    }
+    return $nuevo_valor;
+}
+
 function p_formatear_valor_sql($raw, $tipo = 'text'){
     $raw = trim($raw);
     if ($raw === null || $raw === '' || strtolower($raw) === 'null') {

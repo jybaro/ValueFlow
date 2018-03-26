@@ -36,3 +36,13 @@ function l($texto){
     $ip = ((isset($_SERVER['REMOTE_ADDR']) && !empty($_SERVER['REMOTE_ADDR'])) ? pg_escape_literal($_SERVER['REMOTE_ADDR']) : 'null');
     pg_send_query($conn, "INSERT INTO sai_log(log_texto, log_creado_por, log_ip) VALUES ($log, $usuario, $ip)");
 }
+
+function c($codigo){
+    $codigo = pg_escape_literal($codigo);
+    $result = q("SELECT cat_texto FROM sai_catalogo WHERE cat_codigo=$codigo");
+    $resultado = '';
+    if ($result) {
+        $resultado = $result[0]['cat_texto'];
+    }
+    return $resultado;
+}

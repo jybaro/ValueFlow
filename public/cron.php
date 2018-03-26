@@ -77,10 +77,29 @@ if ($result) {
         //$mensaje = 'Hola, tienes pendientes en SAIT, por favor revísalos.';
         //$mensaje = $r[paa_cuerpo];
         //$mensaje = empty($mensaje) ? $asunto : $mensaje;
-
+        $campos_valores = array();
         $ate_codigo = empty($r['ate_codigo']) ? '' : ", con ID de servicio {$r['ate_codigo']}";
-        $asunto = "Recordatorio: {$r['esa_nombre']} {$r['ate_secuencial']}{$ate_codigo}";
-        $mensaje = "Se le recuerda dar seguimiento a {$r['esa_nombre']} de {$r['ser_nombre']} {$r['pro_nombre_comercial']} número {$r['ate_secuencial']}$ate_codigo";
+        foreach ($r as $k => $v) {
+            $campos_valores[strtoupper($k)] = $v;
+        }
+        $campos_valores['ATE_CODIGO'] = $ate_codigo;
+        
+        $plantilla_recordatorio_asunto = c('plantilla_recordatorio_asunto');
+        if (empty($plantilla_recordatorio_asunto)) {
+            $plantilla_recordatorio_asunto = 'Recordatorio: ${ESA_NOMBRE} ${ATE_SECUENCIAL}${ATE_CODIGO}';
+        }
+
+        $plantilla_recordatorio_mensaje = c('plantilla_recordatorio_mensaje');
+        if (empty($plantilla_recordatorio_mensaje)) {
+            $plantilla_recordatorio_mensaje = 'Se le recuerda dar seguimiento a ${ESA_NOMBRE} de ${SER_NOMBRE} ${PRO_NOMBRE_COMERCIAL} número ${ATE_SECUENCIAL}${ATE_CODIGO}';
+        }
+    
+
+        //$asunto = "Recordatorio: {$r['esa_nombre']} {$r['ate_secuencial']}{$ate_codigo}";
+        //$mensaje = "Se le recuerda dar seguimiento a {$r['esa_nombre']} de {$r['ser_nombre']} {$r['pro_nombre_comercial']} número {$r['ate_secuencial']}$ate_codigo";
+        
+        $asunto = p_reemplazar_campos_valores($plantilla_recordatorio_asunto);
+        $mensaje = p_reemplazar_campos_valores($plantilla_recordatorio_mensaje);
 
         //$emails = $r[paa_destinatarios];
         //$emails = $r['email_comercial'] . ',' . $r['email_tecnico'];

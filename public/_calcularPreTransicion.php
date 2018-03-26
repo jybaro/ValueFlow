@@ -4,19 +4,6 @@
 //var_dump($_POST);
 
 
-function p_reemplazar_campos_valores($celda) {
-    global $campos_valores;
-
-    $nuevo_valor = $celda;
-    if (preg_match_all('/\$\{([a-zA-Z0-9_]+)\}/', $celda, $matches)){
-        foreach ($matches[0] as $k => $match) {
-            $campo_codigo = $matches[1][$k];
-            $valor = $campos_valores[$campo_codigo];
-            $nuevo_valor = str_replace($match, $valor, $nuevo_valor);
-        }
-    }
-    return $nuevo_valor;
-}
 
 $respuesta = array();
 if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
@@ -453,7 +440,6 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
             ");
 
             if ($result_metadata_atencion) {
-                $campos_valores = array();
 
                 /*
                 //primera pasada de campos con valores históricos, para tener valores po defecto:
@@ -700,7 +686,8 @@ EOT;
                 $campos_valores['VELOCIDAD_MINIMA_EFECTIVA'] = $campos_valores['CAPACIDAD_CONTRATADA'];
 
 
-                $iva = q("SELECT cat_texto FROM sai_catalogo WHERE cat_codigo='iva'")[0]['cat_texto']; 
+                //$iva = q("SELECT cat_texto FROM sai_catalogo WHERE cat_codigo='iva'")[0]['cat_texto']; 
+                $iva = c('iva');
 
                 ///////////
                 // Precios (cliente):
