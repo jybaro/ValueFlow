@@ -58,12 +58,31 @@ if (!empty($dataset_json)) {
                     ");
                     //echo "[[$sql]]";
                     $result = q($sql);
+                    if ($result) {
+                        //obtiene el código y lo coloca en la cuenta:
+                        $cue_id = $result[0]['cue_id'];
+                        require('_obtenerCuenta.php');
+                        $r = $result[0];
+                        $cue_codigo = 'Cuenta ' . $r['tipo'] . ' de '. $r['cli_razon_social'];
+                        q("
+                            UPDATE sai_cuenta 
+                            SET 
+                            cue_codigo = '$cue_codigo'
+                            WHERE cue_borrado IS NULL
+                            AND cue_id = $cue_id
+                        ");
+                    }
             //} else if (!empty($id) && $count_cuentas_codigo == 1) {
             } else if (!empty($id)) {
                 //actualiza cuenta
                 if (empty($dataset->padre) || $dataset->padre != $id) {
                     //si no hay padre, o si el padre es distinto al propio hijo (para filtrar casos que una cuenta sea su propia padre):
                     //$campos = 'codigo,peso,padre,cliente,responsable_cobranzas,usuario_tecnico,contacto';
+                    $cue_id = $id;
+                    require('_obtenerCuenta.php');
+                    $r = $result[0];
+                    $cue_codigo = 'Cuenta ' . $r['tipo'] . ' de '. $r['cli_razon_social'];
+
                     $padre = empty($dataset->padre) ? 'null' : $dataset->padre;
                     $sql = ("
                         UPDATE sai_cuenta 
@@ -72,6 +91,7 @@ if (!empty($dataset_json)) {
                         ,cue_padre = {$padre}
                         ,cue_cliente = {$dataset->cliente}
                         ,cue_responsable_cobranzas = {$dataset->responsable_cobranzas}
+                        ,cue_codigo = '$cue_codigo'
                         WHERE cue_borrado IS NULL
                         AND cue_id = $id 
                         RETURNING *

@@ -1,6 +1,12 @@
 <?php
 
-$cue_id = $args[0];
+$es_json = true;
+
+if (!isset($cue_id)) {
+    $cue_id = $args[0];
+} else {
+    $es_json = false;
+}
 
 $result = q("
 SELECT *
@@ -45,4 +51,6 @@ FROM (
 ) AS t
 ");
 
-echo json_encode($result);
+if ($es_json) {
+    echo json_encode($result);
+}

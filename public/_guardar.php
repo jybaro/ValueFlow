@@ -61,6 +61,12 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
             if ($glue == ',') {
                 //$sql_parejas .= "{$glue}{$prefijo}modificado=now()";
                 $sql = "UPDATE {$tabla} SET $sql_parejas WHERE {$prefijo}id = {$data[id]}";
+                if ($tabla == 'sai_cliente') {
+                    $sql_update_cuenta = "
+                        UPDATE sai_cuenta
+                        SET
+                    ";
+                }
                 //echo $sql;
             }
         } else {
@@ -103,12 +109,20 @@ if (isset($args[0]) && !empty($args[0]) && !empty($dataset_json)) {
             if (isset($sql_sai_cuenta) && !empty($sql_sai_cuenta)) {
                 //'Cuenta de la empresa {$respuesta[razon_social]}, con ID {$respuesta[id]}'
                 $sql_sai_cuenta .= "
-                        'Cuenta {$respuesta[id]}'
-                        ,{$respuesta[id]}
+                        'Cuenta independiente de {$respuesta['razon_social']}'
+                        ,{$respuesta['id']}
                         ,100
                     )
                 ";
                 q($sql_sai_cuenta);
+            }
+            if (isset($sql_update_cuenta) && !empty($sql_update_cuenta)) {
+                $sql_update_cuenta .= "
+                    cue_codigo = split_part(cue_codigo, ' de ', 1) || ' de {$respuesta['razon_social']}'
+                    WHERE cue_borrado IS NULL
+                    AND cue_cliente = {$respuesta['id']}
+                ";
+                q($sql_update_cuenta);
             }
         }
 
