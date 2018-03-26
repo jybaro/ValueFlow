@@ -92,10 +92,19 @@ if ($result) {
             AND cue_id = $cue_id
             RETURNING *
         ");
-        if ($cue_id == 384) echo $sql;
         $result_update = q($sql);
         var_dump($result_update);
     }
 }
 
+$result = q("
+    UPDATE sai_campo_extra
+    SET cae_orden = 1
+    WHERE cae_borrado IS NULL
+    AND cae_orden <> 1
+    AND cae_codigo LIKE 'ID%'
+    RETURNING *
+");
+
+var_dump($result);
 
