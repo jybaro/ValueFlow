@@ -102,7 +102,7 @@ $result = q("
     SET cae_orden = 1
     WHERE cae_borrado IS NULL
     AND cae_orden <> 1
-    AND cae_codigo LIKE 'ID%'
+    AND cae_texto LIKE 'ID %'
     RETURNING *
 ");
 
