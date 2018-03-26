@@ -3,7 +3,7 @@
 // cron job:
 // 0 * * * * php /var/www/nedetel/public/cron.php
 
-$ruta = '/var/www/nedetel/';
+//$ruta = '/var/www/nedetel/';
 
 require_once($ruta . 'private/config.php');
 require_once($ruta . 'private/utils.php');
@@ -93,6 +93,7 @@ if ($result) {
         if (empty($plantilla_recordatorio_mensaje)) {
             $plantilla_recordatorio_mensaje = 'Se le recuerda dar seguimiento a ${ESA_NOMBRE} de ${SER_NOMBRE} ${PRO_NOMBRE_COMERCIAL} número ${ATE_SECUENCIAL}${ATE_CODIGO}';
         }
+
     
 
         //$asunto = "Recordatorio: {$r['esa_nombre']} {$r['ate_secuencial']}{$ate_codigo}";
