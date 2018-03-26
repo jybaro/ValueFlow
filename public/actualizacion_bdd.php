@@ -1,6 +1,9 @@
 <?php
 
 echo "<pre>";
+
+
+/*
 $result = q("
 UPDATE sai_archivo SET 
 arc_nombre = replace(arc_nombre, 'ID_SERVICIO', 'ID_ORDEN_SERVICIO') 
@@ -36,6 +39,7 @@ RETURNING *
 ");
 
 var_dump($result);
+ */
 
 
 $sql = ("
