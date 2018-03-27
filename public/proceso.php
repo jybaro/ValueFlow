@@ -285,18 +285,21 @@ $sql = ("
         AND usu_comercial.usu_id = ate_usuario_comercial
 
 
-    LEFT OUTER JOIN sai_transicion_estado_atencion
+    INNER JOIN sai_transicion_estado_atencion
         ON tea_borrado IS NULL
         AND tea_pertinencia_proveedor = pep_id
         AND tea_estado_atencion_actual = ate_estado_atencion
+        AND NOT tea_estado_atencion_siguiente IS NULL
 
-    LEFT OUTER JOIN sai_estado_atencion AS e1 
+    INNER JOIN sai_estado_atencion AS e1 
         ON e1.esa_borrado IS NULL
         AND tea_estado_atencion_actual = e1.esa_id
+        AND (SELECT count(*) FROM sai_estado_atencion AS esa_hijos WHERE esa_hijos.esa_borrado IS NULL AND esa_hijos.esa_padre = e1.esa_id) = 0
 
-    LEFT OUTER JOIN sai_estado_atencion AS e2 
+    INNER JOIN sai_estado_atencion AS e2 
         ON e2.esa_borrado IS NULL
         AND tea_estado_atencion_siguiente = e2.esa_id
+        AND (SELECT count(*) FROM sai_estado_atencion AS esa_hijos WHERE esa_hijos.esa_borrado IS NULL AND esa_hijos.esa_padre = e2.esa_id) = 0
 
     WHERE ate_borrado IS NULL
         $filtro
