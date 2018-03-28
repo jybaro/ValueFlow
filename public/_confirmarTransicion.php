@@ -259,13 +259,16 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             SELECT count(*)
             FROM sai_estado_atencion
             WHERE esa_borrado IS NULL
+            AND esa_play = 1
+            AND esa_id = $estado_siguiente_id
+        ");
+        /*
             AND (
                 esa_nombre ILIKE '%servicio activo%'
                 OR esa_nombre ILIKE '%incremento%'
                 OR esa_nombre ILIKE '%decremento%'
             )
-            AND esa_id = $estado_siguiente_id
-        ");
+         * */
         //echo $sql;
         $result_estado = q($sql);
 

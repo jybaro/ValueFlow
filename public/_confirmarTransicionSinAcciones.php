@@ -104,6 +104,14 @@ function p_confirmar_transicion_sin_acciones($ate_id, $tea_id, $estado_siguiente
             SELECT count(*)
             FROM sai_estado_atencion
             WHERE esa_borrado IS NULL
+            AND esa_play = 1
+            AND esa_id = $estado_siguiente_id
+        ");
+        /*
+        $sql = ("
+            SELECT count(*)
+            FROM sai_estado_atencion
+            WHERE esa_borrado IS NULL
             AND (
                 esa_nombre ILIKE '%servicio activo%'
                 OR esa_nombre ILIKE '%incremento%'
@@ -111,6 +119,7 @@ function p_confirmar_transicion_sin_acciones($ate_id, $tea_id, $estado_siguiente
             )
             AND esa_id = $estado_siguiente_id
         ");
+         */
         //echo "[[Sin Acciones]]";
         //echo $sql;
         $result_estado = q($sql);

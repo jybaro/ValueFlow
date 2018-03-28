@@ -210,16 +210,20 @@ if (isset($_POST['empresa']) && !empty($_POST['empresa'])) {
         WHERE ate_borrado IS NULL
             $filtro_cliente
             $filtro_fechas_vigentes
-        AND (
-            esa_nombre ILIKE '%servicio activo%'
-            OR esa_nombre ILIKE '%incremento%'
-            OR esa_nombre ILIKE '%decremento%'
-        )
+
+        AND esa_play = 1
 
         ORDER BY 
             ate_id DESC, esa_id DESC
             ,ate_creado DESC
     ");
+/*
+        AND (
+            esa_nombre ILIKE '%servicio activo%'
+            OR esa_nombre ILIKE '%incremento%'
+            OR esa_nombre ILIKE '%decremento%'
+        )
+ */
     // OR esa_nombre ILIKE '%servicio suspendido%'
     // OR esa_nombre ILIKE '%suspensión%'
     $cols = array(

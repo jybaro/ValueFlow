@@ -36,6 +36,30 @@ if (strlen($query) >= $extension_minima) {
         AND nod_ubicacion = ubi_id
         AND nod_atencion = ate_id
         AND ate_estado_atencion = esa_id
+        AND esa_play = 0
+        AND esa_pause = 0
+        AND (
+            ubi_direccion ILIKE '%$query%'
+            OR nod_codigo ILIKE '%$query%'
+            OR nod_descripcion ILIKE '%$query%'
+        )
+        ORDER BY nod_codigo
+    ");
+
+    /*
+    $result = q("
+        SELECT *
+        FROM sai_nodo
+        ,sai_ubicacion
+        ,sai_atencion
+        ,sai_estado_atencion
+        WHERE nod_borrado IS NULL
+        AND ubi_borrado IS NULL
+        AND ate_borrado IS NULL
+        AND esa_borrado IS NULL
+        AND nod_ubicacion = ubi_id
+        AND nod_atencion = ate_id
+        AND ate_estado_atencion = esa_id
         AND NOT (
             esa_nombre ILIKE '%servicio activo%'
             OR esa_nombre ILIKE '%servicio suspendido%'
@@ -50,6 +74,9 @@ if (strlen($query) >= $extension_minima) {
         )
         ORDER BY nod_codigo
     ");
+     */
+
+
 
     /*
         AND (

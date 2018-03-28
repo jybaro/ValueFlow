@@ -58,11 +58,8 @@ if (strlen($query) >= $extension_minima) {
         AND nod_ubicacion = ubi_id
         AND ate_estado_atencion = esa_id
         AND (
-            esa_nombre ILIKE '%servicio activo%'
-            OR esa_nombre ILIKE '%servicio suspendido%'
-            OR esa_nombre ILIKE '%incremento%'
-            OR esa_nombre ILIKE '%decremento%'
-            OR esa_nombre ILIKE '%suspensión%'
+            esa_play = 1
+            OR esa_pause = 1
         )
         AND ate_pertinencia_proveedor = pep_id
         AND pep_proveedor = (
@@ -84,6 +81,15 @@ if (strlen($query) >= $extension_minima) {
         )
         ORDER BY ate_codigo
     ");
+    /*
+        AND (
+            esa_nombre ILIKE '%servicio activo%'
+            OR esa_nombre ILIKE '%servicio suspendido%'
+            OR esa_nombre ILIKE '%incremento%'
+            OR esa_nombre ILIKE '%decremento%'
+            OR esa_nombre ILIKE '%suspensión%'
+        )
+     * */
 
     //echo $sql;
     $result = q($sql);

@@ -173,16 +173,22 @@ foreach ($_POST as $k => $v){
                             ON esa_borrado IS NULL
                             AND esa_id = ate_estado_atencion
                             AND (
+                                esa_play = 1
+                                OR esa_pause = 1 
+                            )
+
+                        WHERE nod_borrado IS NULL
+                        AND nod_id = $vae_nodo
+                    ");
+                    /*
+                            AND (
                                 esa_nombre ILIKE '%servicio activo%'
                                 OR esa_nombre ILIKE '%servicio suspendido%'
                                 OR esa_nombre ILIKE '%incremento%'
                                 OR esa_nombre ILIKE '%decremento%'
                                 OR esa_nombre ILIKE '%suspensión%'
                             )
-
-                        WHERE nod_borrado IS NULL
-                        AND nod_id = $vae_nodo
-                    ");
+                     * */
                     if ($result_nodo) {
                         $nodo = $result_nodo[0];
                         if ($nodo['nod_atencion'] != $ate_id) {
