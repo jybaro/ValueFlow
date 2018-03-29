@@ -70,9 +70,14 @@ if (isset($args[0]) && !empty($args[0])) {
                     //echo '>' .($index+1) . '-' .$args[$index+1]. '<';
                     if ($valor == 'null'){
                         $where .= "$where_glue $campo IS NULL";
+                    } else if (strpos($valor, 'ilike-') === 0 ) {
+                        $valor = str_replace('ilike-', '', $valor);
+                        $where .= "$where_glue {$campo}::text ILIKE '%{$valor}%'";
+                        /*
                     } else if (strpos($valor, 'ilike-') === 0 && $comillas == "'") {
                         $valor = str_replace('ilike-', '', $valor);
                         $where .= "$where_glue $campo ILIKE {$comillas}%{$valor}%{$comillas}";
+                         */
                     } else {
                         $where .= "$where_glue $campo =  {$comillas}{$valor}{$comillas}";
                     }

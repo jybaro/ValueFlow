@@ -323,9 +323,10 @@ FROM
             foreach($campos as $campo){
                 if ($campo['validacion'] != 'hidden') {
                     $valor = $r[$campo['column_name']];
+                    $etiqueta = '';
                     if(isset($fkeys[$campo['nombre']])) {
                         $etiqueta = $fkeys[$campo['nombre']]['__opciones'][$valor];
-                    } else if ($campo['tipo'] == 'fecha') {
+                    } else if ($campo['tipo'] == 'fecha' && !empty($valor)) {
                         $etiqueta = date('Y-m-d', strtotime($valor));
                     } else if ($campo['tipo'] == 'si-no') {
                         $etiqueta = $valor == 1 ? 'Sí': 'No';
