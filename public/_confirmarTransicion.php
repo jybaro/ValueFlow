@@ -56,6 +56,9 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             }
 
             $es_zenix = false;
+            $ate_secuencial = '';
+            $ate_codigo = '';
+
             $result_proveedor = q("
                 SELECT * 
                 FROM sai_proveedor
@@ -74,6 +77,8 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
 
                     $es_zenix = true;
                 }
+                $ate_secuencial = $r['ate_secuencial'];
+                $ate_codigo = $r['ate_codigo'];
             }
 
             $confirmada_ejecucion_accion = false;
@@ -183,27 +188,38 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                     //return;
                 }
 
+                $paa_codigo = "";
+                $result_estado = q("
+                    SELECT *
+                    FROM sai_estado_atencion
+                    WHERE esa_borrado IS NULL
+                    AND esa_id = $estado_siguiente_id
+                ");
+                if ($result_estado) {
+                    $estado_siguiente_nombre = $result_estado[0]['esa_nombre'];
+                    $paa_codigo = "{$estado_siguiente_nombre} {$ate_secuencial} {$ate_codigo}";
+                }
                 $result = q("
                     INSERT INTO sai_paso_atencion (
                         paa_atencion
                         ,paa_transicion_estado_atencion
-                        ,paa_codigo
                         ,paa_asunto
                         ,paa_cuerpo
                         ,paa_destinatarios
                         ,paa_adjuntos 
                         ,paa_creado_por
                         ,paa_confirmado
+                        ,paa_codigo
                     ) VALUES (
                         $ate_id
                         ,$tea_id
-                        ,''
                         ,'$asunto'
                         ,'$mensaje'
                         ,'$emails'
                         ,'$adjuntos'
                         ,{$_SESSION['usu_id']}
                         ,now()
+                        ,'$paa_codigo'
                     ) RETURNING *
                 ");
                 if ($result) {
