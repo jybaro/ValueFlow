@@ -657,9 +657,9 @@ var campo_etiqueta = '<?=$campo_etiqueta?>';
 function p_abrir(id, target){
     var etiqueta = $(target).text();
     $.ajax({
-        'url':'/_listar/'+tabla+'/borrado/null/id/'+id
+        'url':'/_listar/'+tabla+'/id/'+id
     }).done(function(data){
-        console.log('ABRIENDO ' + tabla, data);
+        console.log('ABRIENDO /_listar/'+tabla+'/id/'+id, data);
         //data = eval(data);
         data = JSON.parse(data);
         console.log('data', data);
