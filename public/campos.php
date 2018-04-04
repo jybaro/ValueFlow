@@ -80,8 +80,6 @@ $plantilla_cabecera = <<<EOT
           <br>
           <strong>Validación:</strong> <span id="cae_validacion_%CAE_ID%">%CAE_VALIDACION%</span>
           <br>
-          <strong>Plantilla:</strong> <span id="cae_plantilla_%CAE_ID%">%CAE_PLANTILLA%</span>
-          <br>
           <strong>Orden:</strong> <span id="cae_orden_%CAE_ID%">%CAE_ORDEN%</span>
           <br>
           <strong>Código para valor por defecto:</strong> <span id="cae_valor_por_defecto_%CAE_ID%">%CAE_VALOR_POR_DEFECTO%</span>
@@ -125,7 +123,6 @@ function p_tree($arbol) {
             ,'%CAE_CODIGO%' => $c[cae_codigo]
             ,'%TID_NOMBRE%' => $c[tid_nombre]
             ,'%CAE_VALIDACION%' => $c[cae_validacion]
-            ,'%CAE_PLANTILLA%' => $c[cae_plantilla]
             ,'%CAE_ORDEN%' => $c[cae_orden]
             ,'%CAE_VALOR_POR_DEFECTO%' => $c[cae_valor_por_defecto]
             ,'%CAE_MENOR_QUE%' => $c[cae_menor_que]
@@ -178,12 +175,6 @@ p_tree($campos[null][hijos]);
     <label for="validacion" class="col-sm-2 control-label">Validación:</label>
     <div class="col-sm-10">
       <input type="text" class="form-control" id="validacion" name="validacion" placeholder="">
-    </div>
-  </div>
-  <div class="form-group">
-    <label for="plantilla" class="col-sm-2 control-label">Plantilla:</label>
-    <div class="col-sm-10">
-      <input type="text" class="form-control" id="plantilla" name="plantilla" placeholder="">
     </div>
   </div>
   <div class="form-group">
@@ -471,7 +462,6 @@ function p_guardar(){
                     cabecera = cabecera.split('%CAE_TEXTO%').join(data['cae_texto']);
                     cabecera = cabecera.split('%CAE_CODIGO%').join(data['cae_codigo']);
                     cabecera = cabecera.split('%CAE_VALIDACION%').join(data['cae_validacion']);
-                    cabecera = cabecera.split('%CAE_PLANTILLA%').join(data['cae_plantilla']);
                     cabecera = cabecera.split('%CAE_ORDEN%').join(data['cae_orden']);
                     cabecera = cabecera.split('%CAE_VALOR_POR_DEFECTO%').join(data['cae_valor_por_defecto']);
                     cabecera = cabecera.split('%CAE_MENOR_QUE%').join(data['cae_menor_que']);
@@ -492,7 +482,6 @@ function p_guardar(){
                     $('#cae_texto_' + data['cae_id']).text(data['cae_texto']);
                     $('#cae_codigo_' + data['cae_id']).text(data['cae_codigo']);
                     $('#cae_validacion_' + data['cae_id']).text(data['cae_validacion']);
-                    $('#cae_plantilla_' + data['cae_id']).text(data['cae_plantilla']);
                     $('#cae_orden_' + data['cae_id']).text(data['cae_orden']);
                     $('#cae_valor_por_defecto_' + data['cae_id']).text(data['cae_valor_por_defecto']);
                     $('#cae_menor_que_' + data['cae_id']).text(data['cae_menor_que']);

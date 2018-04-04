@@ -24,7 +24,11 @@ if (strlen($query) >= $extension_minima) {
     $int_query = is_numeric($query) ? intval($query) : -1;
 
     $result = q("
-        SELECT *
+        SELECT 
+        nod_id
+        ,nod_codigo
+        ,nod_descripcion
+        ,ubi_direccion
         FROM sai_nodo
         ,sai_ubicacion
         ,sai_atencion
@@ -85,9 +89,13 @@ if (strlen($query) >= $extension_minima) {
         )
      * */
     if ($result) {
+        $names = array();
         foreach($result as $r){
             $respuesta = array('id' => $r['nod_id'], 'name' => ($r['nod_codigo'] . ': ' . $r['nod_descripcion'] . ' (' . $r['ubi_direccion'] . ')'));
-            $respuestas[] = $respuesta; 
+            if (!isset($names[$respuesta['name']])) {
+                $respuestas[] = $respuesta; 
+                $names[$respuesta['name']] = $respuesta['id'];
+            }
         }
     } else {
         $error[] = array('sinresultados' => 'No hay resultados para la consulta -'.$query.'-.');

@@ -1,6 +1,6 @@
 <?php
 
-$txt = array('texto', 'codigo', 'validacion', 'plantilla', 'valor_por_defecto', 'menor_que', 'mayor_que');
+$txt = array('texto', 'codigo', 'validacion', 'valor_por_defecto', 'menor_que', 'mayor_que');
 //$no_nulo = array('valor_por_defecto');
 $no_nulo = array();
 
@@ -45,7 +45,6 @@ if ($accion == 'duplicar') {
                     ,cae_codigo
                     ,cae_tipo_dato
                     ,cae_validacion
-                    ,cae_plantilla
                     ,cae_orden
                     ,cae_valor_por_defecto
                     ,cae_menor_que
@@ -56,7 +55,6 @@ if ($accion == 'duplicar') {
                     ,cae_codigo
                     ,cae_tipo_dato
                     ,cae_validacion
-                    ,cae_plantilla
                     ,cae_orden
                     ,cae_valor_por_defecto
                     ,cae_menor_que
@@ -97,7 +95,6 @@ if ($accion == 'duplicar') {
         ,cae_codigo = $codigo
         ,cae_tipo_dato = $tipo_dato
         ,cae_validacion = $validacion
-        ,cae_plantilla = $plantilla
         ,cae_orden = $orden
         ,cae_valor_por_defecto = $valor_por_defecto
         ,cae_menor_que = $menor_que
@@ -116,7 +113,6 @@ if ($accion == 'duplicar') {
             ,cae_codigo
             ,cae_tipo_dato
             ,cae_validacion
-            ,cae_plantilla
             ,cae_orden
             ,cae_valor_por_defecto
             ,cae_menor_que
@@ -127,7 +123,6 @@ if ($accion == 'duplicar') {
             ,$codigo
             ,$tipo_dato
             ,$validacion
-            ,$plantilla
             ,$orden
             ,$valor_por_defecto
             ,$menor_que
