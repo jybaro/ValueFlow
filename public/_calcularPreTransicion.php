@@ -522,8 +522,8 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     $canton = $campos_valores['CLI_REPRESENTANTE_LEGAL_CANTON'];
                     $provincia = $campos_valores['CLI_REPRESENTANTE_LEGAL_PROVINCIA'];
                     //$campos_valores['CLIENTE_CONTRATO'] = <<<EOT
-$razon_social, representada por $nombre, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
-EOT;
+//$razon_social, representada por $nombre, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
+//EOT;
                     $campos_valores['CLI_PERSONA_JURIDICA_REPRESENTANTE_LEGAL_NOMBRE'] = $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'];
                     $campos_valores['CLI_PERSONA_JURIDICA_REPRESENTANTE_LEGAL_CARGO'] = $campos_valores['CLI_REPRESENTANTE_LEGAL_CARGO'];
                 } else {
@@ -542,6 +542,7 @@ EOT;
                 }
                 $campos_valores['CLIENTE_CONTRATO'] = <<<EOT
 $razon_social, representada por $nombre, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
+EOT;
 
                 //CAMPOS DE LOS PUNTOS:
                 if ($result_nodo) {
