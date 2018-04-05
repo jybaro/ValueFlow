@@ -528,8 +528,13 @@ EOT;
                     $campos_valores['CLI_PERSONA_JURIDICA_REPRESENTANTE_LEGAL_CARGO'] = $campos_valores['CLI_REPRESENTANTE_LEGAL_CARGO'];
                 } else {
                     $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
-                    $ruc = $campos_valores['CLI_RUC'];
                     //$campos_valores['CLIENTE_CONTRATO'] = "$razon_social, con número de cédula/RUC $ruc";
+                    $nombre = $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'];
+                    $cedula = $campos_valores['CLI_RUC'];
+                    $email = $campos_valores['CLI_REPRESENTANTE_LEGAL_EMAIL'];
+                    $domiciliado = $campos_valores['CLI_REPRESENTANTE_LEGAL_DOMICILIADO'];
+                    $canton = $campos_valores['CLI_REPRESENTANTE_LEGAL_CANTON'];
+                    $provincia = $campos_valores['CLI_REPRESENTANTE_LEGAL_PROVINCIA'];
                     $campos_valores['CLIENTE_CONTRATO'] = <<<EOT
 $razon_social, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
 EOT;
