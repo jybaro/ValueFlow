@@ -521,7 +521,7 @@ if (isset($args) && !empty($args) && isset($args[0]) && !empty($args[0])) {
                     $domiciliado = $campos_valores['CLI_REPRESENTANTE_LEGAL_DOMICILIADO'];
                     $canton = $campos_valores['CLI_REPRESENTANTE_LEGAL_CANTON'];
                     $provincia = $campos_valores['CLI_REPRESENTANTE_LEGAL_PROVINCIA'];
-                    $campos_valores['CLIENTE_CONTRATO'] = <<<EOT
+                    //$campos_valores['CLIENTE_CONTRATO'] = <<<EOT
 $razon_social, representada por $nombre, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
 EOT;
                     $campos_valores['CLI_PERSONA_JURIDICA_REPRESENTANTE_LEGAL_NOMBRE'] = $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'];
@@ -529,7 +529,7 @@ EOT;
                 } else {
                     $razon_social = $campos_valores['CLI_RAZON_SOCIAL'];
                     $ruc = $campos_valores['CLI_RUC'];
-                    $campos_valores['CLIENTE_CONTRATO'] = "$razon_social, con número de cédula/RUC $ruc";
+                    //$campos_valores['CLIENTE_CONTRATO'] = "$razon_social, con número de cédula/RUC $ruc";
 
                     //para orden de servicio CNT, Autorizacion Central de Riesgo y Costo de Implementacion:
                     if (empty($campos_valores['CLI_REPRESENTANTE_LEGAL_CEDULA'])) {
@@ -540,6 +540,8 @@ EOT;
                     //    $campos_valores['CLI_REPRESENTANTE_LEGAL_NOMBRE'] = '';
                     //}
                 }
+                $campos_valores['CLIENTE_CONTRATO'] = <<<EOT
+$razon_social, representada por $nombre, con número de cédula/RUC $cedula, con email $email, domiciliado en $domiciliado cantón $canton, provincia $provincia
 
                 //CAMPOS DE LOS PUNTOS:
                 if ($result_nodo) {
