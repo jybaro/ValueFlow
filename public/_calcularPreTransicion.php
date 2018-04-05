@@ -773,7 +773,9 @@ EOT;
                 $campos_valores['TOTAL_MENSUAL_COSTO'] = $campos_valores['COSTO_CAPACIDAD'] + $campos_valores['IVA_MENSUAL_COSTO'];
 
                 $campos_valores['IVA_MENSUAL_SOLICITADO_COSTO'] = round($campos_valores['COSTO_CAPACIDAD_SOLICITADA'] * $iva, 2);
+                $campos_valores['IVA_MENSUAL_FACTURADO_COSTO'] = round($campos_valores['COSTO_CAPACIDAD_FACTURADA'] * $iva, 2);
                 $campos_valores['TOTAL_MENSUAL_SOLICITADO_COSTO'] = $campos_valores['COSTO_CAPACIDAD_SOLICITADA'] + $campos_valores['IVA_MENSUAL_SOLICITADO_COSTO'];
+                $campos_valores['TOTAL_MENSUAL_FACTURADO_COSTO'] = $campos_valores['COSTO_CAPACIDAD_FACTURADA'] + $campos_valores['IVA_MENSUAL_FACTURADO_COSTO'];
 
                 
                 $campos_valores['COSTO_TOTAL'] = (isset($campos_valores['CAPACIDAD_CONTRATADA'])?$campos_valores['CAPACIDAD_CONTRATADA'] : 0) * (isset($campos_valores['COSTO_MB'])?$campos_valores['COSTO_MB'] : 0);
