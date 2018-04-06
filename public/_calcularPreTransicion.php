@@ -719,6 +719,12 @@ EOT;
                 }
                 $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'] = $campos_valores['EXTREMO_NOD_COSTO_INSTALACION_CLIENTE'];
 
+                $campos_valores['IVA_MENSUAL_PRECIO_CAPACIDAD_FACTURADA'] = round($campos_valores['PRECIO_CAPACIDAD_FACTURADA'] * $iva, 2);
+
+                $campos_valores['TOTAL_MENSUAL_PRECIO_CAPACIDAD_FACTURADA'] = $campos_valores['IVA_MENSUAL_PRECIO_CAPACIDAD_FACTURADA'] + $campos_valores['PRECIO_CAPACIDAD_FACTURADA'];
+
+
+
                 $campos_valores['PRECIO_INSTALACION'] = isset($campos_valores['PRECIO_INSTALACION']) ? $campos_valores['PRECIO_INSTALACION'] : ($campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'] + $campos_valores['CONCENTRADOR_NOD_COSTO_INSTALACION_CLIENTE']);
                 //$campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD'] + $campos_valores['NODO_NOD_COSTO_INSTALACION_CLIENTE'];
                 $campos_valores['SUBTOTAL_SERVICIO'] = $campos_valores['PRECIO_CAPACIDAD_FACTURADA'] + $campos_valores['PRECIO_INSTALACION'];
