@@ -4,6 +4,7 @@
 // 0 * * * * php /var/www/nedetel/public/cron.php
 
 $ruta = '/var/www/nedetel/';
+//$ruta = '../';
 
 require_once($ruta . 'private/config.php');
 require_once($ruta . 'private/utils.php');
@@ -17,18 +18,84 @@ $result = q("
         FROM sai_usuario
         WHERE usu_borrado IS NULL
         AND usu_id = ate_usuario_tecnico
+        AND NOT (
+            SELECT esa_codigo
+            FROM sai_estado_atencion
+            WHERE esa_borrado IS NULL
+            AND esa_id = (
+                SELECT esa_padre
+                FROM sai_estado_atencion
+                WHERE esa_borrado IS NULL
+                AND esa_id = ate_estado_atencion
+            )
+            AND 0 < (
+                SELECT count(*)
+                FROM sai_permiso
+                ,sai_objeto
+                WHERE per_borrado IS NULL
+                AND obj_borrado IS NULL
+                AND per_objeto = obj_id
+                AND per_solo_lectura = 0
+                AND obj_nombre = esa_codigo
+                AND per_rol = usu_rol
+            )
+        ) IS NULL
     ) AS email_tecnico
     ,(
         SELECT usu_correo_electronico
         FROM sai_usuario
         WHERE usu_borrado IS NULL
         AND usu_id = ate_usuario_comercial
+        AND NOT (
+            SELECT esa_codigo
+            FROM sai_estado_atencion
+            WHERE esa_borrado IS NULL
+            AND esa_id = (
+                SELECT esa_padre
+                FROM sai_estado_atencion
+                WHERE esa_borrado IS NULL
+                AND esa_id = ate_estado_atencion
+            )
+            AND 0 < (
+                SELECT count(*)
+                FROM sai_permiso
+                ,sai_objeto
+                WHERE per_borrado IS NULL
+                AND obj_borrado IS NULL
+                AND per_objeto = obj_id
+                AND per_solo_lectura = 0
+                AND obj_nombre = esa_codigo
+                AND per_rol = usu_rol
+            )
+        ) IS NULL
     ) AS email_comercial
     ,(
         SELECT usu_correo_electronico
         FROM sai_usuario
         WHERE usu_borrado IS NULL
         AND usu_id = tea_usuario
+        AND NOT (
+            SELECT esa_codigo
+            FROM sai_estado_atencion
+            WHERE esa_borrado IS NULL
+            AND esa_id = (
+                SELECT esa_padre
+                FROM sai_estado_atencion
+                WHERE esa_borrado IS NULL
+                AND esa_id = ate_estado_atencion
+            )
+            AND 0 < (
+                SELECT count(*)
+                FROM sai_permiso
+                ,sai_objeto
+                WHERE per_borrado IS NULL
+                AND obj_borrado IS NULL
+                AND per_objeto = obj_id
+                AND per_solo_lectura = 0
+                AND obj_nombre = esa_codigo
+                AND per_rol = usu_rol
+            )
+        ) IS NULL
     ) AS email_extra
     ,(
         SELECT ser_nombre
@@ -104,6 +171,7 @@ if ($result) {
 
         //$emails = $r[paa_destinatarios];
         //$emails = $r['email_comercial'] . ',' . $r['email_tecnico'];
+        /*
         $emails = $r['email_tecnico'];
         if ($r['esa_recordar_comercial']) {
             $emails .= ',' . $r['email_comercial'];
@@ -112,6 +180,13 @@ if ($result) {
             $emails .= ',' . $r['email_extra'];
         }
         $emails = explode(',', $emails);
+         */
+        $emails = array(
+            $r['email_tecnico']
+            ,$r['email_comercial']
+            ,$r['email_extra']
+        );
+        $emails = array_filter($emails);
 
         $adjuntos = $r[paa_adjuntos];
         $adjuntos = explode(',', $adjuntos);
@@ -136,6 +211,7 @@ if ($result) {
                 foreach ($emails as $email) {
                     if (!empty($email)) {
                         $mail->AddAddress($email);
+                        //echo "[[$email {$asunto}]]";
                     }
                 }
 
@@ -156,7 +232,7 @@ if ($result) {
                     throw new Exception($mail->ErrorInfo);
                 }
             } catch (Exception $e) {
-                echo $e->getMessage();
+                //echo $e->getMessage();
                 l('Error en ' . $e->getFile() . ', linea ' . $e->getLine() . ': ' . $e->getMessage());
                 return;
             }

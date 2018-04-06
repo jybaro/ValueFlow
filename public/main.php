@@ -27,10 +27,28 @@ $sql = ("
     ,(
         SELECT esa_codigo
         FROM sai_estado_atencion
-        WHERE esa_id = (
+        WHERE esa_borrado IS NULL
+        AND esa_id = (
             SELECT esa_padre
             FROM sai_estado_atencion
-            WHERE esa_id=ate_estado_atencion
+            WHERE esa_borrado IS NULL
+            AND esa_id = ate_estado_atencion
+        )
+        AND 0 < (
+            SELECT count(*)
+            FROM sai_permiso
+            ,sai_objeto
+            WHERE per_borrado IS NULL
+            AND obj_borrado IS NULL
+            AND per_objeto = obj_id
+            AND per_solo_lectura = 0
+            AND obj_nombre = esa_codigo
+            AND per_rol = (
+                SELECT usu_rol
+                FROM sai_usuario
+                WHERE usu_borrado IS NULL
+                AND usu_id = $usu_id
+            )
         )
     ) AS esa_padre_codigo
     FROM sai_atencion
@@ -66,6 +84,7 @@ $sql = ("
 //echo $sql;
 //echo "</pre>";
 $result = q($sql);
+$count_pendientes = 0;
 if ($result) {
     $ate = array();
     foreach($result as $r){
@@ -75,8 +94,10 @@ if ($result) {
             $cli_razon_social = $r['cli_razon_social'];
             //$estado = '#';
             $estado = $r['esa_padre_codigo'];
-            $fecha_formateada = p_formatear_fecha($r['ate_creado']);
-            echo <<<EOT
+            if (!empty($estado)) {
+                $count_pendientes++;
+                $fecha_formateada = p_formatear_fecha($r['ate_creado']);
+                echo <<<EOT
     <div class="list-group" style="margin:0 5% 1% 5%;">
 
       <a class="list-group-item" href="/$estado#atencion_{$r[ate_secuencial]}">
@@ -85,9 +106,12 @@ if ($result) {
       </a>
     </div>
 EOT;
+            }
         }
     }
-} else {
+} 
+
+if ($count_pendientes == 0) {
     echo <<<EOT
     <div class="alert alert-info">No tiene atenciones asignadas</div>
 EOT;
