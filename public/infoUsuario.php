@@ -1,5 +1,5 @@
 <?php
-$usu = q("SELECT * FROM sai_usuario WHERE usu_cedula='{$_SESSION[cedula]}'")[0];
+$usu = q("SELECT * FROM sai_usuario WHERE usu_username='{$_SESSION[username]}'")[0];
 ?>
 
 <h1>Información del usuario</h1>

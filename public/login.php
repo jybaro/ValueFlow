@@ -51,7 +51,7 @@ if (isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pas
         $_SESSION['usu_nombre'] = $usu_nombre;
         $_SESSION['rol'] = $rol;
         $_SESSION['rol_version'] = $rol_version;
-        l("Ingreso de usuario $cedula con rol $rol");
+        l("Ingreso de usuario $username con cedula $cedula y rol $rol");
 
         if (isset($_POST['rememberme']) && !empty($_POST['rememberme'])) {
             $params = session_get_cookie_params();
@@ -105,7 +105,7 @@ if (isset($_POST['username']) && !empty($_POST['username']) && isset($_POST['pas
   <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
   <strong>Error:</strong><br> No se encuentra al usuario
 </div>
-<?php l("Intento fallido de ingreso de usuario $cedula al Establecimiento de Salud $ess_id -$ess_nombre-"); ?>
+<?php l("Intento fallido de ingreso de usuario $cedula con username $username"); ?>
       <?php endif; ?>
 
       </form>
