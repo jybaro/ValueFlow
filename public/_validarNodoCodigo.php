@@ -23,9 +23,21 @@ if ($result_campo) {
 
     $result = q("
         SELECT *
+        ,(
+            SELECT ate_servicio_activado
+            FROM sai_atencion
+            WHERE ate_borrado IS NULL
+            AND ate_id = nod_atencion
+        )
+        ,(
+            SELECT ate_secuencial
+            FROM sai_atencion
+            WHERE ate_borrado IS NULL
+            AND ate_id = nod_atencion
+        )
         FROM sai_nodo
         WHERE nod_borrado IS NULL
-        AND nod_codigo ILIKE '%$nod_codigo%'
+        AND nod_codigo = '$nod_codigo'
         AND nod_id <> (
             SELECT ate_$campo_nodo
             FROM sai_atencion
@@ -33,6 +45,40 @@ if ($result_campo) {
             AND ate_id = $ate_id
         )
     ");
+    //AND nod_codigo ILIKE '%$nod_codigo%'
+
+    if ($result) {
+        //verifica que la atención esté como servicio activo o no
+        foreach($result as $nodo) {
+            $nod_id = $nodo['nod_id'];
+            $ate_secuencial = $nodo['ate_secuencial'];
+            $servicio_activado = $nodo['ate_servicio_activado'];
+
+            if (empty($servicio_activado)) {
+                //no es servicio activado, le cambia el login para que pueda ser usado
+                q("
+                    UPDATE sai_nodo
+                    SET nod_codigo = '$nod_codigo (atención $ate_secuencial)'
+                    WHERE nod_borrado IS NULL
+                    AND nod_id = $nod_id
+                ");
+            }
+        }
+
+        $result = q("
+            SELECT *
+            FROM sai_nodo
+            WHERE nod_borrado IS NULL
+            AND nod_codigo = '$nod_codigo'
+            AND nod_id <> (
+                SELECT ate_$campo_nodo
+                FROM sai_atencion
+                WHERE ate_borrado IS NULL
+                AND ate_id = $ate_id
+            )
+        ");
+    //AND nod_codigo ILIKE '%$nod_codigo%'
+    }
 
     if (!$result) {
         q("
@@ -46,7 +92,7 @@ if ($result_campo) {
                 AND ate_id = $ate_id
             )
         ");
-    }
+    } 
 }
 
 echo json_encode($result);
