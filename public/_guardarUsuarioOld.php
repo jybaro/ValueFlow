@@ -24,7 +24,7 @@ if (!empty($dataset_json)) {
     if (isset($dataset->cedula) && !empty($dataset->cedula)) {
         $id = ( (isset($dataset->id) && !empty($dataset->id)) ? $dataset->id : null);
         $cedula = $dataset->cedula;
-        $username = $dataset->username;
+        $username = $cedula;
 
         if (isset($dataset->reiniciar) && !empty($dataset->reiniciar)) {
             //resetea clave
@@ -38,32 +38,25 @@ if (!empty($dataset_json)) {
                 $result = array(array('ERROR'=>"No se puede borrar el mismo usuario con el que se encuentra abierta la sesion"));
             }
         } else if (isset($dataset->recuperar) && !empty($dataset->recuperar)) {
-            //$sql= ("SELECT COUNT(*) FROM sai_usuario WHERE usu_borrado IS NULL AND usu_cedula='$cedula'");
-            $sql= ("SELECT COUNT(*) FROM sai_usuario WHERE usu_borrado IS NULL AND usu_username='$username'");
+            $sql= ("SELECT COUNT(*) FROM sai_usuario WHERE usu_borrado IS NULL AND usu_cedula='$cedula'");
             $result = q($sql);
-            //$count_usuarios_cedula = $result[0]['count']; 
-            $count_usuarios = $result[0]['count']; 
+            $count_usuarios_cedula = $result[0]['count']; 
 
-            //if ($count_usuarios_cedula == 0) {
-            if ($count_usuarios == 0) {
+            if ($count_usuarios_cedula == 0) {
                 $result = q("UPDATE sai_usuario SET usu_borrado=null WHERE usu_id=$id RETURNING *");
             } else {
-                //$result = array(array('ERROR'=>"No se puede recuperar, ya existe usuario con cedula $cedula"));
-                $result = array(array('ERROR'=>"No se puede recuperar, ya existe un usuario con username '{$username}'"));
+                $result = array(array('ERROR'=>"No se puede recuperar, ya existe usuario con cedula $cedula"));
             }
         } else {
             //guarda datos de usuario
 
-            //$sql= ("SELECT COUNT(*) FROM sai_usuario WHERE usu_borrado IS NULL AND usu_cedula='$cedula'");
-            $sql= ("SELECT count(*) FROM sai_usuario WHERE usu_borrado IS NULL AND usu_username='$username'");
+            $sql= ("SELECT COUNT(*) FROM sai_usuario WHERE usu_borrado IS NULL AND usu_cedula='$cedula'");
             //echo "[$sql]";
             $result = q($sql);
-            //$count_usuarios_cedula = $result[0]['count']; 
-            $count_usuarios = $result[0]['count']; 
+            $count_usuarios_cedula = $result[0]['count']; 
             //echo "[count_usuarios_cedula: $count_usuarios_cedula]";
 
-            //if ($count_usuarios_cedula == 0) {
-            if ($count_usuarios == 0) {
+            if ($count_usuarios_cedula == 0) {
                     //crea usuario
                     $campos = 'rol,username,nombres,apellidos,cedula,telefono,correo_electronico';
                     $campos_array = explode(',', $campos);
@@ -114,8 +107,7 @@ if (!empty($dataset_json)) {
                     //$sql_insert_valores .= ",'$username','$password'";
                     $sql_insert_valores .= ",'$password'";
                     $result = q("INSERT INTO sai_usuario($sql_insert_campos) VALUES($sql_insert_valores) RETURNING *");
-            //} else if (!empty($id) && $count_usuarios_cedula == 1) {
-            } else if (!empty($id) && $count_usuarios == 1) {
+            } else if (!empty($id) && $count_usuarios_cedula == 1) {
                 //actualiza usuario
                 $campos = 'rol,nombres,apellidos,telefono,correo_electronico,username';
                 $campos_array = explode(',', $campos);
@@ -155,8 +147,7 @@ if (!empty($dataset_json)) {
                 $result = q($sql);
             } else {
                 //borra usuarios con cedula repetida
-                //$result = array(array('ERROR' => "Ya existe un usuario con cedula $cedula"));
-                $result = array(array('ERROR' => "No se puede realizar la acción, ya existe un usuario con el username '$username'"));
+                $result = array(array('ERROR' => "Ya existe un usuario con cedula $cedula"));
             }
         }
     } else {
