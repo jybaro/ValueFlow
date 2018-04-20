@@ -33,15 +33,17 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
             //echo "XXXXXXXX";
             $cc = str_replace(';', ',', $cc);
             $cc = explode(',', $cc);
-            $enviar_email = false;
-            if (isset($_POST['asunto_' . $destinatario]) && !empty($_POST['asunto_' . $destinatario]) && isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) {
-                $enviar_email = true;
-            }
+            //$enviar_email = false;
+            //if (isset($_POST['asunto_' . $destinatario]) && !empty($_POST['asunto_' . $destinatario]) && isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) {
+            //    $enviar_email = true;
+            //}
             //$asunto = (isset($_POST['asunto_' . $destinatario]) && !empty($_POST['asunto_' . $destinatario])) ? $_POST['asunto_' . $destinatario] : 'Notificación SAIT';
-            $asunto = (isset($_POST['asunto_' . $destinatario]) && !empty($_POST['asunto_' . $destinatario])) ? $_POST['asunto_' . $destinatario] : '';
+            $asunto = (isset($_POST['asunto_' . $destinatario]) && !empty($_POST['asunto_' . $destinatario])) ? trim($_POST['asunto_' . $destinatario]) : '';
 
             //$mensaje = (isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) ? $_POST['mensaje_' . $destinatario] : 'Notificación SAIT';
-            $mensaje = (isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) ? $_POST['mensaje_' . $destinatario] : '';
+            $mensaje = (isset($_POST['mensaje_' . $destinatario]) && !empty($_POST['mensaje_' . $destinatario])) ? trim($_POST['mensaje_' . $destinatario]) : '';
+
+            $enviar_email = (!empty($asunto) && !empty($mensaje));
 
             $emails = $_POST['email_' . $destinatario];
             $emails = str_replace(';', ',', $emails);
