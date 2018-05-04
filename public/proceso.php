@@ -2168,6 +2168,7 @@ function p_validar_transicion(target, tea_id, ate_id, estado_siguiente_id, abrir
 function p_abrir_confirmacion(target, tea_id, ate_id, estado_siguiente_id) {
     console.log('p_abrir_confirmacion');
     //$('#formulario_titulo_hacia').text(fila_titulo_y);
+    $('#boton_ejecutar_transicion').prop('disabled', false);
 
     $('#modal_confirmacion').find(':input').each(function() {
         switch(this.type) {
@@ -2314,6 +2315,7 @@ function p_abrir_campos_llenos() {
 
 function p_ejecutar_transicion(){
     console.log('p_ejecutar_transicion');
+    $('#boton_ejecutar_transicion').prop('disabled', true);
     for ( instance in CKEDITOR.instances ) {
         CKEDITOR.instances[instance].updateElement();
     }
@@ -2327,6 +2329,7 @@ function p_ejecutar_transicion(){
         console.log(data);
         if (typeof(data['ERROR']) !== 'undefined') {
             alert (data['ERROR']);
+            $('#boton_ejecutar_transicion').prop('disabled', false);
         } else {
             $('#modal_confirmacion').modal('hide');
             location.reload();
@@ -2872,7 +2875,11 @@ function p_validar(target){
     }
 
     if ($(target).prop("tagName") == 'FORM') {
-        $(target)[0].reportValidity();
+        try {
+            $(target)[0].reportValidity();
+        } catch(e){
+            console.error('CATCH del Error en reportValidity del formulario');
+        }
     }
     return resultado;
 }
