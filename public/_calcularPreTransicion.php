@@ -905,6 +905,7 @@ EOT;
 
                                         //echo "sacando Excel";
 
+                                        //\PhpOffice\PhpSpreadsheet\Settings::setOutputEscapingEnabled(true);
                                         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($ruta_plantilla);
 
                                         $worksheet = $spreadsheet->getActiveSheet();
@@ -917,6 +918,7 @@ EOT;
                                                 if (!empty($celda)) {
                                                     //echo "[$x, $y: $celda]";
                                                     $nuevo_valor = p_reemplazar_campos_valores($celda);
+                                                    //$nuevo_valor = htmlspecialchars($nuevo_valor);
 
                                                     /*
                                                     if (preg_match_all('/\$\{([a-zA-Z0-9_]+)\}/', $celda, $matches)){
@@ -932,6 +934,7 @@ EOT;
                                                         //$nuevo_valor = (isset($campos_valores[$celda])) ? $campos_valores[$celda] : 'Dato no definido';
                                                     }
                                                      */
+                                                    //$nuevo_valor = str_replace('&', ' and ', $nuevo_valor);
                                                     $worksheet->setCellValueByColumnAndRow($y+1, $x+1, $nuevo_valor);
                                                 }
                                             }
@@ -963,6 +966,7 @@ EOT;
                                          */
 
                                         //PLANTILLA WORD
+                                        \PhpOffice\PhpWord\Settings::setOutputEscapingEnabled(true);
                                         $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($ruta_plantilla);
 
                                         foreach ($campos_valores as $campo => $valor) {
