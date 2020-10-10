@@ -95,11 +95,11 @@ if (!empty($_POST) && isset($_POST['ate_id']) && !empty($_POST['ate_id']) && iss
                     $mail->SMTPAuth = true;
 
                     if ($es_zenix) {
-                        $mail->Host = SMTP_SERVER_ZENIX;
-                        $mail->Port = SMTP_PORT_ZENIX;
-                        $mail->Username = SMTP_USERNAME_ZENIX;
-                        $mail->Password = SMTP_PASSWORD_ZENIX;
-                        $mail->SetFrom(MAIL_ORDERS_ADDRESS_ZENIX, MAIL_ORDERS_NAME);
+                        $mail->Host = SMTP_SERVER;
+                        $mail->Port = SMTP_PORT;
+                        $mail->Username = SMTP_USERNAME;
+                        $mail->Password = SMTP_PASSWORD;
+                        $mail->SetFrom(MAIL_ORDERS_ADDRESS, MAIL_ORDERS_NAME);
                     } else {
                         $mail->Host = SMTP_SERVER;
                         $mail->Port = SMTP_PORT;
